@@ -24,7 +24,7 @@ export default defineConfig({
       manifest: {
         name: 'DIREKT',
         short_name: 'DIREKT',
-        description: 'Trenér na boxovací pytel — hlas hlásí komba čísly.',
+        description: 'Trenér na boxovací pytel — hlas hlásí kombinace čísly.',
         lang: 'cs',
         start_url: '/',
         scope: '/',

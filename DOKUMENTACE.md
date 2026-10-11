@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v11 (celá appka i anglicky, 9.8), 11. 10. 2026.
+Stav: v12 (čeština podle boxerské terminologie, 9.9), 11. 10. 2026.
 
 ---
 
@@ -74,6 +74,12 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 - **v11** (uživatel, 11. 10. 2026: „přidělej tam i EN možnost kompletně"): **celé rozhraní i
   anglicky** — úvod, dotazník, plán, všechny obrazovky, názvy komb, zkratky, vestavěné tréninky.
   Jazyk rozhraní je volba nezávislá na hlasu; slova v kole dál v jazyce hlasu (9.2). Pravidla 9.8.
+- **v12** (uživatel, 11. 10. 2026: „ta čeština je úplně všude správně? jsou tam opravdu názvy, jaké
+  se používají v boxu v tréninku trenéry?"): čeština podle české boxerské terminologie (kap. 5,
+  9.9). Uživatel vybral názvy komb **„Direkt – Zadní direkt – Hák"** místo „Jab – Cross – Hák"
+  z návrhu a **„kombinace"** místo „kombo" ve všech textech appky. Obrana = **povely, jaké trenér
+  zařve na lapech** („chci názvy, co by řval trenér na lapech"): uživatel vybral **„Dolů!"** (ponor),
+  **„Vzad!"** a **„Stranou!"** (úkrok); úklon, záklon a kryt zůstávají.
 
 ## 3. Platforma a stack
 
@@ -98,7 +104,7 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 | R2 | iOS zavře audio session ~2 s po konci zvuku. Studený start řeči: medián 311 ms, nejhůř 665 ms. S neslyšitelným WebAudio tónem: medián 15 ms, p95 24 ms (měřeno na iPhonu, Safari 26.5.2). WebAudio a řeč sdílí audio session. | Celý trénink hraje neslyšitelný **keep-alive tón**. Jedna sdílená `AudioContext` pro keep-alive, gong i pípání. | [AveReiDev/strikr PHASE0-REPORT](https://github.com/AveReiDev/strikr) |
 | R3 | Ztišení hudby (ducking) při hlášení uměla jen systémová řeč. Klipy přes Web Audio se s hudbou mixují bez ztišení; web API na ducking neexistuje. | Klipy normalizované na −1 dBFS, přes kompresor na výstupu — hlas musí přehlušit hudbu sám. | tamtéž, PROJECT-STATUS; [WebKit 278598](https://bugs.webkit.org/show_bug.cgi?id=278598) |
 | R4 | `AudioContext.resume()` umí na iOS viset donekonečna (appka na pozadí). | Na `resume()` se čeká max 1 s, start na něm nesmí viset. | AveReiDev/strikr PROJECT-STATUS |
-| R5 | Wake Lock v appce na ploše funguje od iOS 18.4. Po odchodu z appky se uvolní. | Žádat při startu (neawaitovat), znovu při návratu do popředí, pustit na konci. Při selhání hláška „nastav Automatický zámek na Nikdy". | [WebKit 254545](https://bugs.webkit.org/show_bug.cgi?id=254545), [progressier](https://progressier.com/pwa-capabilities/screen-wake-lock) |
+| R5 | Wake Lock v appce na ploše funguje od iOS 18.4. Po odchodu z appky se uvolní. | Žádat při startu (neawaitovat), znovu při návratu do popředí, pustit na konci. Při selhání hláška „Nastavení → Zobrazení a jas → Uzamčení → Nikdy" (české názvy v iOS, 9.9). | [WebKit 254545](https://bugs.webkit.org/show_bug.cgi?id=254545), [progressier](https://progressier.com/pwa-capabilities/screen-wake-lock) |
 | R6 | Na pozadí / se zamčeným displejem jsou časovače a řeč nespolehlivé. | `visibilitychange → hidden` = **automatická pauza**. | AveReiDev/strikr SPEC |
 | R7 | Tichý režim ztlumí WebAudio (výchozí session je „ambient"). Řeč podle hlášení vývojářů taky. `navigator.audioSession.type = 'playback'` (iOS 17+) hraje i v tichém režimu, ale je exkluzivní — zastaví hudbu. | Přepínač v Nastavení **„Hrát i v tichém režimu"** (vypne hudbu z telefonu), výchozí vypnuto. **Ověřit na telefonu.** | [WebKit 237322](https://bugs.webkit.org/show_bug.cgi?id=237322), [WebKit 251532](https://bugs.webkit.org/show_bug.cgi?id=251532), [MDN AudioSession.type](https://developer.mozilla.org/docs/Web/API/AudioSession/type) |
 | R8 | iPhone má česky jen ženský hlas **Zuzana**; český mužský hlas Apple nenabízí. Proč na iPhonu nehrálo Vyzkoušet hlas, nevím jistě (tichý režim, nebo rozmar `speechSynthesis`). | Hlas = **nahrané klipy** přes Web Audio (kap. 8), žádné `speechSynthesis`; u tlačítka nápověda k tichému režimu. | `say -v '?'` na Macu |
@@ -111,34 +117,55 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 
 ## 5. Boxerské číslování a obrana
 
-Postoj je jedno — mluví se o **přední** a **zadní** ruce.
+Postoj je jedno — mluví se o **přední** a **zadní** ruce (česká terminologie: „přední/zadní ruka",
+„přední/zadní úder"; levý/pravý jen u konkrétního střehu).
 
-| Kód | Úder | Vyslovuje se |
-|---|---|---|
-| `1` | přední direkt (jab) | „jedna" |
-| `2` | zadní direkt (cross) | „dva" |
-| `3` | přední hák | „tři" |
-| `4` | zadní hák | „čtyři" |
-| `5` | přední zvedák | „pět" |
-| `6` | zadní zvedák | „šest" |
-| `3t` | úder na tělo (přípona `t`, v angl. literatuře `b`) | „tři na tělo" |
-
-Obrana (terminologie podle Klouda 2008, FTVS UK):
-
-| Kód | Technika | Na displeji | Vyslovuje se |
+| Kód | Úder (česky podle učebnic) | Název v kombinaci (9.3) | Vyslovuje se |
 |---|---|---|---|
-| `uklon` | úklon — úhyb do strany (slip) | ÚKLON | „úklon" |
-| `zaklon` | záklon — úhyb vzad (pull back) | ZÁKLON | „záklon" |
-| `ponor` | ponoření pod úder (roll/duck) | PONOŘ | „ponoř" |
-| `kryt` | kryt / blok | KRYT | „kryt" |
-| `vzad` | únik krokem vzad | VZAD | „vzad" |
-| `ukrok` | úkrok stranou (side step) | ÚKROK | „úkrok" |
+| `1` | přední direkt (přímý úder přední rukou; angl. jab) | Direkt | „jedna" |
+| `2` | zadní direkt (angl. cross) | Zadní direkt | „dva" |
+| `3` | přední hák (boční úder pokrčenou paží) | Hák | „tři" |
+| `4` | zadní hák | Zadní hák | „čtyři" |
+| `5` | přední zvedák (spodní úder zespodu nahoru) | Zvedák | „pět" |
+| `6` | zadní zvedák | Zadní zvedák | „šest" |
+| `3t` | úder na tělo (přípona `t`, v angl. literatuře `b`) | Hák na tělo | „tři na tělo" |
+
+- **Názvy v kombinaci (v12):** přední úder bez přívlastku, zadní s „Zadní" — jako „Hák" / „Zadní
+  hák" v předlohách. „Jab" a „Cross" z návrhu pryč: české učebnice je nepoužívají a **„kros" je
+  v české terminologii jiný úder** (křižný, přes ruku soupeře), ne zadní direkt.
+- **Na tělo:** učebnice píšou „na trup" i „na tělo"; na tréninku se říká „na tělo" → appka „na tělo".
+
+Obrana: technika podle Klouda 2008 a učebních opor MUNI, ale appka všude používá **povel, který
+trenér zařve na lapech** (v12, vybral uživatel) — stejné slovo hlas, slova v kole, název kombinace
+i čip; legenda u povelu, který se liší od názvu techniky, ho v závorce vysvětlí:
+
+| Kód | Technika (učebnice) | Povel = na displeji | Čip | Vyslovuje se |
+|---|---|---|---|---|
+| `uklon` | úklon — úhyb trupem do strany (slip) | ÚKLON | Ú | „úklon" |
+| `zaklon` | záklon — úhyb vzad (pull back) | ZÁKLON | Z | „záklon" |
+| `ponor` | ponor / ponoření pod úder (ducking, roll) | DOLŮ | D | „dolů" |
+| `kryt` | kryt / krytí, blok | KRYT | K | „kryt" |
+| `vzad` | únik vzad | VZAD | V | „vzad" |
+| `ukrok` | úkrok stranou (side step) | STRANOU | S | „stranou" |
+
+- **Proč povely:** sepsané české povely z lap jsem nenašel — učebnice znají jen názvy technik a
+  české články píšou anglicky „slip", „roll". Učebnicové „Ponor!" nebo „Úkrok!" by na lapech nikdo
+  nekřičel; dřívější „Ponoř!" bylo navíc chybně (sloveso je zvratné, „ponořit se").
+  Interní kódy (`ponor`, `ukrok`) zůstávají kvůli uloženým vlastním kombinacím.
 
 Slova se mění na jednom místě (`src/data/moves.ts`).
 
 Zdroje: [Evolve — číslování](https://evolve-mma.com/blog/boxing-fundamentals-understanding-the-boxing-punch-number-system/),
 [straight2boxing](https://straight2boxing.com/2018/01/17/punch-numbering-system-in-boxing),
-[Klouda: Metodika základních úderů a obran v boxu (2008)](https://dspace.cuni.cz/handle/20.500.11956/15675).
+[Klouda: Metodika základních úderů a obran v boxu (2008)](https://dspace.cuni.cz/handle/20.500.11956/15675)
+(terminologie s. 16: hák, zvedák, přímý úder, kros = „úder vedený přes ruku soupeře", ponoření,
+úhyb = úklon nebo záklon, únik, blokování, srážení; „kombinace úderů", „série úderů"),
+[MUNI — terminologie boxu](https://www.fsps.muni.cz/inovace-SEBS-ASEBS/elearning/box/terminologie),
+[MUNI — přímé údery](https://www.fsps.muni.cz/inovace-SEBS-ASEBS/elearning/box/technicke-prostredky/udery/prime)
+(„přední direkt", „zadní direkt", „na tělo"), [MUNI — obrany](https://www.fsps.muni.cz/inovace-SEBS-ASEBS/elearning/box/technicke-prostredky/obrany)
+(„ponor (ducking)", blok, úhyb, únik). Číslování komb (1–2, 1–2–3) používají i české články o boxu
+([Hop-Sport](https://hop-sport.cz/blog/jak-boxovat-do-pytle-technika-trenink-a-vyber-spravneho-boxovaciho-pytle),
+[Senteso](https://www.senteso.cz/a/boxersky-trenink-doma-bez-vybaveni-kompletni-pruvodce)).
 
 ## 6. Vestavěná komba
 
@@ -167,7 +194,7 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
 |---|---|---|---|---|
 | p01 | 1 2 3 2 [E][S] | | p10 | úklon 2 3 [S] |
 | p02 | 3 2 3 [S] | | p11 | 1 2 úklon 2 |
-| p03 | 1 6 3 [S] | | p12 | 1 2 3 ponoř |
+| p03 | 1 6 3 [S] | | p12 | 1 2 3 ponor |
 | p04 | 1 6 3 2 | | p13 | 1 2 záklon 2 |
 | p05 | 1 2 5 2 [E] | | p14 | 1 2 úkrok |
 | p06 | 1 2 3t [E] | | p15 | 6 3 2 |
@@ -181,10 +208,10 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
 |---|---|---|---|---|
 | e01 | 1 1 2 3 2 [E] | | e10 | 1 2 3 úklon 3t [E] |
 | e02 | 3 2 3t [E] | | e11 | 1 2 úklon 2 3 2 |
-| e03 | 2 3 2 ponoř 2 [E] | | e12 | záklon 2 3 2 |
-| e04 | 6 3 3t [E] | | e13 | 1 2 3 2 ponoř 2 3 |
+| e03 | 2 3 2 ponor 2 [E] | | e12 | záklon 2 3 2 |
+| e04 | 6 3 3t [E] | | e13 | 1 2 3 2 ponor 2 3 |
 | e05 | 3 2 3 3t [E] | | e14 | 1 6 3 2 úkrok |
-| e06 | 1 2 3 ponoř 3 [E] | | e15 | 1 2 5 2 3 vzad |
+| e06 | 1 2 3 ponor 3 [E] | | e15 | 1 2 5 2 3 vzad |
 | e07 | 5 4 3t [E] | | e16 | 3t 3 2 |
 | e08 | 2 3t úkrok 3 [E] | | e17 | 1 2 3t 3 2 |
 | e09 | 1 6t 6 [E] | | | |
@@ -202,7 +229,7 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
 3. **Kombo** v rámci úrovně rovnoměrně.
 4. **Bez opakování:** posledních `min(3, velikost bazénu − 1)` komb se z losování vyřadí
    předem (ne „losuj znovu"). Bazén s 1 kombem tedy opakuje, se 2 komby střídá.
-5. Prázdný bazén → START nejde zmáčknout, hláška „Zapni aspoň jedno kombo".
+5. Prázdný bazén → START nejde zmáčknout, hláška „Zapni aspoň jednu kombinaci".
 6. Náhoda přes seedovatelný generátor (mulberry32) → testy jsou deterministické.
 
 ### 7.2 Načasování hlášení
@@ -342,7 +369,7 @@ Kondice, Technika, Síla úderu, Rychlost, Obrana, Vyčistit hlavu):
 - Ukládají se jen odpovědi a počet hotových tréninků (kap. 11); tréninky se z odpovědí vždy
   spočítají znovu (čistá funkce `buildPlan`, testovaná).
 - Splněný plán → Domů zase ukazuje vlastní trénink, obrazovka Plán nabídne nový.
-- Věta shrnutí: „Pro {začátečníka / mírně pokročilého / pokročilého / závodníka} na {cíle ve
+- Věta shrnutí: „Pro {začátečníka / mírně pokročilého / pokročilého / závodníka} se zaměřením na {cíle ve
   4. pádě: kondici, techniku, sílu úderu, rychlost, obranu, vyčištění hlavy}, {N}× týdně do
   {M} minut. Každý týden přidáme kolo, nebo zkrátíme pauzu."
 
@@ -369,8 +396,8 @@ trenérů.
 
 - Slovník (id klipu → čeština / angličtina): čísla `n1`–`n6` „Jedna!" / „One!" … ; úder na tělo
   jako celek `t1`–`t6` „Tři na tělo!" / „Three body!"; obrana `uklon zaklon ponor kryt vzad ukrok`
-  „Úklon!" / „Slip!", „Záklon!" / „Pull!", „Ponoř!" / „Roll!", „Kryt!" / „Block!", „Vzad!" /
-  „Back!", „Úkrok!" / „Pivot!"; hlášky `pripravse` „Připrav se!" / „Get ready!", `posledni`
+  „Úklon!" / „Slip!", „Záklon!" / „Pull!", „Dolů!" / „Roll!", „Kryt!" / „Block!", „Vzad!" /
+  „Back!", „Stranou!" / „Pivot!"; hlášky `pripravse` „Připrav se!" / „Get ready!", `posledni`
   „Poslední kolo!" / „Last round!", `naplno` „Naplno!" / „All out!" (finiš 7.8), `znovu`
   „Znovu!" / „Again!" (7.9; zrychlený a s limitem délky jako slova komb), `hotovo`
   „Hotovo. Dobrá práce!" / „Time! Great work!".
@@ -422,14 +449,14 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   úvodní obrazovka. Potichu (iOS nepustí zvuk bez ťuknutí). Ťuk kamkoli = skok na konec.
 - **Úvod** (`Uvod.html`, accent): značka „pěst v pytli" visí z horního okraje (kompozice
   ikony), vlevo nahoře logotyp (SVG z předlohy), dole nadpis 44 px „PRVNÍ / KOLO / ZAČÍNÁ.",
-  text „Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.", bílá
+  text „Trenér ti hlásí kombinace, hlídá kola i pauzy. Ty se soustředíš jen na údery.", bílá
   pilulka **Sestavit můj plán →** (v gestu zazní gong) a odkaz **Přeskočit, chci rovnou
   trénovat** (→ Domů bez plánu). Pod ním přepínač jazyka (9.8): v češtině odkaz „English",
   v angličtině „Čeština" — přepne hned, úvod zůstane (bez nové animace).
 - **Otázky** (paper): zpět + „1 ze 3" uprostřed, RoundProgress 3 segmenty, nadpis 34 px,
   podtitul 15 px muted, dole PrimaryButton aktivní až po výběru. Předvyplněno minulými
   odpověďmi (Upravit odpovědi).
-  1. **Jak dlouho boxuješ?** „Podle toho nastavím tempo a komba." — jedna ze 4: Začínám / Pár
+  1. **Jak dlouho boxuješ?** „Podle toho nastavím tempo a kombinace." — jedna ze 4: Začínám / Pár
      měsíců / Rok a víc / Závodím; bílé karty 64 px r20, vybraná ink s modrým zaškrtnutím.
      **Pokračovat**.
   2. **Co chceš zlepšit?** „Vyber klidně víc možností." — mřížka 2 × 3: Kondici, Techniku, Sílu
@@ -449,9 +476,9 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   „Dnešní trénink" + celková délka „N min"; název = uložený trénink, se kterým se nastavení
   shoduje, jinak „Vlastní trénink"; meta „3 kola · 2:00 práce · 1:00 pauza"; RoundBar
   (bílá = kolo, bílá 30 % = pauza); „ZAČÍT" + bílé kolečko s play. Prázdný bazén → karta
-  zašedlá a „Zapni aspoň jedno kombo".
+  zašedlá a „Zapni aspoň jednu kombinaci".
 - Menu (řádky s oddělovačem): **Plán** · „5/12" (bez plánu „—", ťuk → dotazník bez úvodu),
-  Komba · počet, Vlastní komba · počet, Uložené tréninky · počet.
+  Kombinace · počet, Vlastní kombinace · počet, Uložené tréninky · počet.
 - **Běží plán** (nesplněný): karta ukazuje trénink na řadě — nahoře „Dnes · pondělí" (nebo
   „Na řadě · středa", 7.11) a délka, název tréninku („Kondice"), meta a RoundBar; START ho
   spustí.
@@ -459,13 +486,13 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 ### 9.2 Trénink běží
 - **Odpočet** (`Odpocet.html`, paper): „PŘIPRAV SE" + „Název · kolo 1 ze N"; obří číslo
   zbývajících sekund v akcentu (1 číslice 520 px, 2 číslice zmenšit na šířku); dole
-  RoundProgress (první segment ink), „První kombo" + sekvence (kap. 7.6) a pilulka
+  RoundProgress (první segment ink), „První kombinace" + sekvence (kap. 7.6) a pilulka
   **Přeskočit**. Navíc oproti předloze: × vpravo nahoře (ukončit) a při pauze pilulka
   „Pokračovat".
 - **Kolo** (`Trenink.html`, celé v akcentu, bílý text): × (dialog „Ukončit trénink?"),
   „Kolo 1 ze 3", vpravo tlačítko **nastavení tréninku** = panel s Intenzitou (platí od
   dalšího komba); RoundProgress (aktuální kolo se plní); „Zbývá" / „Pozastaveno" + čas
-  128 px `m:ss`; „Kombo" + „Úder k ze N"; sekvence slovy 34 px (čísla číslem, „3 TĚLO",
+  128 px `m:ss`; „Kombinace" + „Úder k z/ze N" (jen údery, obrana se nepočítá — v12); sekvence slovy 34 px (čísla číslem, „3 TĚLO",
   „ÚKLON"; u anglického hlasu „3 BODY", „SLIP" — slova = přepis hlášky, v jazyce hlasu):
   odehrané průhlednost 0,45, **aktuální = bílá pilulka s akcentovým textem**,
   další bílé. Aktuální úder = ten, který hlas právě říká (časy klipů jsou přesné). Po
@@ -480,23 +507,23 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   pilulce (styl aktuálního úderu), bublina „„Naplno!"" / „„All out!"".
 - **Pauza** (`Pauza.html`, ink): ×, „Kolo 1 ze 3 hotovo", RoundProgress (hotová kola
   bílá); „PAUZA", „Další kolo za" / „Pozastaveno", čas 128 px, pruh 8 px plněný akcentem;
-  karta **Další kombo** (předem vylosované první kombo dalšího kola) s názvem a obrácenou
+  karta **Další kombinace** (předem vylosované první kombo dalšího kola) s názvem a obrácenou
   sekvencí; kulaté pozastavení 60 px + bílá pilulka **Přeskočit pauzu**.
 - **Hotovo** (není v předlohách, styl paper): „HOTOVO", obří počet kol v akcentu,
   „kola · celkem m:ss" (čas v kolech: bez přípravy, pauz mezi koly, pozastavení a přeskočených
   částí kol), pod tím
-  „42 komb · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
+  „42 kombinací · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
   se neukládá), u tréninku plánu ještě „Plán: 6 z 12 hotovo", PrimaryButton **Znovu** (stejný
   trénink) a pilulka **Domů**.
 - **Dialog „Ukončit trénink?"**: bílá karta r28, Pokračovat / Ukončit.
 
 ### 9.3 Komba (`Komba.html`, paper)
-- Zpět + **vyhledávání** (pole pod hlavičkou, filtruje podle názvu a čísel). „KOMBA" + počet.
+- Zpět + **vyhledávání** (pole pod hlavičkou, filtruje podle názvu a čísel). „KOMBINACE" + počet.
 - Filtrovací pilulky **Vše · Začátečník · Pokročilý · Expert · Obrana** (úrovně appky místo
   ukázkových „Základní / Pokročilé"; řádek smí vodorovně rolovat).
-- Legenda: „1 jab · 2 cross · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo ·
-  Ú úklon · Z záklon · P ponoř · K kryt · V vzad · ÚK úkrok".
-- Řádek: **název** (generovaný z úderů: „Jab – Cross – Hák na tělo", vlastní kombo má svůj),
+- Legenda: „1 direkt · 2 zadní direkt · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo ·
+  Ú úklon · Z záklon · D dolů (ponor) · K kryt · V vzad · S stranou (úkrok)" (kap. 5).
+- Řádek: **název** (generovaný z úderů: „Direkt – Zadní direkt – Hák na tělo", kap. 5; vlastní kombinace má svůj),
   PunchSequence S (28 px: číslo = ink kolečko, úder na tělo „3T" a obrana = akcentová
   obrysová pilulka se zkratkou); vpravo délka `m:ss` (hlášení + mezera při aktuální
   intenzitě) a úroveň. Vypnuté kombo je zesvětlené.
@@ -504,12 +531,12 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   řekne), přepínač „Zařadit do tréninku" (dřívější zapnout/vypnout), u vlastního Smazat.
 
 ### 9.4 Vlastní komba (`VlastniKomba.html`, paper)
-- Zpět, vpravo kulaté **+** (Sestavit kombo). Nadpis „VLASTNÍ / KOMBA" a hned za ním počet
+- Zpět, vpravo kulaté **+** (Sestavit kombinaci). Nadpis „VLASTNÍ / KOMBINACE" a hned za ním počet
   (jako u Komb). Řádek: název 17/600 + délka, pod tím
   PunchSequence M (34 px). Ťuk → detail (9.3). **Swipe doleva → Smazat.**
-- Prázdný stav „Zatím žádné kombo. Sestav první." **+** nahoře
+- Prázdný stav „Zatím žádná kombinace. Sestav první." **+** nahoře
   → editor ve stejném stylu: název, náhled sekvence, klávesy 1–6, T (přepne poslední úder
-  na tělo), obrana (Ú Z P K V ÚK), ⌫, úroveň, Uložit. Pravidla jako dřív (1–8 akcí,
+  na tělo), obrana (Ú Z D K V S), ⌫, úroveň, Uložit. Pravidla jako dřív (1–8 akcí,
   žádný duplikát).
 
 ### 9.5 Uložené tréninky (`Treninky.html`, paper)
@@ -595,13 +622,13 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 
   | Česky | Anglicky |
   |---|---|
-  | Údery 1–6 (název komba) | Jab · Cross · Hook · Rear hook · Uppercut · Rear uppercut |
+  | Údery 1–6 (název kombinace): Direkt · Zadní direkt · Hák · Zadní hák · Zvedák · Zadní zvedák | Jab · Cross · Hook · Rear hook · Uppercut · Rear uppercut |
   | Na tělo (čip „3T", slovo „3 TĚLO") | Body: čip „3B", slovo „3 BODY", v názvu „Body hook", „Rear body hook" |
-  | Úklon Ú · Záklon Z · Ponoř P · Kryt K · Vzad V · Úkrok ÚK | Slip S · Pull PL · Roll R · Block BL · Back BK · Pivot PV |
+  | Úklon Ú · Záklon Z · Dolů D · Kryt K · Vzad V · Stranou S | Slip S · Pull PL · Roll R · Block BL · Back BK · Pivot PV |
   | Začátečník / Pokročilý / Expert | Beginner / Intermediate / Expert |
   | Lehká / Střední / Tvrdá / Rostoucí | Easy / Medium / Hard / Rising |
   | Kolo · Pauza · Odpočet · Finiš / Do gongu | Round · Rest · Countdown · Finisher / To the bell |
-  | Komba · Vlastní komba · Uložené tréninky · Plán | Combos · Custom combos · Saved workouts · Plan |
+  | Kombinace · Vlastní kombinace · Uložené tréninky · Plán | Combos · Custom combos · Saved workouts · Plan |
   | Kondice · Technika · Síla úderu · Rychlost · Obrana · Vyčistit hlavu | Conditioning · Technique · Power · Speed · Defense · Clear your head |
   | Začínám · Pár měsíců · Rok a víc · Závodím | Just starting · A few months · A year or more · I compete |
   | Rozcvička · Amatérský zápas · Profi kola · Technika · Kondice · Silové minuty · Vypalovák · Zápas o titul – ženy / muži | Warm-up · Amateur bout · Pro rounds · Technique · Conditioning · Power minutes · The Burner („The Burner" z Boxing Insider, 9.5) · Women's / Men's title fight |
@@ -611,6 +638,22 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   text „The coach calls the combos and keeps time. You just throw punches."
 - iOS cesty v angličtině tak, jak je iPhone ukazuje: Settings → Display & Brightness → Auto-Lock →
   Never; Safari → Share → Add to Home Screen; Silent mode.
+
+### 9.9 Čeština (v12)
+- **Terminologie boxu** podle kap. 5: přední/zadní direkt, hák, zvedák, na tělo; obrana povely
+  z lap úklon, záklon, dolů, kryt, vzad, stranou; **kombinace** (ne „kombo") — tak píšou učebnice (Klouda 2008:
+  „kombinace úderů", „série úderů") i české články o boxu. Slovo „kombo" zůstává jen jako
+  technický název v dokumentaci a kódu (`Combo`).
+- **Kolo, pauza, gong, odpočet, finiš** zůstávají: „kolo" a „gong" jsou terminologie, „pauza" je
+  běžná mluva tréninku (pravidla píšou „přestávka", na tréninku a v článcích se říká „pauza").
+- **Předložka z/ze před číslem** podle výslovnosti číslovky ([IJP ÚJČ — vokalizace předložek](https://prirucka.ujc.cas.cz/?id=770)):
+  „ze" před dv-, tř-, čt-, s-, š- (2, 3, 4, 6, 7, 12, 13, 14, 16, 17, 20), jinak „z" (1, 5, 8, 9,
+  10, 11, 15, 18, 19): „Kolo 1 ze 3", „Kolo 1 z 5", „Plán: 6 ze 12 hotovo". Dřív všude „ze" →
+  „Kolo 1 ze 5" bylo chybně. Pomocník `z()` v `src/i18n/cs.ts`, testovaný.
+- **Názvy v iOS** česky tak, jak je iPhone ukazuje: Nastavení → Zobrazení a jas → Uzamčení → Nikdy
+  ([Letem světem Applem](https://www.letemsvetemapplem.eu/?p=672150)); Safari → Sdílet → Přidat na
+  plochu; tichý režim.
+- **Uvozovky** české „…“, ne "…".
 
 ## 10. Vzhled (v4)
 
@@ -759,6 +802,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 16. **v11:** research (iOS jazyk v appce na ploše, anglická notace obrany) → dokumentace 9.8 →
     `src/i18n/` + `lang` v nastavení + testy → všechny obrazovky v obou jazycích (screenshoty),
     deploy.
+17. **v12:** research české terminologie (FTVS UK, MUNI, IJP) → kap. 5 a 9.9 → texty, názvy
+    kombinací, z/ze, povely z lap „Dolů!" a „Stranou!" pro Antonína (kontrola přepisem) + testy →
+    screenshoty, deploy.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")
 

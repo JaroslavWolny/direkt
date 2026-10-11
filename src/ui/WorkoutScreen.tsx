@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { comboTitle } from '../data/moves'
+import { comboTitle, isDefense } from '../data/moves'
 import type { VoiceLang } from '../data/voices'
 import { INTENSITY_CHOICES, type IntensityChoice } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
@@ -186,8 +186,10 @@ export function WorkoutScreen(props: Props) {
   // Kolo
   const finisher = inFinisher(view)
   const shown = view.combo ?? view.upcoming
-  const n = shown?.moves.length ?? 0
+  // Počítají se jen údery, obrana ne — jako na Hotovo (9.2).
+  const punches = shown?.moves.filter((m) => !isDefense(m)).length ?? 0
   const current = view.combo ? view.moveIndex : -1
+  const punchNo = shown && current >= 0 ? shown.moves.slice(0, current + 1).filter((m) => !isDefense(m)).length : 0
   return (
     <div className="screen spread on-accent">
       <i className="screen-edge" aria-hidden="true" />
@@ -214,7 +216,7 @@ export function WorkoutScreen(props: Props) {
       <section className="stack gap-16" aria-label={s.currentCombo}>
         <div className="top-bar label-15">
           <span>{finisher ? s.finisher : view.repeat ? s.repeat : s.combo}</span>
-          <span>{finisher ? s.toBell : current >= 0 ? s.punchOf(current + 1, n) : n > 0 ? t().nPunches(n) : ''}</span>
+          <span>{finisher ? s.toBell : punchNo > 0 ? s.punchOf(punchNo, punches) : punches > 0 ? t().nPunches(punches) : ''}</span>
         </div>
         {finisher ? (
           <span className="words">

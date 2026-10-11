@@ -34,7 +34,7 @@ TEXTS = {
         'n1': 'Jedna!', 'n2': 'Dva!', 'n3': 'Tři!', 'n4': 'Čtyři!', 'n5': 'Pět!', 'n6': 'Šest!',
         't1': 'Jedna na tělo!', 't2': 'Dva na tělo!', 't3': 'Tři na tělo!',
         't4': 'Čtyři na tělo!', 't5': 'Pět na tělo!', 't6': 'Šest na tělo!',
-        'uklon': 'Úklon!', 'zaklon': 'Záklon!', 'ponor': 'Ponoř!', 'kryt': 'Kryt!', 'vzad': 'Vzad!', 'ukrok': 'Úkrok!',
+        'uklon': 'Úklon!', 'zaklon': 'Záklon!', 'ponor': 'Dolů!', 'kryt': 'Kryt!', 'vzad': 'Vzad!', 'ukrok': 'Stranou!',
         'pripravse': 'Připrav se!', 'posledni': 'Poslední kolo!', 'naplno': 'Naplno!', 'znovu': 'Znovu!', 'hotovo': 'Hotovo. Dobrá práce!',
     },
     'en': {

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { chipText, comboTitle, parseMoves, speechText, wordText } from '../data/moves'
 import { detectLang } from '../i18n'
-import { cs } from '../i18n/cs'
+import { cs, z } from '../i18n/cs'
 import { en } from '../i18n/en'
 import {
   DEFAULT_CONFIG,
@@ -19,7 +19,7 @@ describe('text řeči', () => {
   it('čísla česky, úder na tělo, obrana slovem', () => {
     expect(speechText(parseMoves('1 2 3t uklon'))).toBe('jedna, dva, tři na tělo, úklon')
     expect(speechText(parseMoves('4 5 6 ponor zaklon kryt vzad ukrok'))).toBe(
-      'čtyři, pět, šest, ponoř, záklon, kryt, vzad, úkrok',
+      'čtyři, pět, šest, dolů, záklon, kryt, vzad, stranou',
     )
   })
 
@@ -32,8 +32,11 @@ describe('text řeči', () => {
 
   it('název komba, čipy a slova do kola', () => {
     const m = parseMoves('1 2 3t uklon 6')
-    expect(comboTitle(m)).toBe('Jab – Cross – Hák na tělo – Úklon – Zadní zvedák')
+    expect(comboTitle(m)).toBe('Direkt – Zadní direkt – Hák na tělo – Úklon – Zadní zvedák')
     expect(m.map((x) => chipText(x))).toEqual(['1', '2', '3T', 'Ú', '6'])
+    // povely z lap (kap. 5): Dolů, Stranou
+    expect(comboTitle(parseMoves('3 ponor 3 ukrok'))).toBe('Hák – Dolů – Hák – Stranou')
+    expect(parseMoves('ponor ukrok').map((x) => chipText(x))).toEqual(['D', 'S'])
     expect(m.map((x) => wordText(x))).toEqual(['1', '2', '3 TĚLO', 'ÚKLON', '6'])
     expect(m.map((x) => wordText(x, 'en'))).toEqual(['1', '2', '3 BODY', 'SLIP', '6'])
   })
@@ -209,6 +212,16 @@ describe('jazyk rozhraní (9.8)', () => {
     const empty = (o: object): boolean =>
       Object.values(o).some((v) => (typeof v === 'string' ? !v.trim() : v && typeof v === 'object' ? empty(v) : false))
     expect(empty(en)).toBe(false)
+  })
+
+  it('česky z/ze před číslem podle výslovnosti (9.9)', () => {
+    expect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(z).join(' ')).toBe('z ze ze ze z ze ze z z z z ze')
+    expect([16, 20].map(z)).toEqual(['ze', 'ze'])
+    expect(cs.workout.round(1, 5)).toBe('Kolo 1 z 5')
+    expect(cs.workout.round(2, 3)).toBe('Kolo 2 ze 3')
+    expect(cs.plan.progress(6, 12)).toBe('Plán: 6 ze 12 hotovo')
+    expect(cs.nCombos(1)).toBe('1 kombinace')
+    expect(cs.nCombos(42)).toBe('42 kombinací')
   })
 
   it('anglické názvy mají všechny vestavěné tréninky', () => {

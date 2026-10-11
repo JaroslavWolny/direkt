@@ -1,6 +1,6 @@
 # DIREKT
 
-Trenér na boxovací pytel pro iPhone. Hlas během kola hlásí komba čísly
+Trenér na boxovací pytel pro iPhone. Hlas během kola hlásí kombinace čísly
 („one, two, three body, slip" / „jedna, dva, tři na tělo, úklon"), gong začíná a končí kola,
 posledních 10 s kola je finiš naplno, mezi koly běží pauza. Ze 4 otázek sestaví plán na 4 týdny.
 Jen box. Web appka přidaná na plochu, funguje offline, žádný účet ani server.

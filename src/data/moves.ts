@@ -38,19 +38,19 @@ export const PUNCH_NAME: Record<Lang, Record<Punch, string>> = {
   },
 }
 
-/** Anglicky stejná slova, jaká říká hlas (9.8). */
+/** Povely, jak je trenér zakřičí na lapech, stejná slova jako hlas (kap. 5, 9.8). */
 export const DEFENSE_LABEL: Record<Lang, Record<Defense, string>> = {
-  cs: { uklon: 'Úklon', zaklon: 'Záklon', ponor: 'Ponoř', kryt: 'Kryt', vzad: 'Vzad', ukrok: 'Úkrok' },
+  cs: { uklon: 'Úklon', zaklon: 'Záklon', ponor: 'Dolů', kryt: 'Kryt', vzad: 'Vzad', ukrok: 'Stranou' },
   en: { uklon: 'Slip', zaklon: 'Pull', ponor: 'Roll', kryt: 'Block', vzad: 'Back', ukrok: 'Pivot' },
 }
 
 const DEFENSE_SPEECH: Record<Defense, string> = {
   uklon: 'úklon',
   zaklon: 'záklon',
-  ponor: 'ponoř',
+  ponor: 'dolů',
   kryt: 'kryt',
   vzad: 'vzad',
-  ukrok: 'úkrok',
+  ukrok: 'stranou',
 }
 
 // Angličtina pro úderné hlasy (kap. 8) — musí sedět s texty v scripts/gen-voice.py.
@@ -72,11 +72,14 @@ const DEFENSE_SPEECH_EN: Record<Defense, string> = {
   ukrok: 'pivot',
 }
 
-/** Jména úderů pro název komba, na hlavu / na tělo (styl předloh: „Jab – Cross – Hák"). */
+/**
+ * Jména úderů pro název kombinace, na hlavu / na tělo. Česky přední úder bez přívlastku, zadní
+ * se „Zadní" — terminologie učebnic, ne „Jab – Cross" (kros je česky jiný úder, kap. 5).
+ */
 const PUNCH_TITLE: Record<Lang, Record<Punch, readonly [string, string]>> = {
   cs: {
-    '1': ['Jab', 'Jab na tělo'],
-    '2': ['Cross', 'Cross na tělo'],
+    '1': ['Direkt', 'Direkt na tělo'],
+    '2': ['Zadní direkt', 'Zadní direkt na tělo'],
     '3': ['Hák', 'Hák na tělo'],
     '4': ['Zadní hák', 'Zadní hák na tělo'],
     '5': ['Zvedák', 'Zvedák na tělo'],
@@ -94,7 +97,7 @@ const PUNCH_TITLE: Record<Lang, Record<Punch, readonly [string, string]>> = {
 
 /** Zkratky obrany pro malé čipy (legenda na obrazovce Komba); anglicky podle slov hlasu. */
 export const DEFENSE_ABBR: Record<Lang, Record<Defense, string>> = {
-  cs: { uklon: 'Ú', zaklon: 'Z', ponor: 'P', kryt: 'K', vzad: 'V', ukrok: 'ÚK' },
+  cs: { uklon: 'Ú', zaklon: 'Z', ponor: 'D', kryt: 'K', vzad: 'V', ukrok: 'S' },
   en: { uklon: 'S', zaklon: 'PL', ponor: 'R', kryt: 'BL', vzad: 'BK', ukrok: 'PV' },
 }
 
@@ -134,7 +137,7 @@ export function parseMoves(s: string): Move[] {
     })
 }
 
-/** Název komba z úderů: „Jab – Cross – Hák na tělo" / „Jab – Cross – Body hook". */
+/** Název kombinace z úderů: „Direkt – Zadní direkt – Hák na tělo" / „Jab – Cross – Body hook". */
 export const comboTitle = (moves: readonly Move[], lang: Lang = 'cs'): string =>
   moves
     .map((m) => (isDefense(m) ? DEFENSE_LABEL[lang][m] : PUNCH_TITLE[lang][m[0] as Punch][isBody(m) ? 1 : 0]))

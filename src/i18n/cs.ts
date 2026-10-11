@@ -10,6 +10,11 @@ const plural = (n: number, one: string, few: string, many: string): string =>
 
 const roundsWord = (n: number): string => plural(n, 'kolo', 'kola', 'kol')
 
+/** Číslovky, před kterými se píše „ze" (dv-, tř-, čt-, s-, š-), u ostatních „z" (9.9, IJP). */
+const ZE = new Set([2, 3, 4, 6, 7, 12, 13, 14, 16, 17, 20])
+/** Předložka před číslem podle výslovnosti číslovky: „ze 3", „z 5". */
+export const z = (n: number): string => (ZE.has(n) ? 'ze' : 'z')
+
 const FOR_WHOM = ['začátečníka', 'mírně pokročilého', 'pokročilého', 'závodníka'] as const
 const GOAL_ACC: Record<Goal, string> = {
   kondice: 'kondici',
@@ -40,7 +45,7 @@ export const cs = {
   intensityCaption: 'Intenzita',
   roundsWord,
   nRounds: (n: number) => `${n} ${roundsWord(n)}`,
-  nCombos: (n: number) => `${n} ${plural(n, 'kombo', 'komba', 'komb')}`,
+  nCombos: (n: number) => `${n} ${plural(n, 'kombinace', 'kombinace', 'kombinací')}`,
   nPunches: (n: number) => `${n} ${plural(n, 'úder', 'údery', 'úderů')}`,
   roundCount: 'Počet kol',
   roundLength: 'Délka kola',
@@ -65,25 +70,25 @@ export const cs = {
     startAria: (name: string) => `Začít: ${name}`,
     go: 'Začít',
     meta: (rounds: string, work: string, rest: string) => `${rounds} · ${work} práce · ${rest} pauza`,
-    poolEmpty: 'Zapni aspoň jedno kombo pro tuhle úroveň.',
+    poolEmpty: 'Zapni aspoň jednu kombinaci pro tuhle úroveň.',
     menu: 'Hlavní menu',
     plan: 'Plán',
-    combos: 'Komba',
-    customCombos: 'Vlastní komba',
+    combos: 'Kombinace',
+    customCombos: 'Vlastní kombinace',
     presets: 'Uložené tréninky',
   },
 
   intro: {
     title: ['První', 'kolo', 'začíná.'],
-    text: 'Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.',
+    text: 'Trenér ti hlásí kombinace, hlídá kola i pauzy. Ty se soustředíš jen na údery.',
     cta: 'Sestavit můj plán',
     skip: 'Přeskočit, chci rovnou trénovat',
   },
 
   quiz: {
-    step: (n: number, total: number) => `${n} ze ${total}`,
+    step: (n: number, total: number) => `${n} ${z(total)} ${total}`,
     q1: ['Jak dlouho', 'boxuješ?'],
-    q1Note: 'Podle toho nastavím tempo a komba.',
+    q1Note: 'Podle toho nastavím tempo a kombinace.',
     experienceAria: 'Zkušenost',
     experience: { 0: 'Začínám', 1: 'Pár měsíců', 2: 'Rok a víc', 3: 'Závodím' } as Record<Experience, string>,
     q2: ['Co chceš', 'zlepšit?'],
@@ -112,7 +117,7 @@ export const cs = {
   plan: {
     edit: 'Upravit odpovědi',
     title: 'Tvůj plán',
-    week: (w: number, total: number) => `Týden ${w} ze ${total}`,
+    week: (w: number, total: number) => `Týden ${w} ${z(total)} ${total}`,
     weekAria: (w: number) => `Týden ${w}`,
     weekTotal: (min: number) => `${min} min celkem`,
     dayShort: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
@@ -126,10 +131,10 @@ export const cs = {
     endTitle: 'Ukončit plán?',
     endText: 'Postup se smaže.',
     endConfirm: 'Ukončit',
-    progress: (done: number, total: number) => `Plán: ${done} z ${total} hotovo`,
+    progress: (done: number, total: number) => `Plán: ${done} ${z(total)} ${total} hotovo`,
     /** Shrnutí odpovědí jednou větou (Plan.html, 7.11). */
     summary: (a: PlanAnswers) =>
-      `Pro ${FOR_WHOM[a.experience]} na ${joinAnd(a.goals.map((g) => GOAL_ACC[g]))}, ${a.perWeek}× týdně do ${a.minutes} minut. ` +
+      `Pro ${FOR_WHOM[a.experience]} se zaměřením na ${joinAnd(a.goals.map((g) => GOAL_ACC[g]))}, ${a.perWeek}× týdně do ${a.minutes} minut. ` +
       'Každý týden přidáme kolo, nebo zkrátíme pauzu.',
   },
 
@@ -137,7 +142,7 @@ export const cs = {
     endTitle: 'Ukončit trénink?',
     endText: 'Odboxovaná kola se nikam neukládají.',
     endConfirm: 'Ukončit',
-    wakeLock: 'Displej může zhasnout — Nastavení → Displej a jas → Automatický zámek → Nikdy',
+    wakeLock: 'Displej může zhasnout — Nastavení → Zobrazení a jas → Uzamčení → Nikdy',
     doneTitle: 'Hotovo',
     goodWork: 'Dobrá práce.',
     boxed: (rounds: number, time: string) => `${roundsWord(rounds)} · celkem ${time}`,
@@ -145,70 +150,70 @@ export const cs = {
     endAria: 'Ukončit trénink',
     paused: 'Pozastaveno',
     getReady: 'Připrav se',
-    prepSub: (name: string, rounds: number) => `${name} · kolo 1 ze ${rounds}`,
+    prepSub: (name: string, rounds: number) => `${name} · kolo 1 ${z(rounds)} ${rounds}`,
     startingIn: (sec: number) => `Začínáme za ${sec} s`,
-    firstCombo: 'První kombo',
+    firstCombo: 'První kombinace',
     skip: 'Přeskočit',
-    roundDone: (round: number, rounds: number) => `Kolo ${round} ze ${rounds} hotovo`,
+    roundDone: (round: number, rounds: number) => `Kolo ${round} ${z(rounds)} ${rounds} hotovo`,
     rest: 'Pauza',
     nextRoundIn: 'Další kolo za',
-    nextCombo: 'Další kombo',
+    nextCombo: 'Další kombinace',
     pauseRest: 'Pozastavit pauzu',
     skipRest: 'Přeskočit pauzu',
     closeAria: 'Zavřít trénink',
-    round: (round: number, rounds: number) => `Kolo ${round} ze ${rounds}`,
+    round: (round: number, rounds: number) => `Kolo ${round} ${z(rounds)} ${rounds}`,
     quickAria: 'Nastavení tréninku',
     remaining: 'Zbývá',
-    currentCombo: 'Aktuální kombo',
+    currentCombo: 'Aktuální kombinace',
     finisher: 'Finiš',
     repeat: 'Znovu',
-    combo: 'Kombo',
+    combo: 'Kombinace',
     toBell: 'Do gongu',
-    punchOf: (k: number, n: number) => `Úder ${k} ze ${n}`,
+    punchOf: (k: number, n: number) => `Úder ${k} ${z(n)} ${n}`,
     listen: 'Poslouchej trenéra.',
     nextRound: 'Další kolo',
     pause: 'Pozastavit',
     end: 'Konec',
     rampRound: (round: number, tempo: string) => `Kolo ${round}: ${tempo}`,
-    fromNext: 'Platí od dalšího komba.',
+    fromNext: 'Platí od další kombinace.',
   },
 
   combos: {
-    search: 'Hledat kombo',
-    title: 'Komba',
+    search: 'Hledat kombinaci',
+    title: 'Kombinace',
     placeholder: 'Hledat (např. hák, 1 2 3)',
     filter: 'Filtr',
     all: 'Vše',
     defense: 'Obrana',
     legend:
-      '1 jab · 2 cross · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo · Ú úklon · Z záklon · P ponoř · K kryt · V vzad · ÚK úkrok',
+      '1 direkt · 2 zadní direkt · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo · Ú úklon · Z záklon · D dolů (ponor) · K kryt · V vzad · S stranou (úkrok)',
     noneTitle: 'Nic nenalezeno.',
     noneText: 'Zkus jiný název nebo filtr.',
     inRound: (time: string) => `${time} v kole`,
-    listenAria: 'Poslechnout kombo',
+    listenAria: 'Poslechnout kombinaci',
     listen: 'Poslechnout',
     include: 'Zařadit do tréninku',
-    delete: 'Smazat kombo',
+    delete: 'Smazat kombinaci',
   },
 
   custom: {
-    title: ['Vlastní', 'komba'],
-    build: 'Sestavit kombo',
-    emptyTitle: 'Zatím žádné kombo.',
+    title: ['Vlastní', 'kombinace'],
+    build: 'Sestavit kombinaci',
+    emptyTitle: 'Zatím žádná kombinace.',
     emptyText: 'Sestav první.',
-    fallbackName: 'Vlastní kombo',
+    fallbackName: 'Vlastní kombinace',
     defaultName: (n: number) => `Moje ${n}`,
   },
 
   builder: {
-    title: 'Nové kombo',
-    nameAria: 'Název komba',
+    title: 'Nová kombinace',
+    nameAria: 'Název kombinace',
     hint: 'Ťukej údery a obranu',
     bodyAria: 'Poslední úder na tělo',
     body: 'T · na tělo',
     deleteLast: 'Smazat poslední',
-    duplicate: 'Tohle kombo už máš.',
-    save: 'Uložit kombo',
+    duplicate: 'Tuhle kombinaci už máš.',
+    save: 'Uložit kombinaci',
   },
 
   presets: {
@@ -231,7 +236,7 @@ export const cs = {
     play: (name: string) => `Přehrát ukázku: ${name}`,
     cantHear: 'Nic neslyšíš?',
     cantHearText:
-      'iPhone je asi v tichém režimu — vypni ho, nebo níž zapni „Hrát i v tichém režimu" (zastaví ale hudbu z telefonu).',
+      'iPhone je asi v tichém režimu — vypni ho, nebo níž zapni „Hrát i v tichém režimu“ (zastaví ale hudbu z telefonu).',
     round: 'Kolo',
     countdown: 'Odpočet',
     planNote: 'Plán má vlastní kola a tempo. Tohle platí pro trénink mimo plán.',
