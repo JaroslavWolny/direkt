@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>DIREKT — IG story 2/3 (jak to funguje)</title>
+    <link rel="stylesheet" href="brand.css" />
+    <style>
+      body,
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+      }
+
+      h1.display {
+        position: absolute;
+        top: 270px;
+        left: 72px;
+        font-size: 120px;
+        line-height: 1;
+      }
+
+      .steps {
+        position: absolute;
+        top: 560px;
+        left: 72px;
+        right: 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .steps li {
+        display: flex;
+        align-items: flex-start;
+        gap: 28px;
+      }
+
+      .steps b {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--white);
+        font-size: 36px;
+        font-stretch: 125%;
+        font-weight: 850;
+      }
+
+      .steps span {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-top: 8px;
+        font-size: 46px;
+        font-weight: 650;
+        line-height: 1.15;
+      }
+
+      .steps small {
+        font-size: 32px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      .phone {
+        --s: 1.5;
+        top: 1050px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas paper">
+      <h1 class="display">
+        <span>Jak to</span>
+        <span class="accent-text">funguje</span>
+      </h1>
+
+      <ol class="steps">
+        <li><b>1</b><span>Nastav kola a pauzu.</span></li>
+        <li>
+          <b>2</b>
+          <span>Trenér hlásí komba čísly.<small>1 jab · 2 cross · 3 hák · 5 zvedák</small></span>
+        </li>
+        <li><b>3</b><span>Ty biješ. Gong hlídá čas.</span></li>
+      </ol>
+
+      <div class="phone" data-shot="shots/home.png"></div>
+    </div>
+    <script src="phone.js"></script>
+  </body>
+</html>

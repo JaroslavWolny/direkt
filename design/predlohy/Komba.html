@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>DIREKT – komba</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+body{margin:0;background:#F3F2EE}
+a{color:#111111;text-decoration:none}a:hover{color:#000000}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 20px 24px; display: flex; flex-direction: column; background: #F3F2EE; color: #111111; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Main.dc.html" aria-label="Zpět" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #E6E4DD; border-radius: 999px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<button type="button" aria-label="Hledat kombo" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #E6E4DD; color: #111111; border: 0; border-radius: 999px; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6"></circle><path d="M20 20l-4.5-4.5"></path></svg></button>
+</header>
+<div style="display: flex; align-items: baseline; gap: 10px; margin-top: 12px">
+<h1 style="margin: 0; font-stretch: 125%; font-weight: 850; font-size: 40px; line-height: 1; letter-spacing: -0.01em; text-transform: uppercase">Komba</h1>
+<span style="font-size: 17px; color: #6B6A66">7</span>
+</div>
+<div role="group" aria-label="Filtr" style="display: flex; gap: 6px; margin-top: 16px">
+<button type="button" aria-pressed="true" style="height: 44px; padding: 0 18px; background: #111111; color: #FFFFFF; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer">Vše</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; background: #E6E4DD; color: #111111; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; cursor: pointer">Základní</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; background: #E6E4DD; color: #111111; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; cursor: pointer">Pokročilé</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 14px; background: #E6E4DD; color: #111111; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 15px; cursor: pointer">Obrana</button>
+</div>
+<p style="margin: 14px 0 8px; font-size: 13px; line-height: 1.5; color: #6B6A66">1 jab · 2 cross · 3 hák · T na tělo · Ú úklon · LK low kick</p>
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{combos}}" as="c" hint-placeholder-count="7">
+<a href="Trenink.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid #DCDAD3">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<span style="font-size: 16px; font-weight: 600">{{c.name}}</span>
+<div style="display: flex; gap: 4px">
+<sc-for list="{{c.seq}}" as="p" hint-placeholder-count="3">
+<sc-if value="{{p.num}}" hint-placeholder-val="{{ true }}">
+<span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #111111; color: #FFFFFF; border-radius: 999px; font-size: 13px; font-weight: 600">{{p.t}}</span>
+</sc-if>
+<sc-if value="{{p.mod}}" hint-placeholder-val="{{ false }}">
+<span style="min-width: 28px; height: 28px; box-sizing: border-box; padding: 0 9px; display: flex; align-items: center; justify-content: center; border: 1.5px solid {{accent}}; color: {{accent}}; border-radius: 999px; font-size: 13px; font-weight: 600">{{p.t}}</span>
+</sc-if>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px">
+<span style="font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums">{{c.time}}</span>
+<span style="font-size: 12px; color: #6B6A66">{{c.level}}</span>
+</div>
+</a>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#2C3BFF","options":["#2C3BFF","#FF3B2F","#0B8F5A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const seq = (s) => s.split(' ').map((t) => {
+      const mod = /[A-ZÚ]/.test(t);
+      return { t: t, mod: mod, num: !mod };
+    });
+    const combos = [
+      { name: 'Jab – Cross – Hák', seq: seq('1 2 3'), time: '0:12', level: 'Základní' },
+      { name: 'Jab – Cross – Low kick', seq: seq('1 2 LK'), time: '0:15', level: 'Základní' },
+      { name: 'Cross – Hák – Cross', seq: seq('2 3 2'), time: '0:14', level: 'Základní' },
+      { name: 'Jab – Cross – Úklon – Cross', seq: seq('1 2 Ú 2'), time: '0:18', level: 'Pokročilé' },
+      { name: 'Jab – Cross – Tělo – Hlava', seq: seq('1 2 3T 3'), time: '0:20', level: 'Pokročilé' },
+      { name: 'Dvojitý hák', seq: seq('1 2 3 2 3'), time: '0:24', level: 'Pokročilé' },
+      { name: 'Obrana v kombu', seq: seq('Ú 2 3 Ú'), time: '0:16', level: 'Obrana' }
+    ];
+    return { accent: this.props.accent ?? '#2C3BFF', combos: combos };
+  }
+}
+</script>
+</body>
+</html>

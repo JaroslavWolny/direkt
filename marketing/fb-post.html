@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>DIREKT — FB post 1080 × 1350</title>
+    <link rel="stylesheet" href="brand.css" />
+    <style>
+      body,
+      .canvas {
+        width: 1080px;
+        height: 1350px;
+      }
+
+      .brand {
+        position: absolute;
+        top: 72px;
+        left: 72px;
+        font-size: 44px;
+      }
+
+      .brand img {
+        width: 84px;
+        height: 84px;
+      }
+
+      h1.display {
+        position: absolute;
+        top: 206px;
+        left: 72px;
+        font-size: 104px;
+        line-height: 1.04; /* diakritika (Ú pod N) potřebuje víc než 0,92 z appky */
+      }
+
+      .phone {
+        --s: 0.96;
+        top: 446px;
+        right: 72px;
+      }
+
+      .copy {
+        position: absolute;
+        top: 500px;
+        left: 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        width: 490px;
+      }
+
+      .lead {
+        font-size: 50px;
+        font-stretch: 125%;
+        font-weight: 800;
+        line-height: 1.02;
+        letter-spacing: -0.01em;
+      }
+
+      .body {
+        font-size: 33px;
+        line-height: 1.36;
+        color: var(--muted);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .chips span {
+        padding: 12px 22px;
+        border-radius: 999px;
+        background: #e6e4dd;
+        font-size: 26px;
+        font-weight: 600;
+      }
+
+      .cta {
+        position: absolute;
+        bottom: 72px;
+        left: 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .cta small {
+        font-size: 26px;
+        line-height: 1.35;
+        color: var(--muted);
+      }
+
+      .cta strong {
+        font-size: 36px;
+        font-stretch: 112%;
+        font-weight: 800;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas paper">
+      <div class="brand"><img src="../design/ikona/icon.svg" alt="" />DIREKT</div>
+
+      <h1 class="display">
+        <span>Žádné řeči.</span>
+        <span class="accent-text">Jen údery.</span>
+      </h1>
+
+      <div class="copy">
+        <p class="lead">Trenér na boxovací pytel.</p>
+        <p class="body">Hlásí ti komba čísly, ty biješ.<br />Čas, kola a&nbsp;gong hlídá on.</p>
+        <div class="chips">
+          <span>50 komb</span>
+          <span>obrana</span>
+          <span>vlastní komba</span>
+          <span>4 hlasy trenéra</span>
+        </div>
+      </div>
+
+      <div class="cta">
+        <small>Zdarma, bez registrace, jede i offline</small>
+        <strong>direkt-indol.vercel.app</strong>
+        <small>Na iPhonu: Sdílet → Přidat na plochu</small>
+      </div>
+
+      <div class="phone" data-shot="shots/round.png" data-light></div>
+    </div>
+    <script src="phone.js"></script>
+  </body>
+</html>

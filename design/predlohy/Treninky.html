@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>DIREKT – uložené tréninky</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+body{margin:0;background:#F3F2EE}
+a{color:#111111;text-decoration:none}a:hover{color:#000000}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 20px 28px; display: flex; flex-direction: column; background: #F3F2EE; color: #111111; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Main.dc.html" aria-label="Zpět" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #E6E4DD; border-radius: 999px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<span style="font-size: 15px; color: #6B6A66">5 uložených</span>
+</header>
+<h1 style="margin: 12px 0 0; font-stretch: 125%; font-weight: 850; font-size: 40px; line-height: 1; letter-spacing: -0.01em; text-transform: uppercase">Tréninky</h1>
+<div style="display: flex; flex-direction: column; margin-top: 20px; flex: 1 1 auto">
+<sc-for list="{{workouts}}" as="w" hint-placeholder-count="5">
+<a href="Odpocet.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 16px; align-items: center; padding: 16px 0; border-top: 1px solid #DCDAD3">
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<span style="font-size: 17px; font-weight: 600">{{w.name}}</span>
+<span style="font-size: 14px; color: #6B6A66">{{w.meta}}</span>
+<div aria-hidden="true" style="display: flex; gap: 3px; margin-top: 6px">
+<sc-for list="{{w.segs}}" as="s" hint-placeholder-count="5">
+<span style="flex: {{s.flex}} 1 0; height: 8px; border-radius: 2px; background: {{s.bg}}"></span>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end">
+<span style="font-stretch: 125%; font-weight: 850; font-size: 34px; line-height: 1">{{w.total}}</span>
+<span style="font-size: 13px; color: #6B6A66">min</span>
+</div>
+</a>
+</sc-for>
+</div>
+<a href="#" style="height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #111111; color: #FFFFFF; border-radius: 999px; font-size: 17px; font-weight: 600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Nový trénink</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#2C3BFF","options":["#2C3BFF","#FF3B2F","#0B8F5A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#2C3BFF';
+    const levels = ['Začátečník', 'Střední', 'Pokročilý'];
+    const fmt = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    const make = (name, rounds, work, rest, level) => {
+      const segs = [];
+      for (let i = 0; i < rounds; i++) {
+        segs.push({ flex: work, bg: level === 3 ? accent : '#111111' });
+        if (i < rounds - 1) segs.push({ flex: rest, bg: '#DCDAD3' });
+      }
+      return {
+        name: name,
+        meta: rounds + ' kol · ' + fmt(work) + ' / ' + fmt(rest) + ' · ' + levels[level - 1],
+        segs: segs,
+        total: String(Math.round((rounds * work + (rounds - 1) * rest) / 60))
+      };
+    };
+    const workouts = [
+      make('Základní kondice', 3, 120, 60, 1),
+      make('Výbušnost', 4, 90, 60, 3),
+      make('Technika + obrana', 5, 120, 60, 2),
+      make('Drill – vlastní komba', 4, 120, 60, 2),
+      make('Full body', 6, 120, 60, 3)
+    ];
+    workouts[0].meta = '3 kola · 2:00 / 1:00 · Začátečník';
+    workouts[1].meta = '4 kola · 1:30 / 1:00 · Pokročilý';
+    workouts[3].meta = '4 kola · 2:00 / 1:00 · Střední';
+    return { accent: accent, workouts: workouts };
+  }
+}
+</script>
+</body>
+</html>

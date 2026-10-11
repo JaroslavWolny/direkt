@@ -1,0 +1,165 @@
+/* Marketing DIREKT (DOKUMENTACE.md kap. 15) — stejné tokeny a písmo jako appka (kap. 10). */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('../public/fonts/archivo-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('../public/fonts/archivo-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --paper: #f3f2ee;
+  --ink: #111111;
+  --accent: #2c3bff;
+  --muted: #6b6a66;
+  --muted-on-dark: #a9a8a3;
+  --white: #ffffff;
+  --white-a16: rgb(255 255 255 / 16%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+body {
+  position: relative;
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.canvas {
+  position: relative;
+  overflow: hidden;
+}
+
+.paper {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.blue {
+  background: var(--accent);
+  color: var(--white);
+}
+
+.dark {
+  background: var(--ink);
+  color: var(--white);
+}
+
+/* Velké sázení jako nadpis appky: široké, těžké verzálky. */
+.display {
+  display: flex;
+  flex-direction: column;
+  font-stretch: 125%;
+  font-weight: 850;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.accent-text {
+  color: var(--accent);
+}
+
+/* Značka: ikona + slovo DIREKT */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-stretch: 125%;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+.brand img {
+  display: block;
+  border-radius: 22.5%;
+}
+
+/* Maketa iPhonu 15 Pro: obrazovka 393 × 852 bodů, --s = px na bod. */
+.phone {
+  position: absolute;
+  width: calc(393px * var(--s) + 2 * 12px * var(--s));
+  padding: calc(12px * var(--s));
+  border-radius: calc(66px * var(--s));
+  background: var(--ink);
+}
+
+.phone .glass {
+  position: relative;
+  width: calc(393px * var(--s));
+  height: calc(852px * var(--s));
+  overflow: hidden;
+  border-radius: calc(55px * var(--s));
+}
+
+.phone .glass > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.phone .island {
+  position: absolute;
+  top: calc(11px * var(--s));
+  left: 50%;
+  width: calc(126px * var(--s));
+  height: calc(37px * var(--s));
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #000;
+}
+
+.phone .status {
+  position: absolute;
+  top: calc(17px * var(--s));
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(25px * var(--s));
+  padding: 0 calc(30px * var(--s)) 0 calc(48px * var(--s));
+  color: var(--ink);
+  font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  font-size: calc(17px * var(--s));
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.phone .status.light {
+  color: var(--white);
+}
+
+.phone .status svg {
+  display: block;
+  height: calc(13px * var(--s));
+  width: auto;
+}
+
+.phone .status .icons {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--s));
+}

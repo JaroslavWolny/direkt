@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>DIREKT — IG story 1/3 (háček)</title>
+    <link rel="stylesheet" href="brand.css" />
+    <style>
+      body,
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+      }
+
+      /* Bezpečná zóna story: y 250–1580 (nahoře profil, dole odpověď). */
+      .brand {
+        position: absolute;
+        top: 286px;
+        left: 72px;
+        font-size: 44px;
+      }
+
+      .brand img {
+        width: 84px;
+        height: 84px;
+        outline: 3px solid rgb(255 255 255 / 40%); /* modrá ikona na modrém pozadí */
+      }
+
+      .shout {
+        position: absolute;
+        top: 470px;
+        left: 72px;
+        gap: 14px;
+        font-size: 200px;
+        line-height: 0.95;
+      }
+
+      /* Aktuální úder jako v appce: bílá pilulka s akcentovým textem. */
+      .shout .row {
+        display: flex;
+        align-items: center;
+      }
+
+      .shout .now {
+        margin-left: -36px;
+        padding: 6px 36px 14px;
+        border-radius: 999px;
+        background: var(--white);
+        color: var(--accent);
+      }
+
+      .say {
+        position: absolute;
+        top: 1330px;
+        left: 72px;
+        font-size: 58px;
+        font-stretch: 125%;
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas blue">
+      <div class="brand"><img src="../design/ikona/icon.svg" alt="" />DIREKT</div>
+
+      <p class="shout display">
+        <span>One,</span>
+        <span>two,</span>
+        <span class="row"><span class="now">slip</span>,</span>
+        <span>two!</span>
+      </p>
+
+      <p class="say">Trenér ti hlásí komba.<br />Ty biješ do pytle.</p>
+    </div>
+  </body>
+</html>
