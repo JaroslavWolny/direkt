@@ -3,7 +3,8 @@ import { comboTitle } from '../data/moves'
 import type { VoiceLang } from '../data/voices'
 import { INTENSITIES, INTENSITY_LABEL, type Intensity } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
-import type { WorkoutView } from '../workout/runner'
+import { inFinisher } from '../engine/timing'
+import { PHRASES, type WorkoutView } from '../workout/runner'
 import { RoundProgress } from './bars'
 import { ConfirmDialog, IconButton, Segmented, Sheet } from './controls'
 import { formatCountdown, formatSec, plural, wordsAreLong } from './format'
@@ -65,9 +66,15 @@ export function WorkoutScreen(props: Props) {
           <div className={rounds > 9 ? 'countdown two' : 'countdown'} aria-hidden="true">
             {rounds}
           </div>
-          <span className="label-15 muted done-caption">
-            {plural(rounds, 'kolo', 'kola', 'kol')} · celkem {formatSec(view.activeMs / 1000)}
-          </span>
+          <div className="stack gap-6 done-caption">
+            <span className="label-15 muted">
+              {plural(rounds, 'kolo', 'kola', 'kol')} · celkem {formatSec(view.activeMs / 1000)}
+            </span>
+            <span className="label-15 muted">
+              {view.callSeq} {plural(view.callSeq, 'kombo', 'komba', 'komb')} · {view.punches}{' '}
+              {plural(view.punches, 'úder', 'údery', 'úderů')}
+            </span>
+          </div>
         </div>
         <div className="stack gap-10">
           <button type="button" className="primary-btn" onClick={onAgain}>
@@ -175,6 +182,7 @@ export function WorkoutScreen(props: Props) {
   }
 
   // Kolo
+  const finisher = inFinisher(view)
   const shown = view.combo ?? view.upcoming
   const n = shown?.moves.length ?? 0
   const current = view.combo ? view.moveIndex : -1
@@ -204,10 +212,22 @@ export function WorkoutScreen(props: Props) {
 
       <section className="stack gap-16" aria-label="Aktuální kombo">
         <div className="top-bar label-15">
-          <span>Kombo</span>
-          <span>{current >= 0 ? `Úder ${current + 1} ze ${n}` : n > 0 ? `${n} ${plural(n, 'úder', 'údery', 'úderů')}` : ''}</span>
+          <span>{finisher ? 'Finiš' : 'Kombo'}</span>
+          <span>
+            {finisher
+              ? 'Do gongu'
+              : current >= 0
+                ? `Úder ${current + 1} ze ${n}`
+                : n > 0
+                  ? `${n} ${plural(n, 'úder', 'údery', 'úderů')}`
+                  : ''}
+          </span>
         </div>
-        {shown ? (
+        {finisher ? (
+          <span className="words">
+            <span className="now">{PHRASES[lang].naplno.toUpperCase()}</span>
+          </span>
+        ) : shown ? (
           <Words key={view.callSeq} moves={shown.moves} current={current} lang={lang} small={wordsAreLong(shown.moves, lang)} />
         ) : (
           <span className="words">—</span>

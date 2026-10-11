@@ -11,6 +11,7 @@ Potřebuje síť a ffmpeg; pro antonin navíc balíček edge-tts.
     python3 -m venv ~/.local/share/direkt-voice-venv
     ~/.local/share/direkt-voice-venv/bin/pip install edge-tts
     ~/.local/share/direkt-voice-venv/bin/python scripts/gen-voice.py harry adam   # bez argumentů = všechny
+    ~/.local/share/direkt-voice-venv/bin/python scripts/gen-voice.py --clip naplno  # jen vybrané klipy
 """
 import array
 import asyncio
@@ -34,14 +35,14 @@ TEXTS = {
         't1': 'Jedna na tělo!', 't2': 'Dva na tělo!', 't3': 'Tři na tělo!',
         't4': 'Čtyři na tělo!', 't5': 'Pět na tělo!', 't6': 'Šest na tělo!',
         'uklon': 'Úklon!', 'zaklon': 'Záklon!', 'ponor': 'Ponoř!', 'kryt': 'Kryt!', 'vzad': 'Vzad!', 'ukrok': 'Úkrok!',
-        'pripravse': 'Připrav se!', 'posledni': 'Poslední kolo!', 'hotovo': 'Hotovo. Dobrá práce!',
+        'pripravse': 'Připrav se!', 'posledni': 'Poslední kolo!', 'naplno': 'Naplno!', 'hotovo': 'Hotovo. Dobrá práce!',
     },
     'en': {
         'n1': 'One!', 'n2': 'Two!', 'n3': 'Three!', 'n4': 'Four!', 'n5': 'Five!', 'n6': 'Six!',
         't1': 'One body!', 't2': 'Two body!', 't3': 'Three body!',
         't4': 'Four body!', 't5': 'Five body!', 't6': 'Six body!',
         'uklon': 'Slip!', 'zaklon': 'Pull!', 'ponor': 'Roll!', 'kryt': 'Block!', 'vzad': 'Back!', 'ukrok': 'Pivot!',
-        'pripravse': 'Get ready!', 'posledni': 'Last round!', 'hotovo': 'Time! Great work!',
+        'pripravse': 'Get ready!', 'posledni': 'Last round!', 'naplno': 'All out!', 'hotovo': 'Time! Great work!',
     },
 }
 
@@ -65,9 +66,9 @@ COMPRESS = 'acompressor=threshold=-20dB:ratio=3:attack=5:release=60'
 TRIM_DB = {'edge': -50, 'elevenlabs': -38}
 # Výkřiky z ElevenLabs jsou protáhlé → klipy do komb zrychlit bez změny výšky; hlášky ne.
 TEMPO = 1.3
-PHRASES = ('pripravse', 'posledni', 'hotovo')
+PHRASES = ('pripravse', 'posledni', 'naplno', 'hotovo')
 # Max. délka hotového klipu (s), hlídá se jen u ElevenLabs: číslo/obrana, na tělo, hlášky.
-MAX_SEC = {'t': 0.9, 'pripravse': 1.2, 'posledni': 1.4, 'hotovo': 2.0}
+MAX_SEC = {'t': 0.9, 'pripravse': 1.2, 'posledni': 1.4, 'naplno': 1.2, 'hotovo': 2.0}
 MAX_SEC_DEFAULT = 0.65
 ATTEMPTS = 5
 
@@ -205,7 +206,7 @@ def render(cfg: dict, clip_id: str, text: str, tmpdir: pathlib.Path, n: int) -> 
     return mp3
 
 
-def main(slugs: list[str]) -> None:
+def main(slugs: list[str], only: set[str]) -> None:
     for slug in slugs:
         cfg = VOICES[slug]
         out = ROOT / slug
@@ -213,6 +214,8 @@ def main(slugs: list[str]) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmpdir = pathlib.Path(tmp)
             for clip_id, text in TEXTS[cfg['lang']].items():
+                if only and clip_id not in only:
+                    continue
                 if cfg['engine'] == 'edge':
                     best = render(cfg, clip_id, text, tmpdir, 0)
                     note = ''
@@ -236,4 +239,7 @@ def main(slugs: list[str]) -> None:
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:] or list(VOICES))
+    args = sys.argv[1:]
+    only = set(args[args.index('--clip') + 1:]) if '--clip' in args else set()
+    slugs = args[:args.index('--clip')] if '--clip' in args else args
+    main(slugs or list(VOICES), only)

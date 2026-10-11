@@ -5,7 +5,7 @@ import { clipsFor, playClips, stopVoice, voiceDurationMs } from '../audio/voice'
 import { acquireWakeLock, reacquireWakeLock, releaseWakeLock } from '../audio/wakelock'
 import type { Combo } from '../data/combos'
 import { voiceLang, type VoiceId, type VoiceLang } from '../data/voices'
-import { speechText } from '../data/moves'
+import { isDefense, speechText } from '../data/moves'
 import { FIRST_CALL_DELAY_MS } from '../engine/constants'
 import { createSelector } from '../engine/selector'
 import {
@@ -20,7 +20,7 @@ import {
   type WorkoutConfig,
   type WorkoutEvent,
 } from '../engine/timeline'
-import { fitsInRound, gapMs } from '../engine/timing'
+import { comboWindowMs, fitsInRound, gapMs } from '../engine/timing'
 import type { Settings } from '../store/storage'
 
 export interface WorkoutView extends PhaseState {
@@ -30,8 +30,10 @@ export interface WorkoutView extends PhaseState {
   moveIndex: number
   /** První kombo dalšího kola — příprava a Pauza ho ukazují dopředu (7.6). */
   upcoming: Combo | null
-  /** Roste s každým hlášením — klíč pro animaci nového komba. */
+  /** Roste s každým hlášením — klíč pro animaci nového komba a počet komb na Hotovo. */
   callSeq: number
+  /** Údery v ohlášených kombech bez obrany (obrazovka Hotovo). */
+  punches: number
   /** Co hlas naposledy řekl (bublina) a jestli právě mluví (vlnovka). */
   spoken: string | null
   speaking: boolean
@@ -44,13 +46,15 @@ export interface WorkoutView extends PhaseState {
 const TICK_MS = 100
 const FINISH_SPEECH_DELAY_MS = 2600
 const AFTER_ANNOUNCE_MS = 800
+/** „Naplno!" až po dvojím klepnutí (~0,24 s), ať se nepřekryjí (7.8). */
+const FINISHER_LEAD_S = 0.3
 /** Delší mezera mezi tiky = appka byla uspaná (jen bez automatické pauzy, 7.7). */
 const RESYNC_GAP_MS = 2000
 
-/** Hlášky mimo komba v jazyce hlasu (text do bubliny; klipy pripravse/posledni/hotovo). */
-const PHRASES: Record<VoiceLang, Record<'pripravse' | 'posledni' | 'hotovo', string>> = {
-  cs: { pripravse: 'Připrav se', posledni: 'Poslední kolo', hotovo: 'Hotovo. Dobrá práce.' },
-  en: { pripravse: 'Get ready', posledni: 'Last round', hotovo: 'Time! Great work!' },
+/** Hlášky mimo komba v jazyce hlasu (text do bubliny; klipy pripravse/posledni/naplno/hotovo). */
+export const PHRASES: Record<VoiceLang, Record<'pripravse' | 'posledni' | 'naplno' | 'hotovo', string>> = {
+  cs: { pripravse: 'Připrav se', posledni: 'Poslední kolo', naplno: 'Naplno', hotovo: 'Hotovo. Dobrá práce.' },
+  en: { pripravse: 'Get ready', posledni: 'Last round', naplno: 'All out', hotovo: 'Time! Great work!' },
 }
 
 export class WorkoutRunner {
@@ -80,6 +84,7 @@ export class WorkoutRunner {
   private lastCombo: Combo | null = null
   private combo: Combo | null = null
   private callSeq = 0
+  private punches = 0
   private wakeLockFailed = false
   private finished = false
 
@@ -194,7 +199,7 @@ export class WorkoutRunner {
   }
 
   /** Přehraje klipy hlasu; `text` jde do bubliny na obrazovce. */
-  private speak(clips: readonly string[], text: string, onDone?: () => void): void {
+  private speak(clips: readonly string[], text: string, onDone?: () => void, leadS = 0): void {
     this.spoken = text
     this.voiceActive = true
     this.clipStarts = []
@@ -210,6 +215,7 @@ export class WorkoutRunner {
       (starts) => {
         this.clipStarts = starts
       },
+      leadS,
     )
   }
 
@@ -243,23 +249,25 @@ export class WorkoutRunner {
     if (this.finished) return
     const ps = phaseAt(this.segs, now)
     if (this.runningSince !== null && ps.phase === 'round' && !this.speaking && now >= this.nextCallAt) {
-      this.call(ps.remainingMs)
+      this.call(comboWindowMs(ps.remainingMs, ps.durationMs))
     }
     this.emit()
   }
 
-  private call(remainingMs: number): void {
+  /** windowMs = čas do finiše, kolo bez finiše do gongu (7.8). */
+  private call(windowMs: number): void {
     const combo = this.upcoming ?? this.next()
     this.upcoming = null
     const clips = clipsFor(combo.moves)
-    if (!fitsInRound(remainingMs, voiceDurationMs(this.voiceId, clips), combo.moves.length)) {
-      this.nextCallAt = Infinity // radši ticho do gongu než useknuté kombo
+    if (!fitsInRound(windowMs, voiceDurationMs(this.voiceId, clips), combo.moves.length)) {
+      this.nextCallAt = Infinity // radši ticho než useknuté kombo
       return
     }
     this.speaking = true
     this.combo = combo
     this.lastCombo = combo
     this.callSeq++
+    this.punches += combo.moves.filter((m) => !isDefense(m)).length
     this.speak(clips, speechText(combo.moves, this.lang), () => {
       this.speaking = false
       this.nextCallAt = this.elapsed() + gapMs(combo.moves.length, this.intensity)
@@ -275,6 +283,7 @@ export class WorkoutRunner {
         bell(1)
         this.combo = null
         this.lastCombo = null
+        this.spoken = null // „Naplno!" z minulého kola do nového nepatří
         this.nextCallAt = e.atMs + FIRST_CALL_DELAY_MS
         if (e.lastRound) {
           this.speaking = true
@@ -285,7 +294,12 @@ export class WorkoutRunner {
         }
         break
       case 'warning':
+        // Finiš: komba končí, volné údery naplno do gongu (7.8).
         clap(2)
+        this.silence()
+        this.combo = null
+        this.nextCallAt = Infinity
+        this.speak(['naplno'], PHRASES[this.lang].naplno, undefined, FINISHER_LEAD_S)
         break
       case 'roundEnd':
         bell(3)
@@ -332,6 +346,7 @@ export class WorkoutRunner {
       moveIndex,
       upcoming: this.upcoming,
       callSeq: this.callSeq,
+      punches: this.punches,
       spoken: this.spoken,
       speaking: this.voiceActive,
       paused: this.runningSince === null && !this.finished,

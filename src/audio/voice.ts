@@ -14,6 +14,7 @@ const CLIP_IDS = [
   'ukrok',
   'pripravse',
   'posledni',
+  'naplno',
   'hotovo',
 ]
 
@@ -91,12 +92,14 @@ let active: AudioBufferSourceNode[] = []
 /**
  * Přehraje klipy za sebou; onDone po doznění — ne po stopVoice().
  * onStart dostane začátek každého klipu v čase performance.now() (zvýraznění aktuálního úderu).
+ * leadS odloží začátek (hláška nepřekryje klepnutí).
  */
 export function playClips(
   voice: VoiceId,
   ids: readonly string[],
   onDone?: () => void,
   onStart?: (startsMs: number[]) => void,
+  leadS = 0,
 ): void {
   const gen = generation
   loadVoice(voice).then(
@@ -106,7 +109,7 @@ export function playClips(
       const c = getContext()
       const now = c.currentTime
       const perfNow = performance.now()
-      let t = now + 0.03
+      let t = now + 0.03 + leadS
       const started: AudioBufferSourceNode[] = []
       const startsMs: number[] = []
       for (const id of ids) {

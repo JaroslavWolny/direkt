@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { BUILTIN_COMBOS, type Combo, type Level } from '../data/combos'
-import { FIRST_CALL_DELAY_MS, INTENSITIES, PER_ACTION_MS } from './constants'
+import { FIRST_CALL_DELAY_MS, INTENSITIES, PER_ACTION_MS, WARNING_BEFORE_END_MS } from './constants'
 import { mulberry32 } from './random'
 import { buildPool, createSelector } from './selector'
-import { fitsInRound, gapMs } from './timing'
+import { comboWindowMs, fitsInRound, gapMs, inFinisher } from './timing'
 
 const draw = (level: Level, n: number, seed = 1, pool = buildPool(BUILTIN_COMBOS, new Set(), level)) => {
   const next = createSelector(pool, level, mulberry32(seed))
@@ -100,5 +100,47 @@ describe('načasování', () => {
         }
       }
     }
+  })
+})
+
+describe('finiš (7.8)', () => {
+  const round = (remainingMs: number, durationMs = 60_000) =>
+    ({ phase: 'round', round: 1, remainingMs, durationMs }) as const
+
+  it('okno pro komba končí 10 s před gongem', () => {
+    expect(comboWindowMs(60_000, 60_000)).toBe(50_000)
+    expect(comboWindowMs(10_000, 180_000)).toBe(0)
+    expect(comboWindowMs(4_000, 60_000)).toBe(-6_000)
+  })
+
+  it('žádné kombo nepřetáhne do finiše', () => {
+    for (const intensity of INTENSITIES) {
+      const roundMs = 60_000
+      const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(7 + intensity))
+      let t = FIRST_CALL_DELAY_MS
+      let called = 0
+      for (;;) {
+        const combo: Combo = next()
+        const speech = 700 * combo.moves.length + 70 * (combo.moves.length - 1)
+        if (!fitsInRound(comboWindowMs(roundMs - t, roundMs), speech, combo.moves.length)) break
+        expect(t + speech + PER_ACTION_MS * combo.moves.length).toBeLessThanOrEqual(roundMs - WARNING_BEFORE_END_MS)
+        t += speech + gapMs(combo.moves.length, intensity)
+        called++
+      }
+      expect(called).toBeGreaterThan(2)
+    }
+  })
+
+  it('běží posledních 10 s kola, jinde ne', () => {
+    expect(inFinisher(round(10_001))).toBe(false)
+    expect(inFinisher(round(10_000))).toBe(true)
+    expect(inFinisher(round(1))).toBe(true)
+    expect(inFinisher({ ...round(5_000), phase: 'rest' })).toBe(false)
+    expect(inFinisher({ ...round(5_000), phase: 'prep' })).toBe(false)
+  })
+
+  it('kolo bez klepnutí (pod 30 s) finiš nemá', () => {
+    expect(inFinisher(round(5_000, 20_000))).toBe(false)
+    expect(comboWindowMs(5_000, 20_000)).toBe(5_000)
   })
 })
