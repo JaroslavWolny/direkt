@@ -180,8 +180,9 @@ svg {
 .scroll {
   flex: 1 1 auto;
   min-height: 0;
-  margin: 0 -20px;
-  padding: 0 20px;
+  /* až k dolnímu okraji obrazovky; spodní okraj .screen je uvnitř rolování (kap. 10) */
+  margin: 0 -20px calc(-28px - var(--sab));
+  padding: 0 20px calc(28px + var(--sab));
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
@@ -697,8 +698,9 @@ svg {
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  margin: 0 -20px;
-  padding: 0 20px;
+  /* jako .scroll: až k dolnímu okraji, okraj uvnitř */
+  margin: 0 -20px calc(-28px - var(--sab));
+  padding: 0 20px calc(28px + var(--sab));
 }
 
 .home-spacer {

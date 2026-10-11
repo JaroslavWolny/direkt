@@ -555,7 +555,9 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - **Písmo Archivo** (proměnné, osa šířky 62–125 %, váhy 100–900; licence OFL) lokálně
   v `public/fonts` (latin + latin-ext). Nadpisy a čísla `font-stretch: 125%` + 850/900,
   verzálky; text 400–600. Časovač 128 / 0.86, −3 %, tabular-nums; odpočet 520 / 0.78.
-- Okraje 20 px, nahoře safe area + 20 px, dole safe area + 24–32 px. Rádiusy: pilulky 999,
+- Okraje 20 px, nahoře safe area + 20 px, dole safe area + 24–32 px. **Rolující obsah** (Domů,
+  Komba, Nastavení, Plán) sahá až k dolnímu okraji obrazovky a spodní okraj má uvnitř — jinak se
+  poslední řádek usekne nad prázdným pruhem (uživatel 11. 10. 2026, Domů s řádkem Plán). Rádiusy: pilulky 999,
   karty 28, skupiny 20, segmenty a pruhy 2. Dotyková plocha min. 44 × 44.
 - **Žádné stíny, přechody, záře, fotky, emoji.** Ploché barvy, velká typografie.
 - **Stavová lišta:** styl `default` → appka začíná pod neprůhlednou lištou v barvě
