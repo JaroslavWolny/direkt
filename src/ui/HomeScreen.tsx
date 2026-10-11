@@ -5,21 +5,26 @@ import { todayMeta, workoutMinutes } from './format'
 import { IconArrow, IconPlay, IconSliders } from './icons'
 import { useThemeColor } from './useThemeColor'
 
-export type Screen = 'home' | 'komba' | 'vlastni' | 'treninky' | 'nastaveni'
+export type Screen = 'home' | 'komba' | 'vlastni' | 'treninky' | 'nastaveni' | 'plan'
 
 interface Props {
   config: WorkoutConfig
   workoutName: string
+  /** Nadpis karty: „Dnešní trénink", u plánu „Plán · trénink 5 z 12" (9.1). */
+  cardLabel: string
   poolSize: number
+  /** Postup plánu „5/12", bez plánu „—". */
+  planCount: string
   counts: { combos: number; custom: number; presets: number }
   onStart: () => void
   onNavigate: (s: Screen) => void
 }
 
 /** Domů (DOKUMENTACE.md 9.1, Main.html). */
-export function HomeScreen({ config, workoutName, poolSize, counts, onStart, onNavigate }: Props) {
+export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount, counts, onStart, onNavigate }: Props) {
   useThemeColor('--paper')
-  const menu: { screen: Screen; label: string; count: number }[] = [
+  const menu: { screen: Screen; label: string; count: number | string }[] = [
+    { screen: 'plan', label: 'Plán', count: planCount },
     { screen: 'komba', label: 'Komba', count: counts.combos },
     { screen: 'vlastni', label: 'Vlastní komba', count: counts.custom },
     { screen: 'treninky', label: 'Uložené tréninky', count: counts.presets },
@@ -49,11 +54,11 @@ export function HomeScreen({ config, workoutName, poolSize, counts, onStart, onN
           type="button"
           className="today"
           disabled={poolSize === 0}
-          aria-label={`Začít dnešní trénink: ${workoutName}`}
+          aria-label={`Začít: ${workoutName}`}
           onClick={onStart}
         >
           <span className="today-top">
-            <span>Dnešní trénink</span>
+            <span>{cardLabel}</span>
             <span>{workoutMinutes(config)} min</span>
           </span>
           <span className="today-name">

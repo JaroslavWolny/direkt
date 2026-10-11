@@ -3,6 +3,7 @@ import { LEVELS, type Combo, type Level } from '../data/combos'
 import { DEFAULT_VOICE, isVoiceId, type VoiceId } from '../data/voices'
 import { isMove } from '../data/moves'
 import { INTENSITY_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
+import { GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type Goal, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
 import type { WorkoutConfig } from '../engine/timeline'
 
 export interface Settings {
@@ -10,6 +11,8 @@ export interface Settings {
   silentOverride: boolean
   autoPause: boolean
   voice: VoiceId
+  /** Úvod a dotazník už proběhly (9.0). */
+  onboarded: boolean
 }
 
 export interface Library {
@@ -24,6 +27,12 @@ export interface Preset {
   config: WorkoutConfig
 }
 
+/** Jen postup — tréninky se počítají z odpovědí (7.11). */
+export interface Plan {
+  answers: PlanAnswers
+  done: number
+}
+
 export const MAX_MOVES = 8
 export const MAX_NAME = 30
 
@@ -33,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   silentOverride: false,
   autoPause: true,
   voice: DEFAULT_VOICE,
+  onboarded: false,
 }
 export const DEFAULT_LIBRARY: Library = { disabled: [], custom: [] }
 export const DEFAULT_PRESETS: Preset[] = [
@@ -74,6 +84,7 @@ export function sanitizeSettings(x: unknown): Settings {
     silentOverride: o.silentOverride === true,
     autoPause: o.autoPause !== false,
     voice: isVoiceId(o.voice) ? o.voice : d.voice,
+    onboarded: o.onboarded === true,
   }
 }
 
@@ -106,6 +117,29 @@ export function sanitizePresets(x: unknown): Preset[] {
   )
 }
 
+/** Rozbitý nebo neúplný plán → žádný plán (dotazník jde vyplnit znovu). */
+export function sanitizePlan(x: unknown): Plan | null {
+  if (!isObject(x) || !isObject(x.answers)) return null
+  const a = x.answers
+  if (
+    !LEVELS.includes(a.experience as Level) ||
+    !GOALS.includes(a.goal as Goal) ||
+    !PER_WEEK.includes(a.perWeek as PerWeek) ||
+    !MINUTES.includes(a.minutes as Minutes)
+  ) {
+    return null
+  }
+  const answers: PlanAnswers = {
+    experience: a.experience as Level,
+    goal: a.goal as Goal,
+    perWeek: a.perWeek as PerWeek,
+    minutes: a.minutes as Minutes,
+  }
+  const total = PLAN_WEEKS * answers.perWeek
+  const done = typeof x.done === 'number' && Number.isInteger(x.done) ? Math.min(total, Math.max(0, x.done)) : 0
+  return { answers, done }
+}
+
 // ---------- localStorage ----------
 
 const PREFIX = 'direkt.v1.'
@@ -135,6 +169,8 @@ export const loadLibrary = (): Library => sanitizeLibrary(read('combos'))
 export const saveLibrary = (v: Library): void => write('combos', v)
 export const loadPresets = (): Preset[] => sanitizePresets(read('presets'))
 export const savePresets = (v: Preset[]): void => write('presets', v)
+export const loadPlan = (): Plan | null => sanitizePlan(read('plan'))
+export const savePlan = (v: Plan | null): void => write('plan', v)
 
 export const sameConfig = (a: WorkoutConfig, b: WorkoutConfig): boolean =>
   a.rounds === b.rounds &&

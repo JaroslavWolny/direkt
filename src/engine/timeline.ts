@@ -2,12 +2,17 @@
 import type { Level } from '../data/combos'
 import { COUNTDOWN_BEEPS_S, WARNING_BEFORE_END_MS, WARNING_MIN_ROUND_MS, type IntensityChoice } from './constants'
 
+/** Zaměření tréninku z plánu (7.11). */
+export type Focus = 'kondice' | 'technika'
+
 export interface WorkoutConfig {
   rounds: number
   roundSec: number
   restSec: number
   level: Level
   intensity: IntensityChoice
+  /** Jen tréninky plánu; Technika = častější „Znovu" (7.9). */
+  focus?: Focus
 }
 
 export type Phase = 'prep' | 'round' | 'rest' | 'done'

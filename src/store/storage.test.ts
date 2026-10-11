@@ -6,6 +6,7 @@ import {
   DEFAULT_SETTINGS,
   sanitizeConfig,
   sanitizeLibrary,
+  sanitizePlan,
   sanitizePresets,
   sanitizeSettings,
 } from './storage'
@@ -61,6 +62,23 @@ describe('obranné čtení úložiště', () => {
       prepSec: 5,
     })
     expect(sanitizeSettings({ prepSec: 22.4 }).prepSec).toBe(20)
+  })
+
+  it('plán: platný se načte, rozbitý = žádný, postup se ořízne', () => {
+    const answers = { experience: 1, goal: 'kondice', perWeek: 3, minutes: 25 }
+    expect(sanitizePlan({ answers, done: 5 })).toEqual({ answers, done: 5 })
+    expect(sanitizePlan({ answers, done: 99 })?.done).toBe(12)
+    expect(sanitizePlan({ answers, done: -2 })?.done).toBe(0)
+    expect(sanitizePlan({ answers, done: 'x' })?.done).toBe(0)
+    expect(sanitizePlan({ answers: { ...answers, minutes: 30 }, done: 1 })).toBeNull()
+    expect(sanitizePlan({ answers: { ...answers, goal: 'sila' }, done: 1 })).toBeNull()
+    expect(sanitizePlan(null)).toBeNull()
+    expect(sanitizePlan('plán')).toBeNull()
+  })
+
+  it('úvod: chybějící příznak = ještě neproběhl', () => {
+    expect(sanitizeSettings({}).onboarded).toBe(false)
+    expect(sanitizeSettings({ onboarded: true }).onboarded).toBe(true)
   })
 
   it('stupňovaná intenzita se načte, neznámá padne na výchozí', () => {

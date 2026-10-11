@@ -6,7 +6,7 @@ import { acquireWakeLock, reacquireWakeLock, releaseWakeLock } from '../audio/wa
 import type { Combo } from '../data/combos'
 import { voiceLang, type VoiceId, type VoiceLang } from '../data/voices'
 import { isDefense, speechText } from '../data/moves'
-import { FIRST_CALL_DELAY_MS, type Intensity } from '../engine/constants'
+import { FIRST_CALL_DELAY_MS, REPEAT_CHANCE, REPEAT_CHANCE_TECHNIKA, type Intensity } from '../engine/constants'
 import { createSelector, shouldRepeat } from '../engine/selector'
 import {
   buildSegments,
@@ -75,6 +75,7 @@ export class WorkoutRunner {
   private readonly config: WorkoutConfig
   private readonly settings: Settings
   private readonly onView: (v: WorkoutView) => void
+  private readonly onFinish: () => void
   private accumulated = 0
   private runningSince: number | null = null
   /** Přeskočené části kol — odečtou se od „celkem" (9.2). */
@@ -106,11 +107,14 @@ export class WorkoutRunner {
     settings: Settings,
     pool: readonly Combo[],
     onView: (v: WorkoutView) => void,
+    /** Trénink doběhl na Hotovo (ne Konec) — posun v plánu (7.11). */
+    onFinish: () => void = () => undefined,
     rng: () => number = Math.random,
   ) {
     this.config = config
     this.settings = settings
     this.onView = onView
+    this.onFinish = onFinish
     this.segs = buildSegments(config, settings.prepSec)
     this.events = scheduleEvents(this.segs)
     this.next = createSelector(pool, config.level, rng)
@@ -277,7 +281,8 @@ export class WorkoutRunner {
   private call(windowMs: number): void {
     const last = this.lastCombo
     // „Znovu!" = stejné kombo ještě jednou, hlas řekne jen to slovo (7.9).
-    const again = last !== null && shouldRepeat(this.rng, this.repeats)
+    const chance = this.config.focus === 'technika' ? REPEAT_CHANCE_TECHNIKA : REPEAT_CHANCE
+    const again = last !== null && shouldRepeat(this.rng, this.repeats, chance)
     const combo = again ? last : (this.upcoming ?? this.next())
     if (!again) this.upcoming = null
     const clips = again ? ['znovu'] : clipsFor(combo.moves)
@@ -357,6 +362,7 @@ export class WorkoutRunner {
       FINISH_SPEECH_DELAY_MS,
     )
     this.emit()
+    this.onFinish()
   }
 
   private emit(): void {

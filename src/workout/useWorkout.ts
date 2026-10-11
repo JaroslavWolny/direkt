@@ -19,9 +19,9 @@ export function useWorkout() {
   }, [])
 
   /** Volat přímo z onClick — runner musí nastartovat zvuk v gestu. */
-  const start = useCallback((config: WorkoutConfig, settings: Settings, pool: readonly Combo[]) => {
+  const start = useCallback((config: WorkoutConfig, settings: Settings, pool: readonly Combo[], onFinish?: () => void) => {
     runner.current?.stop()
-    runner.current = new WorkoutRunner(config, settings, pool, setView)
+    runner.current = new WorkoutRunner(config, settings, pool, setView, onFinish)
     runner.current.start()
     setWorkoutBusy(true)
   }, [])

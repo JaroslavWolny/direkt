@@ -1413,3 +1413,372 @@ svg {
 .prep-bar {
   margin-bottom: 8px;
 }
+
+/* ---------- v8: úvod, dotazník, plán (DOKUMENTACE.md 9.0, 9.7, 10.1) ---------- */
+
+:root {
+  /* dopad: rychlý nástup, tvrdé dosednutí */
+  --ease-hit: cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.primary-btn.white {
+  background: var(--white);
+  color: var(--accent);
+}
+
+.pill-btn.on-accent {
+  background: var(--white-a16);
+  color: var(--white);
+}
+
+/* Úvod. Animují se jen vnitřní prvky, nikdy .screen (10.1). */
+.intro-paper {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  animation: intro-wipe 220ms cubic-bezier(0.6, 0, 0.4, 1) 1050ms both;
+}
+
+.intro-mid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.intro-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.intro-stage > .intro-num {
+  grid-area: 1 / 1;
+}
+
+.intro-num {
+  font-size: 300px;
+  font-stretch: 125%;
+  font-weight: 900;
+  line-height: 0.78;
+}
+
+.intro-a .intro-num {
+  animation:
+    intro-hit 140ms var(--ease-hit) calc(150ms + var(--i) * 280ms) both,
+    intro-gone 1ms linear calc(430ms + var(--i) * 280ms) forwards;
+}
+
+.intro-b .intro-num {
+  color: var(--accent);
+  animation:
+    intro-hit 140ms var(--ease-hit) calc(150ms + var(--i) * 320ms) both,
+    intro-gone 1ms linear calc(470ms + var(--i) * 320ms) forwards;
+}
+
+.intro-words {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  animation: intro-gone 150ms ease-in 1000ms forwards;
+}
+
+.intro-word {
+  position: relative;
+  padding: 8px 12px;
+  font-size: 30px;
+  font-stretch: 125%;
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+  animation:
+    intro-slide 180ms var(--ease-hit) calc(150ms + var(--i) * 250ms) both,
+    intro-dim 1ms linear calc(400ms + var(--i) * 250ms) forwards;
+}
+
+/* bílá pilulka „aktuálního úderu" jako v kole (9.2) */
+.intro-word i {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--accent);
+  font-style: normal;
+  opacity: 0;
+  animation: intro-pill 250ms linear calc(150ms + var(--i) * 250ms) forwards;
+}
+
+.intro-logo {
+  font-size: min(60px, 15vw);
+  font-stretch: 125%;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.intro-tag {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.intro-a .intro-logo {
+  animation: intro-hit 160ms var(--ease-hit) 990ms both;
+}
+
+.intro-a .intro-tag {
+  animation: intro-rise 300ms ease-out 1300ms both;
+}
+
+.intro-a .intro-actions {
+  animation: intro-fade 200ms ease-out 1650ms both;
+}
+
+.intro-b .intro-logo {
+  animation: intro-hit 160ms var(--ease-hit) 1150ms both;
+}
+
+.intro-b .intro-tag {
+  animation: intro-rise 300ms ease-out 1450ms both;
+}
+
+.intro-b .intro-actions {
+  animation: intro-fade 200ms ease-out 1800ms both;
+}
+
+.intro-c .intro-logo {
+  animation: intro-hit 160ms var(--ease-hit) 1050ms both;
+}
+
+.intro-c .intro-tag {
+  animation: intro-rise 300ms ease-out 1350ms both;
+}
+
+.intro-c .intro-actions {
+  animation: intro-fade 200ms ease-out 1600ms both;
+}
+
+.intro-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* neviditelná tlačítka během animace nejdou zmáčknout — ťuk jen přeskočí na konec */
+.intro:not(.ended) .intro-actions {
+  pointer-events: none;
+}
+
+.intro.ended * {
+  animation: none;
+}
+
+@keyframes intro-hit {
+  from {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-gone {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes intro-dim {
+  to {
+    opacity: 0.45;
+  }
+}
+
+@keyframes intro-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* svítí jen ve svém okně, pak zůstane zhasnutá (forwards) */
+@keyframes intro-pill {
+  0%,
+  99.9% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes intro-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-wipe {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* Dotazník */
+.quiz-progress {
+  flex: none;
+  margin-top: 16px;
+}
+
+.quiz-step {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 0;
+  margin-top: 24px;
+}
+
+.quiz-step.fwd {
+  animation: quiz-in-fwd 220ms ease-out both;
+}
+
+.quiz-step.back {
+  animation: quiz-in-back 220ms ease-out both;
+}
+
+.quiz-title {
+  line-height: 0.95;
+}
+
+.quiz-option {
+  justify-content: flex-start;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+}
+
+.quiz-option strong {
+  font-size: 17px;
+}
+
+.quiz-option .row-text span {
+  color: var(--muted);
+}
+
+.quiz-option[aria-checked='true'] .radio {
+  border: 7px solid var(--accent);
+}
+
+@keyframes quiz-in-fwd {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes quiz-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Plán (9.7) */
+.plan-answers {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.plan-complete {
+  margin-top: 10px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.plan-row .row-text span {
+  color: var(--muted);
+}
+
+.plan-row.done .row-text {
+  opacity: 0.45;
+}
+
+.plan-check {
+  display: flex;
+  color: var(--muted);
+}
+
+.plan-next {
+  flex: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 10px;
+  margin: 24px 0 8px;
+}
+
+.settings-note {
+  margin: 8px 4px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro *,
+  .quiz-step {
+    animation: none !important;
+  }
+}

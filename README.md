@@ -2,7 +2,7 @@
 
 Trenér na boxovací pytel pro iPhone. Hlas během kola hlásí komba čísly
 („one, two, three body, slip" / „jedna, dva, tři na tělo, úklon"), gong začíná a končí kola,
-posledních 10 s kola je finiš naplno, mezi koly běží pauza.
+posledních 10 s kola je finiš naplno, mezi koly běží pauza. Ze 4 otázek sestaví plán na 4 týdny.
 Jen box. Web appka přidaná na plochu, funguje offline, žádný účet ani server.
 Živě: https://direkt-indol.vercel.app
 
@@ -22,7 +22,7 @@ Co a proč se staví, je v **[DOKUMENTACE.md](DOKUMENTACE.md)** — změny nejd�
 nvm use 20        # Vite 8 vyžaduje Node >= 20.19
 npm install
 npm run dev
-npm test          # engine: výběr komb, časování, finiš, časová osa, úložiště
+npm test          # engine: výběr komb, časování, finiš, plán, časová osa, úložiště
 npm run build     # tsc -b && vite build
 npm run lint
 npm run icons     # přegeneruje ikony appky (bez závislostí)

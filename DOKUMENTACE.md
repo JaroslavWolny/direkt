@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v7 (opakování komba „Znovu!", stupňované tempo, čas v kolech na Hotovo), 11. 10. 2026.
+Stav: v8 (úvod s animací, dotazník a 4týdenní plán), 11. 10. 2026.
 
 ---
 
@@ -27,7 +27,7 @@ Ze screenshotu Instagramu `strikr.app` a researche:
 | Haptika | ano (nativní) | **ne** — iOS web ji nemá (viz R9) |
 | Box + Muay Thai + kickbox | ano | **jen box** |
 | Historie tréninků | ano | **ne** (rozhodnutí uživatele) |
-| Plán z 11krokového onboardingu, předplatné 6,99 $/měs | ano | **ne** |
+| Plán z 11krokového onboardingu, předplatné 6,99 $/měs | ano | **plán ano** (4 otázky, 4 týdny, 7.11); předplatné ne |
 
 Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-coach/id6761002692)
 (STRIKR Pty Ltd, v1.3.4, 29. 9.), [getstrikr.app](https://getstrikr.app/),
@@ -59,6 +59,10 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 - **v7** (uživatel, 11. 10. 2026): trenér občas zavelí **„Znovu!"** = stejné kombo ještě jednou
   (7.9); **stupňované tempo** jako čtvrtá volba intenzity (7.10); „celkem" na Hotovo = jen čas
   v kolech; „Poslední kolo" až po gongu, ať ho gong nepřehluší.
+- **v8** (uživatel, 11. 10. 2026: „bych tam přidal plán z úvodního dotazníku… hezké animace na
+  začátek"): úvod s animací jen při prvním spuštění (9.0, kap. 10), **dotazník 3–4 otázky**,
+  **plán na 4 týdny** (7.11). Ukládá se **jen postup plánu** („trénink 5 z 12"), žádná historie
+  ani statistiky — dřívější „bez historie" tím platí dál. Vzhled navrhuju ve stylu v4.
 
 ## 3. Platforma a stack
 
@@ -265,7 +269,8 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
 
 ### 7.9 Znovu (opakování komba)
 
-- Místo nového komba trenér s pravděpodobností **25 %** zavelí jen „Znovu!" / „Again!" — boxer
+- Místo nového komba trenér s pravděpodobností **25 %** (trénink plánu se zaměřením Technika
+  **40 %**, 7.11) zavelí jen „Znovu!" / „Again!" — boxer
   zopakuje kombo, které právě udělal (jak se v boxerně drilují komba).
 - Kombo jde **nejvýš 3× po sobě** (max. 2× „Znovu"), pak vždy nové. Jen v rámci kola — první
   hlášení kola je vždy kombo.
@@ -284,6 +289,45 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
   vrátí tempo podle kola.
 - Délky komb v seznamech (9.3) se u Rostoucí počítají Středním tempem.
 - Čistá funkce `tempoForRound` v `src/engine/timing.ts`, testovaná.
+
+### 7.11 Plán (`src/engine/plan.ts`)
+
+Dotazník (9.0) má 4 otázky a **každá plán mění** (research: 3–5 otázek s ukazatelem postupu,
+každá musí viditelně něco změnit — [adapty](https://adapty.io/blog/markdown/how-to-fix-your-onboarding-flow.md)):
+
+| Otázka | Volby | Co mění |
+|---|---|---|
+| Jak dlouho boxuješ? | Začínám / Trénuju / Závodím | úroveň komb (Začátečník / Pokročilý / Expert), délka kola (2:00 / 3:00 / 3:00), u kondice jak rychle se zkracují pauzy |
+| Co chceš hlavně zlepšit? | Kondice / Technika | které zaměření v týdnu převažuje |
+| Kolikrát týdně? | 2× / 3× / 4× | počet tréninků v týdnu |
+| Kolik času na trénink? | 15 / 25 / 40 min | počet kol |
+
+Plán = **4 týdny**, tréninky jdou **po pořadí, bez data** — vynechaný den nevadí, plán počká
+(žádné série, žádné výčitky). Trénink má zaměření:
+
+| | Kondice | Technika |
+|---|---|---|
+| Pauza (týden 1 / 2 / 3 / 4) | Začínám 1:00 / 1:00 / 0:45 / 0:45; jinak 1:00 / 0:45 / 0:45 / 0:30 | 1:00 (poměr 3:1) |
+| Intenzita (7.10) | Začínám Rostoucí; jinak týden 1–2 Rostoucí, 3–4 Tvrdá | týden 1–2 Lehká, 3–4 Střední |
+| Úroveň komb | podle zkušenosti | od 3. týdne o jednu výš (nejvýš Expert) |
+| „Znovu" (7.9) | 25 % | 40 % |
+
+- **Objem:** čas tréninku v týdnu 1 / 2 / 3 / 4 = 70 / 80 / 90 / 100 % zvolených minut (bez
+  odpočtu); kola = `⌊(čas + pauza) / (kolo + pauza)⌋`, oříznuto na 2–12. Začínám + 15 min →
+  týden 1 = 3 × 2:00 / 1:00 (start podle zdrojů), týden 4 = 5 × 2:00.
+- **Pořadí v týdnu:** hlavní, vedlejší, hlavní, vedlejší (2× = H V, 3× = H V H, 4× = H V H V).
+- Ukládají se jen odpovědi a počet hotových tréninků (kap. 11); tréninky se z odpovědí vždy
+  spočítají znovu (čistá funkce `buildPlan`, testovaná).
+- **Hotový trénink** = doběhl na obrazovku Hotovo (i s přeskočenými úseky). Konec (✕) se
+  nepočítá. „Znovu" na Hotovo trénink zopakuje mimo plán (nepočítá se podruhé).
+- Splněný plán → Domů zase ukazuje vlastní trénink, obrazovka Plán nabídne nový.
+
+Zdroje: [Boxing Insider](https://boxinginsider.com/training/heavy-bag-workout-guide/) (start
+3 × 2:00 / 1:00 3× týdně; pokročilí až 8 × 3:00 / 0:30), [Legends Boxing](https://legendsboxing.com/blog/beginners-boxing-bag-workout)
+(15–30 min 2–3× týdně, přidávat po týdnech, ne po dnech), [Gymdesk](https://gymdesk.com/blog/heavy-bag-workout)
+(3:00 / 1:00, kolo navíc, když tři přestanou bolet), [boxprogramming](https://boxprogramming.com/work-to-rest)
+(práce : odpočinek 3:1). Recenzovanou studii s týdenním rozpisem jsem nenašel — čísla jsou praxe
+trenérů.
 
 ## 8. Zvuk a hlas (`src/audio/`)
 
@@ -347,6 +391,24 @@ ukázková data, zobrazují se data appky.
 **Navigace:** kořen je Domů. Podobrazovky mají vlevo kulaté tlačítko zpět. Trénink je přes
 celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … → Hotovo.
 
+### 9.0 Úvod a dotazník (v8, bez předlohy — navrženo ve stylu v4)
+- **Úvod** jen při prvním spuštění (`settings.onboarded`), i u dosavadních uživatelů po
+  aktualizaci. Animace ~2 s (kap. 10), ťuk kamkoli ji přeskočí na konec. Konec: logo, „Žádné
+  řeči. Jen údery.", PrimaryButton **Sestavit plán** a pilulka **Bez plánu** (→ Domů).
+- **Dotazník:** 4 obrazovky (paper): vlevo zpět (u první otázky zavřít), vpravo „1 ze 4";
+  pruh postupu 4 segmenty; otázka velkým písmem; volby = velké řádky na bílé kartě r20 (název
+  17/600 + poznámka muted). Ťuk = výběr (akcentové kolečko) a za 180 ms další otázka. Při novém
+  plánu předvyplněno minulými odpověďmi.
+  - Jak dlouho boxuješ? **Začínám** „Učím se základy, kola po 2 minutách" · **Trénuju** „Pár
+    měsíců a víc" · **Závodím** „Ring a sparingy"
+  - Co chceš hlavně zlepšit? **Kondice** „Víc kol, kratší pauzy, tvrdší tempo" · **Technika**
+    „Klidnější tempo, víc opakování komb"
+  - Kolikrát týdně? **2×** · **3×** · **4×**
+  - Kolik času na trénink? **15 min** · **25 min** · **40 min** (poznámka „Bez rozcvičky")
+- **Plán je hotový** (paper): nadpis „Plán / je hotový", řádek „4 týdny · 12 tréninků · do 25 min",
+  karta Týden 1 (řádky jako 9.7), PrimaryButton **Jdeme na to** → Domů.
+- Odkaz `?intro=a|b|c` ukáže úvod v dané variantě kdykoli (náhled k výběru, kap. 10).
+
 ### 9.1 Domů (`Main.html`, pozadí paper)
 - Hlavička: logo „DIREKT" (Archivo 125 % / 900 / 20 px), vpravo kulaté tlačítko Nastavení.
 - Nadpis 46 px na 4 řádky „ŽÁDNÉ / ŘEČI. / JEN / ÚDERY." (poslední dva akcent). Uživatel 10. 10.
@@ -356,7 +418,10 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   shoduje, jinak „Vlastní trénink"; meta „3 kola · 2:00 práce · 1:00 pauza"; RoundBar
   (bílá = kolo, bílá 30 % = pauza); „ZAČÍT" + bílé kolečko s play. Prázdný bazén → karta
   zašedlá a „Zapni aspoň jedno kombo".
-- Menu (řádky s oddělovačem): Komba · počet, Vlastní komba · počet, Uložené tréninky · počet.
+- Menu (řádky s oddělovačem): **Plán** · „5/12" (bez plánu „—", ťuk → dotazník bez úvodu),
+  Komba · počet, Vlastní komba · počet, Uložené tréninky · počet.
+- **Běží plán** (nesplněný): karta ukazuje další trénink plánu — nahoře „Plán · trénink 5 z 12"
+  a délka, název „Týden 2 · Kondice", meta a RoundBar z tréninku plánu; START ho spustí.
 
 ### 9.2 Trénink běží
 - **Odpočet** (`Odpocet.html`, paper): „PŘIPRAV SE" + „Název · kolo 1 ze N"; obří číslo
@@ -388,7 +453,8 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   „kola · celkem m:ss" (čas v kolech: bez přípravy, pauz mezi koly, pozastavení a přeskočených
   částí kol), pod tím
   „42 komb · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
-  se neukládá), PrimaryButton **Znovu** (stejný trénink) a pilulka **Domů**.
+  se neukládá), u tréninku plánu ještě „Plán: 6 z 12 hotovo", PrimaryButton **Znovu** (stejný
+  trénink) a pilulka **Domů**.
 - **Dialog „Ukončit trénink?"**: bílá karta r28, Pokračovat / Ukončit.
 
 ### 9.3 Komba (`Komba.html`, paper)
@@ -429,9 +495,20 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
 - **Úroveň:** segmenty Začátečník / Pokročilý / Expert (navíc oproti předloze).
 - **Kolo:** krokovače Počet kol, Délka kola (1:00–10:00 po 0:30), Pauza mezi koly
   (0:15–3:00 po 0:15), Odpočet (před startem, 5–60 s).
+- Když běží plán, pod skupinou Kolo poznámka „Plán má vlastní kola a tempo. Tohle platí pro
+  trénink mimo plán."
 - **Přehrávání:** Hrát i v tichém režimu, Automatická pauza na pozadí.
 - **O aplikaci** (rozbalí verzi s časem sestavení, např. „1.0.0 (10. 10. 19:45)" — podle něj jde
   na telefonu poznat, že už běží nová verze, a autory). Vše se ukládá hned.
+
+### 9.7 Plán (v8, paper)
+- Zpět, vpravo „5 z 12". Nadpis „PLÁN", pod ním odpovědi „Trénuju · Kondice · 3× týdně · 25 min".
+- Po týdnech: caption „Týden 1", bílá karta r20, řádek = zaměření (16/600) + meta „4 kola ·
+  3:00 / 0:45 · Rostoucí" a vpravo stav: hotový = ✓ (muted, řádek zesvětlený), na řadě =
+  akcentová pilulka „Na řadě", další bez značky. Řádky nejsou tlačítka — trénuje se z Domů
+  po pořadí.
+- Dole pilulky **Nový plán** (dotazník předvyplněný) a **Ukončit plán** (dialog „Ukončit plán?"
+  / „Postup se smaže." / Ukončit · Zpět). Splněný plán: nad seznamem „Plán splněný.".
 
 ## 10. Vzhled (v4)
 
@@ -457,21 +534,39 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   (180 / 192 / 512); verze maskable je zmenšená na ~61 % do bezpečné zóny jako `adaptive-icon.png`.
   iOS si ikonu bere při přidání na plochu → po změně ikonu přidat znovu.
 
+### 10.1 Pohyb (v8)
+- Design zakazuje stíny, přechody barev a záře — pohyb je proto jen **kinetická typografie** na
+  plochých barvách: velká písmena dopadají, vyjíždějí, střídají se v rytmu komba.
+- **Úvod** (jen první spuštění, 9.0) ve **3 variantách k výběru** (`?intro=a|b|c`), výchozí A:
+  - **A Kombo:** kobaltová plocha, uprostřed obří bílá čísla 1 → 2 → 3 dopadají v rytmu komba
+    (po 280 ms; zmenšení z 1,6× za 140 ms), pak stejně dopadne „DIREKT" a vyjede podtitul.
+  - **B Odpočet:** paper, obří akcentová 3 → 2 → 1 jako na Odpočtu (po 320 ms), pak plocha
+    skočí do kobaltové jako začátek kola a dopadne „DIREKT".
+  - **C Údery:** kobaltová plocha, slova JAB · CROSS · HÁK vyjíždějí po řadě a bílá pilulka
+    „aktuálního úderu" po nich skáče jako v kole, pak „DIREKT".
+  - Konec všech: tlačítka se objeví (opacity, 200 ms). Ťuk během animace = skok na konec.
+- **Dotazník:** další otázka vyjede 24 px zprava s opacity za 220 ms, zpět zleva.
+- Animuje se **jen vnitřní obal**, nikdy `.screen` — transformace předka rozbije `position: fixed`
+  (Sheet, dialogy).
+- Jen `transform` a `opacity` (plynulé i na iPhonu). `prefers-reduced-motion: reduce` → bez
+  pohybu, rovnou konečný stav.
+
 ## 11. Data (`localStorage`, prefix `direkt.v1.`)
 
 | Klíč | Obsah |
 |---|---|
 | `config` | aktuální nastavení tréninku (7.4); `intensity` = 0 / 1 / 2 / `'ramp'` (Rostoucí) |
-| `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují) |
+| `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (úvod už proběhl; výchozí false) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
+| `plan` | `{ answers: { experience 0–2, goal 'kondice' \| 'technika', perWeek 2–4, minutes 15 \| 25 \| 40 }, done }` nebo `null` — jen postup, tréninky se počítají z odpovědí (7.11) |
 
 Každý klíč se čte obranně: rozbitý JSON nebo hodnota mimo rozsah → výchozí hodnota,
 nikdy pád. Vestavěná komba se do úložiště nepíšou (nová komba v update tak dorazí zapnutá).
 
 ## 12. Mimo rozsah v1
 
-Muay Thai / kickbox, historie a statistiky, plán a onboarding, účty a synchronizace,
+Muay Thai / kickbox, historie a statistiky, kalendář a připomínky plánu, účty a synchronizace,
 haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava už uloženého komba.
 
 ## 13. Ověření
@@ -483,7 +578,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   (hranice fází, celková délka); každá událost právě jednou i při velkém skoku času;
   text řeči; obranné čtení úložiště; přeskočení fáze pustí jen události na hranici; žádné
   kombo nepřetáhne do finiše; začátek a konec finiše; „Znovu" ≈ 25 % a nikdy víc než 2× po
-  sobě; tempo stupňované po kolech.
+  sobě; tempo stupňované po kolech; plán: počet tréninků, limity, čas ≤ zvoleným minutám,
+  objem po týdnech neklesá, pořadí zaměření, začátečník týden 1 = 3 × 2:00 / 1:00; obranné
+  čtení `plan`.
 - `npm run build` (tsc + vite) a `npm run lint` čisté.
 - **Prohlížeč** (chrome-devtools, viewport iPhone 15 Pro 393 × 852, DPR 3, simulované
   safe-area 59/34 px): projet trénink 1 kolo × 1 min, žádné chyby v konzoli, hlášení
@@ -497,6 +594,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
    a do gongu žádné kombo, 3× gong; Hotovo ukáže počet komb a úderů a „celkem 1:00".
    Během tréninku občas „Again!" bez čísel.
    Trénink 3 × 1:00 s Rostoucí: kolo 1 znatelně volnější mezery než kolo 3.
+9. Po aktualizaci první otevření z plochy: úvod s animací → Sestavit plán → 4 otázky → Plán je
+   hotový → Domů ukazuje „Plán · trénink 1 z N". Trénink doběhnout → „1/N" v menu.
+   Varianty úvodu: Safari → `direkt-indol.vercel.app/?intro=a` (b, c) → vybrat jednu.
 4. S hudbou ze Spotify na obvyklou hlasitost: hudba se **neztiší** (R3 — web to neumí), hlas
    ji musí přehlušit sám. Ověřit, že jsou čísla slyšet od pytle během úderů. Když ne →
    nahlásit (řešení: hlasitější klipy / tvrdší kompresor, jinak ztlumit hudbu).
@@ -532,6 +632,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
     v prohlížeči, deploy.
 13. **v7:** „Znovu" (7.9) + klip `znovu` pro 4 hlasy; stupňované tempo (7.10); celkem = čas
     v kolech; „Poslední kolo" po gongu → testy, build, kontrola v prohlížeči, deploy.
+14. **v8:** research (konkurence, progrese zátěže, délka dotazníku) → plán `buildPlan` + testy →
+    úvod (3 varianty), dotazník, Plán, karta plánu na Domů → screenshoty, deploy; uživatel
+    vybere variantu úvodu, ostatní se smažou.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")
 

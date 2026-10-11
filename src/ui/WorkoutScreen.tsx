@@ -18,6 +18,8 @@ interface Props {
   workoutName: string
   /** Jazyk hlasu pro slova v kole (9.2). */
   lang: VoiceLang
+  /** Trénink plánu: „Plán: 6 z 12 hotovo" na Hotovo. */
+  planNote?: string
   onPause: () => void
   onResume: () => void
   onSkip: () => void
@@ -33,7 +35,7 @@ const sayText = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}${/[.!?]$/.tes
 
 /** Trénink běží (DOKUMENTACE.md 9.2): Odpočet → Kolo → Pauza → … → Hotovo. */
 export function WorkoutScreen(props: Props) {
-  const { view, config, workoutName, lang, onPause, onResume, onSkip, onIntensity, onAgain, onClose } = props
+  const { view, config, workoutName, lang, planNote, onPause, onResume, onSkip, onIntensity, onAgain, onClose } = props
   const { phase, round, rounds, remainingMs, durationMs, paused } = view
   const [asking, setAsking] = useState(false)
   const [quick, setQuick] = useState(false)
@@ -74,6 +76,7 @@ export function WorkoutScreen(props: Props) {
               {view.callSeq} {plural(view.callSeq, 'kombo', 'komba', 'komb')} · {view.punches}{' '}
               {plural(view.punches, 'úder', 'údery', 'úderů')}
             </span>
+            {planNote && <span className="label-15">{planNote}</span>}
           </div>
         </div>
         <div className="stack gap-10">

@@ -43,5 +43,5 @@ export function createSelector(pool: readonly Combo[], level: Level, rng: () => 
 }
 
 /** „Znovu!" místo nového komba? `repeats` = kolikrát po sobě už zaznělo; nejvýš MAX_REPEATS (7.9). */
-export const shouldRepeat = (rng: () => number, repeats: number): boolean =>
-  repeats < MAX_REPEATS && rng() < REPEAT_CHANCE
+export const shouldRepeat = (rng: () => number, repeats: number, chance = REPEAT_CHANCE): boolean =>
+  repeats < MAX_REPEATS && rng() < chance

@@ -16,6 +16,8 @@ interface Props {
   onSettings: (s: Settings) => void
   config: WorkoutConfig
   onConfig: (c: WorkoutConfig) => void
+  /** Běží plán — nastavení kol platí jen mimo něj (9.6). */
+  planActive: boolean
   onBack: () => void
 }
 
@@ -24,7 +26,7 @@ const LEVEL_OPTIONS = LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] }))
 const INTENSITY_OPTIONS = INTENSITY_CHOICES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
 
 /** Nastavení (DOKUMENTACE.md 9.6, Nastaveni.html) — vše se ukládá hned. */
-export function SettingsScreen({ settings, onSettings, config, onConfig, onBack }: Props) {
+export function SettingsScreen({ settings, onSettings, config, onConfig, planActive, onBack }: Props) {
   useThemeColor('--paper')
   const [playing, setPlaying] = useState<VoiceInfo['id'] | null>(null)
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => onSettings({ ...settings, [key]: value })
@@ -108,6 +110,7 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, onBack 
               onChange={(v) => set('prepSec', v)}
             />
           </div>
+          {planActive && <p className="settings-note">Plán má vlastní kola a tempo. Tohle platí pro trénink mimo plán.</p>}
         </section>
 
         <section className="section">

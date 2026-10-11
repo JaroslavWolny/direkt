@@ -2,8 +2,9 @@ import { voiceDurationMs, clipsFor } from '../audio/voice'
 import type { VoiceId, VoiceLang } from '../data/voices'
 import { LEVEL_LABEL } from '../data/combos'
 import { wordText, type Move } from '../data/moves'
-import type { Intensity } from '../engine/constants'
-import type { WorkoutConfig } from '../engine/timeline'
+import { INTENSITY_LABEL, type Intensity } from '../engine/constants'
+import type { PlanAnswers } from '../engine/plan'
+import type { Focus, WorkoutConfig } from '../engine/timeline'
 import { gapMs } from '../engine/timing'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -45,3 +46,16 @@ export const comboSec = (moves: readonly Move[], intensity: Intensity, voice: Vo
 /** Dlouhá sekvence v kole dostane menší písmo (zadání, kap. 8). */
 export const wordsAreLong = (moves: readonly Move[], lang: VoiceLang): boolean =>
   moves.map((m) => wordText(m, lang)).join('').length + moves.length > 18
+
+// ---------- plán (7.11) ----------
+
+export const EXPERIENCE_LABEL = ['Začínám', 'Trénuju', 'Závodím'] as const
+export const FOCUS_LABEL: Record<Focus, string> = { kondice: 'Kondice', technika: 'Technika' }
+
+/** Řádek tréninku plánu: „4 kola · 3:00 / 0:45 · Rostoucí". */
+export const sessionMeta = (c: WorkoutConfig): string =>
+  `${rounds(c.rounds)} · ${formatSec(c.roundSec)} / ${formatSec(c.restSec)} · ${INTENSITY_LABEL[c.intensity]}`
+
+/** Odpovědi dotazníku: „Trénuju · Kondice · 3× týdně · 25 min". */
+export const answersText = (a: PlanAnswers): string =>
+  `${EXPERIENCE_LABEL[a.experience]} · ${FOCUS_LABEL[a.goal]} · ${a.perWeek}× týdně · ${a.minutes} min`
