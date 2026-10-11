@@ -1,13 +1,13 @@
 // Časová osa tréninku a zvukové události (DOKUMENTACE.md kap. 7.3).
 import type { Level } from '../data/combos'
-import { COUNTDOWN_BEEPS_S, WARNING_BEFORE_END_MS, WARNING_MIN_ROUND_MS, type Intensity } from './constants'
+import { COUNTDOWN_BEEPS_S, WARNING_BEFORE_END_MS, WARNING_MIN_ROUND_MS, type IntensityChoice } from './constants'
 
 export interface WorkoutConfig {
   rounds: number
   roundSec: number
   restSec: number
   level: Level
-  intensity: Intensity
+  intensity: IntensityChoice
 }
 
 export type Phase = 'prep' | 'round' | 'rest' | 'done'

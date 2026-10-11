@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { comboTitle } from '../data/moves'
 import type { VoiceLang } from '../data/voices'
-import { INTENSITIES, INTENSITY_LABEL, type Intensity } from '../engine/constants'
+import { INTENSITY_CHOICES, INTENSITY_LABEL, type IntensityChoice } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
 import { inFinisher } from '../engine/timing'
 import { PHRASES, type WorkoutView } from '../workout/runner'
@@ -21,12 +21,12 @@ interface Props {
   onPause: () => void
   onResume: () => void
   onSkip: () => void
-  onIntensity: (i: Intensity) => void
+  onIntensity: (i: IntensityChoice) => void
   onAgain: () => void
   onClose: () => void
 }
 
-const INTENSITY_OPTIONS = INTENSITIES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
+const INTENSITY_OPTIONS = INTENSITY_CHOICES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
 
 /** „jedna, dva, tři na tělo" → „Jedna, dva, tři na tělo!" */
 const sayText = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}${/[.!?]$/.test(s) ? '' : '!'}`
@@ -68,7 +68,7 @@ export function WorkoutScreen(props: Props) {
           </div>
           <div className="stack gap-6 done-caption">
             <span className="label-15 muted">
-              {plural(rounds, 'kolo', 'kola', 'kol')} · celkem {formatSec(view.activeMs / 1000)}
+              {plural(rounds, 'kolo', 'kola', 'kol')} · celkem {formatSec(view.boxedMs / 1000)}
             </span>
             <span className="label-15 muted">
               {view.callSeq} {plural(view.callSeq, 'kombo', 'komba', 'komb')} · {view.punches}{' '}
@@ -212,7 +212,7 @@ export function WorkoutScreen(props: Props) {
 
       <section className="stack gap-16" aria-label="Aktuální kombo">
         <div className="top-bar label-15">
-          <span>{finisher ? 'Finiš' : 'Kombo'}</span>
+          <span>{finisher ? 'Finiš' : view.repeat ? 'Znovu' : 'Kombo'}</span>
           <span>
             {finisher
               ? 'Do gongu'
@@ -261,6 +261,11 @@ export function WorkoutScreen(props: Props) {
         <Sheet label="Nastavení tréninku" onClose={() => setQuick(false)}>
           <h2 className="display-s sheet-title">Intenzita</h2>
           <Segmented label="Intenzita" value={config.intensity} options={INTENSITY_OPTIONS} onChange={onIntensity} />
+          {config.intensity === 'ramp' && (
+            <p className="label-15 muted">
+              Kolo {round}: {INTENSITY_LABEL[view.tempo]}
+            </p>
+          )}
           <p className="label-15 muted">Platí od dalšího komba.</p>
           <button type="button" className="primary-btn" onClick={() => setQuick(false)}>
             Hotovo

@@ -3,7 +3,7 @@ import { clipsFor, previewClips } from '../audio/voice'
 import { LEVEL_LABEL, LEVELS } from '../data/combos'
 import { parseMoves } from '../data/moves'
 import { VOICES, type VoiceInfo } from '../data/voices'
-import { INTENSITIES, INTENSITY_LABEL, LIMITS } from '../engine/constants'
+import { INTENSITY_CHOICES, INTENSITY_LABEL, LIMITS } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
 import type { Settings } from '../store/storage'
 import { IconButton, Segmented, Stepper, SwitchRow } from './controls'
@@ -21,7 +21,7 @@ interface Props {
 
 const SAMPLE = clipsFor(parseMoves('1 2 3t uklon'))
 const LEVEL_OPTIONS = LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] }))
-const INTENSITY_OPTIONS = INTENSITIES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
+const INTENSITY_OPTIONS = INTENSITY_CHOICES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
 
 /** Nastavení (DOKUMENTACE.md 9.6, Nastaveni.html) — vše se ukládá hned. */
 export function SettingsScreen({ settings, onSettings, config, onConfig, onBack }: Props) {

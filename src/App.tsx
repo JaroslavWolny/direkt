@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { loadVoice } from './audio/voice'
 import { BUILTIN_COMBOS } from './data/combos'
 import { voiceLang } from './data/voices'
-import type { Intensity } from './engine/constants'
+import type { Intensity, IntensityChoice } from './engine/constants'
 import { buildPool } from './engine/selector'
 import type { WorkoutConfig } from './engine/timeline'
 import {
@@ -47,6 +47,8 @@ export default function App() {
     [all, library.disabled, config.level],
   )
   const workoutName = presets.find((p) => sameConfig(p.config, config))?.name ?? 'Vlastní trénink'
+  // Délky komb v seznamech: u stupňované intenzity Středním tempem (7.10).
+  const listTempo: Intensity = config.intensity === 'ramp' ? 1 : config.intensity
 
   /** Volat přímo z ťuknutí — runner rozjede zvuk v gestu (R1). */
   const start = (c: WorkoutConfig) => workout.start(c, settings, poolFor(c))
@@ -61,7 +63,7 @@ export default function App() {
         onPause={workout.pause}
         onResume={workout.resume}
         onSkip={workout.skip}
-        onIntensity={(i: Intensity) => {
+        onIntensity={(i: IntensityChoice) => {
           setConfig({ ...config, intensity: i })
           workout.setIntensity(i)
         }}
@@ -85,7 +87,7 @@ export default function App() {
           all={all}
           library={library}
           onLibrary={setLibrary}
-          intensity={config.intensity}
+          intensity={listTempo}
           voice={settings.voice}
           silentOverride={settings.silentOverride}
           onBack={home}
@@ -97,7 +99,7 @@ export default function App() {
           all={all}
           library={library}
           onLibrary={setLibrary}
-          intensity={config.intensity}
+          intensity={listTempo}
           voice={settings.voice}
           silentOverride={settings.silentOverride}
           onBack={home}

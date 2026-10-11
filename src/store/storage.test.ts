@@ -63,6 +63,11 @@ describe('obranné čtení úložiště', () => {
     expect(sanitizeSettings({ prepSec: 22.4 }).prepSec).toBe(20)
   })
 
+  it('stupňovaná intenzita se načte, neznámá padne na výchozí', () => {
+    expect(sanitizeConfig({ intensity: 'ramp' }).intensity).toBe('ramp')
+    expect(sanitizeConfig({ intensity: 'turbo' }).intensity).toBe(1)
+  })
+
   it('hlas: známé id se nechá, neznámé → výchozí (Harry)', () => {
     expect(DEFAULT_SETTINGS.voice).toBe('harry')
     expect(sanitizeSettings({ voice: 'antonin' }).voice).toBe('antonin')

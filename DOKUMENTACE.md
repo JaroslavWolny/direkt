@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v6 (finiš v posledních 10 s kola, počty na obrazovce Hotovo), 11. 10. 2026.
+Stav: v7 (opakování komba „Znovu!", stupňované tempo, čas v kolech na Hotovo), 11. 10. 2026.
 
 ---
 
@@ -56,6 +56,9 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 - **v6** (uživatel, 11. 10. 2026): **finiš** — posledních 10 s kola volné údery naplno
   místo komb (7.8); obrazovka Hotovo ukáže počet komb a úderů. Nic se neukládá, historie
   dál ne. Větší písmo komba v kole ne („to je v klidu, když to stejně poslouchám").
+- **v7** (uživatel, 11. 10. 2026): trenér občas zavelí **„Znovu!"** = stejné kombo ještě jednou
+  (7.9); **stupňované tempo** jako čtvrtá volba intenzity (7.10); „celkem" na Hotovo = jen čas
+  v kolech; „Poslední kolo" až po gongu, ať ho gong nepřehluší.
 
 ## 3. Platforma a stack
 
@@ -190,7 +193,8 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
 ### 7.2 Načasování hlášení
 
 - **Mezera** (od konce řeči do dalšího hlášení) = `základ[tempo] + 700 ms × počet akcí`.
-  Akce = každý úder i obranný pohyb.
+  Akce = každý úder i obranný pohyb. Tempo = zvolená intenzita, u stupňované tempo
+  aktuálního kola (7.10).
 - `základ`: **Lehké 2800 ms, Střední 1800 ms, Tvrdé 800 ms.** 700 ms na akci pro všechna
   tempa. (Konstanty doladěné na pytli — AveReiDev/strikr PROJECT-STATUS.)
 - **Délka hlášení** = součet délek klipů (bez ticha na krajích) + 70 ms mezi slovy. Než se
@@ -211,7 +215,7 @@ nepočítají pauzu. Zvukové události vznikají porovnáním dvou po sobě jdo
 | Událost | Kdy | Zvuk |
 |---|---|---|
 | `beep` | 3, 2, 1 s před koncem přípravy a pauzy | krátké pípnutí |
-| `roundStart` | začátek kola | gong ×1; v posledním kole (pokud kol > 1) hlas „Poslední kolo" |
+| `roundStart` | začátek kola | gong ×1; v posledním kole (pokud kol > 1) hlas „Poslední kolo" 0,4 s po gongu (úder gongu by ho přehlušil) |
 | `warning` | 10 s před koncem kola (jen kola ≥ 30 s) | 2× klepnutí (jako klapačka v gymu) + hlas „Naplno!" — začíná finiš (7.8) |
 | `roundEnd` | konec kola | gong ×3 |
 | `finish` | konec posledního kola | po gongu hlas „Hotovo. Dobrá práce." |
@@ -227,7 +231,7 @@ posledního komba, ne půlka. **Konec (✕):** dvě ťuknutí (první ukáže �
 | Délka kola | 1:00–10:00 | 0:30 (v UI čipy 1 2 3 4 5 6 7 8 10 min) | 3:00 |
 | Pauza | 0:15–3:00 | 0:15 (v UI čipy 0:30 1:00 1:30 2:00 3:00) | 1:00 |
 | Úroveň | Začátečník / Pokročilý / Expert | | Začátečník |
-| Intenzita | Lehká / Střední / Tvrdá | | Střední |
+| Intenzita | Lehká / Střední / Tvrdá / Rostoucí (7.10) | | Střední |
 
 3:00 kolo / 1:00 pauza = profesionální formát mužů; ženská a amatérská pravidla se
 podle zdrojů liší, proto je vše nastavitelné.
@@ -259,6 +263,28 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
 - Obrazovka kola ve finiši ukazuje místo komba „NAPLNO" / „ALL OUT" (9.2).
 - Čisté funkce `comboWindowMs` a `inFinisher` v `src/engine/timing.ts`, testované.
 
+### 7.9 Znovu (opakování komba)
+
+- Místo nového komba trenér s pravděpodobností **25 %** zavelí jen „Znovu!" / „Again!" — boxer
+  zopakuje kombo, které právě udělal (jak se v boxerně drilují komba).
+- Kombo jde **nejvýš 3× po sobě** (max. 2× „Znovu"), pak vždy nové. Jen v rámci kola — první
+  hlášení kola je vždy kombo.
+- Mezera po „Znovu" = mezera toho komba (7.2); platí i okno před finišem (7.8).
+- Počty na Hotovo ho započítají jako další kombo s jeho údery (boxer ho opravdu udělal).
+- Náhoda jde přes stejný seedovatelný generátor jako výběr (testy deterministické).
+  Konstanty `REPEAT_CHANCE`, `MAX_REPEATS` v `src/engine/constants.ts`.
+
+### 7.10 Stupňované tempo
+
+- Čtvrtá volba intenzity **Rostoucí** („Stupňovaná" se do segmentu 83 px nevešla): první
+  kolo Lehké, poslední Tvrdé, mezi nimi rovnoměrně: tempo kola r z N = `round(2 × (r − 1) / (N − 1))` (3 kola: Lehké, Střední,
+  Tvrdé; 6 kol: L L S S T T). Jedno kolo = Střední.
+- Úroveň komb se nemění, jen tempo (mezera mezi komby).
+- Přepnutí na pevné tempo v panelu během kola platí od dalšího komba; zpět na Rostoucí
+  vrátí tempo podle kola.
+- Délky komb v seznamech (9.3) se u Rostoucí počítají Středním tempem.
+- Čistá funkce `tempoForRound` v `src/engine/timing.ts`, testovaná.
+
 ## 8. Zvuk a hlas (`src/audio/`)
 
 - Vše hraje sdílená `AudioContext` z `context.ts` (výstup přes kompresor): hlas `voice.ts`,
@@ -277,7 +303,8 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
   jako celek `t1`–`t6` „Tři na tělo!" / „Three body!"; obrana `uklon zaklon ponor kryt vzad ukrok`
   „Úklon!" / „Slip!", „Záklon!" / „Pull!", „Ponoř!" / „Roll!", „Kryt!" / „Block!", „Vzad!" /
   „Back!", „Úkrok!" / „Pivot!"; hlášky `pripravse` „Připrav se!" / „Get ready!", `posledni`
-  „Poslední kolo!" / „Last round!", `naplno` „Naplno!" / „All out!" (finiš 7.8), `hotovo`
+  „Poslední kolo!" / „Last round!", `naplno` „Naplno!" / „All out!" (finiš 7.8), `znovu`
+  „Znovu!" / „Again!" (7.9; zrychlený a s limitem délky jako slova komb), `hotovo`
   „Hotovo. Dobrá práce!" / „Time! Great work!".
 - **Generování** (`scripts/gen-voice.py`): syntéza → ořez ticha (Edge −50 dB, ElevenLabs −38 dB
   kvůli dozvuku výkřiků) → mírná komprese → mono 24 kHz → špička −1 dBFS → MP3 64 kb/s.
@@ -348,6 +375,9 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   „„Jedna, dva, tři na tělo!"" / „„One, two, three body!"". Čipy v odpočtu a pauze
   („3T", „Ú") zůstávají zápisem appky (legenda v Kombech). Dole Další kolo (= přeskočit zbytek kola, 7.5) ·
   pauza/pokračovat (bílý kruh 84 px) · Konec (dialog).
+  **Znovu** (7.9): řádek „Znovu" / „N úderů", sekvence téhož komba celá bíle (bez zvýraznění
+  úderu — hlas říká jen „Znovu"), bublina „„Znovu!"" / „„Again!"".
+  Panel intenzity u Rostoucí ukáže pod volbou „Kolo 2: Střední" (tempo kola).
   **Finiš** (7.8): řádek „Finiš" / „Do gongu", místo sekvence „NAPLNO" / „ALL OUT" v bílé
   pilulce (styl aktuálního úderu), bublina „„Naplno!"" / „„All out!"".
 - **Pauza** (`Pauza.html`, ink): ×, „Kolo 1 ze 3 hotovo", RoundProgress (hotová kola
@@ -355,7 +385,8 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   karta **Další kombo** (předem vylosované první kombo dalšího kola) s názvem a obrácenou
   sekvencí; kulaté pozastavení 60 px + bílá pilulka **Přeskočit pauzu**.
 - **Hotovo** (není v předlohách, styl paper): „HOTOVO", obří počet kol v akcentu,
-  „kola · celkem m:ss" (skutečně odcvičený čas bez pauz a přeskočených úseků), pod tím
+  „kola · celkem m:ss" (čas v kolech: bez přípravy, pauz mezi koly, pozastavení a přeskočených
+  částí kol), pod tím
   „42 komb · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
   se neukládá), PrimaryButton **Znovu** (stejný trénink) a pilulka **Domů**.
 - **Dialog „Ukončit trénink?"**: bílá karta r28, Pokračovat / Ukončit.
@@ -394,7 +425,7 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
 - **Hlas trenéra:** řádek pro každý hlas (jméno + „Angličtina · bojovník" apod.), ťuk na řádek
   = vybrat (kolečko vlevo), akcentové play vpravo = ukázka „One, two, three body, slip" v tom
   hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
-- **Intenzita:** segmenty Lehká / Střední / Tvrdá.
+- **Intenzita:** segmenty Lehká / Střední / Tvrdá / Rostoucí (7.10).
 - **Úroveň:** segmenty Začátečník / Pokročilý / Expert (navíc oproti předloze).
 - **Kolo:** krokovače Počet kol, Délka kola (1:00–10:00 po 0:30), Pauza mezi koly
   (0:15–3:00 po 0:15), Odpočet (před startem, 5–60 s).
@@ -430,7 +461,7 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
 
 | Klíč | Obsah |
 |---|---|
-| `config` | aktuální nastavení tréninku (7.4) |
+| `config` | aktuální nastavení tréninku (7.4); `intensity` = 0 / 1 / 2 / `'ramp'` (Rostoucí) |
 | `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
@@ -451,7 +482,8 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   bazén; mezery pro všechna tempa; hlídání konce kola nikdy nepřetáhne; časová osa
   (hranice fází, celková délka); každá událost právě jednou i při velkém skoku času;
   text řeči; obranné čtení úložiště; přeskočení fáze pustí jen události na hranici; žádné
-  kombo nepřetáhne do finiše; začátek a konec finiše.
+  kombo nepřetáhne do finiše; začátek a konec finiše; „Znovu" ≈ 25 % a nikdy víc než 2× po
+  sobě; tempo stupňované po kolech.
 - `npm run build` (tsc + vite) a `npm run lint` čisté.
 - **Prohlížeč** (chrome-devtools, viewport iPhone 15 Pro 393 × 852, DPR 3, simulované
   safe-area 59/34 px): projet trénink 1 kolo × 1 min, žádné chyby v konzoli, hlášení
@@ -462,7 +494,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 1. Safari → URL → Sdílet → Přidat na plochu → otevřít z plochy.
 2. Nastavení → Hlas trenéra → poslechnout Harry / Charlie / Adam / Antonín, jeden vybrat.
 3. Trénink 1 × 1:00: „Připrav se", pípání 3-2-1, gong, komba, v 0:10 klepnutí + „Naplno!"
-   a do gongu žádné kombo, 3× gong; Hotovo ukáže počet komb a úderů.
+   a do gongu žádné kombo, 3× gong; Hotovo ukáže počet komb a úderů a „celkem 1:00".
+   Během tréninku občas „Again!" bez čísel.
+   Trénink 3 × 1:00 s Rostoucí: kolo 1 znatelně volnější mezery než kolo 3.
 4. S hudbou ze Spotify na obvyklou hlasitost: hudba se **neztiší** (R3 — web to neumí), hlas
    ji musí přehlušit sám. Ověřit, že jsou čísla slyšet od pytle během úderů. Když ne →
    nahlásit (řešení: hlasitější klipy / tvrdší kompresor, jinak ztlumit hudbu).
@@ -496,6 +530,8 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 12. **v6:** git repozitář; finiš (7.8) + počty na Hotovo; klip `naplno` pro 4 hlasy (kontrola
     přepisem); oprava dokumentace a README podle skutečnosti → testy, build, kontrola
     v prohlížeči, deploy.
+13. **v7:** „Znovu" (7.9) + klip `znovu` pro 4 hlasy; stupňované tempo (7.10); celkem = čas
+    v kolech; „Poslední kolo" po gongu → testy, build, kontrola v prohlížeči, deploy.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")
 

@@ -6,8 +6,8 @@ import { acquireWakeLock, reacquireWakeLock, releaseWakeLock } from '../audio/wa
 import type { Combo } from '../data/combos'
 import { voiceLang, type VoiceId, type VoiceLang } from '../data/voices'
 import { isDefense, speechText } from '../data/moves'
-import { FIRST_CALL_DELAY_MS } from '../engine/constants'
-import { createSelector } from '../engine/selector'
+import { FIRST_CALL_DELAY_MS, type Intensity } from '../engine/constants'
+import { createSelector, shouldRepeat } from '../engine/selector'
 import {
   buildSegments,
   eventsBetween,
@@ -20,7 +20,7 @@ import {
   type WorkoutConfig,
   type WorkoutEvent,
 } from '../engine/timeline'
-import { comboWindowMs, fitsInRound, gapMs } from '../engine/timing'
+import { comboWindowMs, fitsInRound, gapMs, tempoForRound } from '../engine/timing'
 import type { Settings } from '../store/storage'
 
 export interface WorkoutView extends PhaseState {
@@ -28,6 +28,10 @@ export interface WorkoutView extends PhaseState {
   combo: Combo | null
   /** Index úderu, který hlas právě říká; −1 když nemluví (kap. 9.2). */
   moveIndex: number
+  /** Kombo je zopakované na „Znovu!" (7.9). */
+  repeat: boolean
+  /** Tempo aktuálního kola — u stupňované intenzity se mění po kolech (7.10). */
+  tempo: Intensity
   /** První kombo dalšího kola — příprava a Pauza ho ukazují dopředu (7.6). */
   upcoming: Combo | null
   /** Roste s každým hlášením — klíč pro animaci nového komba a počet komb na Hotovo. */
@@ -39,8 +43,8 @@ export interface WorkoutView extends PhaseState {
   speaking: boolean
   paused: boolean
   wakeLockFailed: boolean
-  /** Skutečně odcvičený čas — bez pozastavení a přeskočených úseků (obrazovka Hotovo). */
-  activeMs: number
+  /** Čas v kolech bez přeskočených částí — „celkem" na Hotovo (9.2). */
+  boxedMs: number
 }
 
 const TICK_MS = 100
@@ -48,19 +52,24 @@ const FINISH_SPEECH_DELAY_MS = 2600
 const AFTER_ANNOUNCE_MS = 800
 /** „Naplno!" až po dvojím klepnutí (~0,24 s), ať se nepřekryjí (7.8). */
 const FINISHER_LEAD_S = 0.3
+/** „Poslední kolo" až po úderu gongu, jinak v něm zanikne (7.3). */
+const LAST_ROUND_LEAD_S = 0.4
 /** Delší mezera mezi tiky = appka byla uspaná (jen bez automatické pauzy, 7.7). */
 const RESYNC_GAP_MS = 2000
 
-/** Hlášky mimo komba v jazyce hlasu (text do bubliny; klipy pripravse/posledni/naplno/hotovo). */
-export const PHRASES: Record<VoiceLang, Record<'pripravse' | 'posledni' | 'naplno' | 'hotovo', string>> = {
-  cs: { pripravse: 'Připrav se', posledni: 'Poslední kolo', naplno: 'Naplno', hotovo: 'Hotovo. Dobrá práce.' },
-  en: { pripravse: 'Get ready', posledni: 'Last round', naplno: 'All out', hotovo: 'Time! Great work!' },
+type Phrase = 'pripravse' | 'posledni' | 'naplno' | 'znovu' | 'hotovo'
+
+/** Hlášky mimo komba v jazyce hlasu (text do bubliny; klip má stejné id). */
+export const PHRASES: Record<VoiceLang, Record<Phrase, string>> = {
+  cs: { pripravse: 'Připrav se', posledni: 'Poslední kolo', naplno: 'Naplno', znovu: 'Znovu', hotovo: 'Hotovo. Dobrá práce.' },
+  en: { pripravse: 'Get ready', posledni: 'Last round', naplno: 'All out', znovu: 'Again', hotovo: 'Time! Great work!' },
 }
 
 export class WorkoutRunner {
   private readonly segs: Segment[]
   private readonly events: WorkoutEvent[]
   private readonly next: () => Combo
+  private readonly rng: () => number
   private readonly voiceId: VoiceId
   private readonly lang: VoiceLang
   private readonly config: WorkoutConfig
@@ -68,7 +77,8 @@ export class WorkoutRunner {
   private readonly onView: (v: WorkoutView) => void
   private accumulated = 0
   private runningSince: number | null = null
-  private activeMs = 0
+  /** Přeskočené části kol — odečtou se od „celkem" (9.2). */
+  private skippedRoundMs = 0
   private prevMs = -1
   private timer: ReturnType<typeof setInterval> | null = null
   private finishTimer: ReturnType<typeof setTimeout> | null = null
@@ -82,6 +92,9 @@ export class WorkoutRunner {
   private clipStarts: number[] = []
   private intensity: WorkoutConfig['intensity']
   private lastCombo: Combo | null = null
+  /** Kolikrát po sobě zaznělo „Znovu" (7.9). */
+  private repeats = 0
+  private repeat = false
   private combo: Combo | null = null
   private callSeq = 0
   private punches = 0
@@ -101,6 +114,7 @@ export class WorkoutRunner {
     this.segs = buildSegments(config, settings.prepSec)
     this.events = scheduleEvents(this.segs)
     this.next = createSelector(pool, config.level, rng)
+    this.rng = rng
     this.voiceId = settings.voice
     this.lang = voiceLang(settings.voice)
     this.intensity = config.intensity
@@ -122,7 +136,6 @@ export class WorkoutRunner {
   pause(): void {
     if (this.runningSince === null || this.finished) return
     this.accumulated = this.elapsed()
-    this.activeMs += performance.now() - this.runningSince
     this.runningSince = null
     this.silence()
     this.emit()
@@ -139,7 +152,7 @@ export class WorkoutRunner {
     if (phaseAt(this.segs, now).phase === 'round') {
       // Po pauze celá mezera posledního komba, ne její zbytek (7.3).
       this.nextCallAt =
-        now + (this.lastCombo ? gapMs(this.lastCombo.moves.length, this.intensity) : FIRST_CALL_DELAY_MS)
+        now + (this.lastCombo ? gapMs(this.lastCombo.moves.length, this.tempo()) : FIRST_CALL_DELAY_MS)
     }
     this.tick()
   }
@@ -156,6 +169,7 @@ export class WorkoutRunner {
     const end = segmentEnd(this.segs, now)
     if (end === null) return
     this.silence()
+    if (phaseAt(this.segs, now).phase === 'round') this.skippedRoundMs += end - now
     this.accumulated += end - now
     this.prevMs = end - 1
     this.process(this.elapsed())
@@ -187,6 +201,11 @@ export class WorkoutRunner {
     stopKeepAlive()
     releaseWakeLock()
     setSilentOverride(false)
+  }
+
+  /** Tempo podle intenzity a kola, které běží (7.10). */
+  private tempo(): Intensity {
+    return tempoForRound(this.intensity, phaseAt(this.segs, this.elapsed()).round, this.config.rounds)
   }
 
   private elapsed(): number {
@@ -256,21 +275,26 @@ export class WorkoutRunner {
 
   /** windowMs = čas do finiše, kolo bez finiše do gongu (7.8). */
   private call(windowMs: number): void {
-    const combo = this.upcoming ?? this.next()
-    this.upcoming = null
-    const clips = clipsFor(combo.moves)
+    const last = this.lastCombo
+    // „Znovu!" = stejné kombo ještě jednou, hlas řekne jen to slovo (7.9).
+    const again = last !== null && shouldRepeat(this.rng, this.repeats)
+    const combo = again ? last : (this.upcoming ?? this.next())
+    if (!again) this.upcoming = null
+    const clips = again ? ['znovu'] : clipsFor(combo.moves)
     if (!fitsInRound(windowMs, voiceDurationMs(this.voiceId, clips), combo.moves.length)) {
       this.nextCallAt = Infinity // radši ticho než useknuté kombo
       return
     }
+    this.repeats = again ? this.repeats + 1 : 0
+    this.repeat = again
     this.speaking = true
     this.combo = combo
     this.lastCombo = combo
     this.callSeq++
     this.punches += combo.moves.filter((m) => !isDefense(m)).length
-    this.speak(clips, speechText(combo.moves, this.lang), () => {
+    this.speak(clips, again ? PHRASES[this.lang].znovu : speechText(combo.moves, this.lang), () => {
       this.speaking = false
-      this.nextCallAt = this.elapsed() + gapMs(combo.moves.length, this.intensity)
+      this.nextCallAt = this.elapsed() + gapMs(combo.moves.length, this.tempo())
     })
   }
 
@@ -283,14 +307,20 @@ export class WorkoutRunner {
         bell(1)
         this.combo = null
         this.lastCombo = null
+        this.repeats = 0
         this.spoken = null // „Naplno!" z minulého kola do nového nepatří
         this.nextCallAt = e.atMs + FIRST_CALL_DELAY_MS
         if (e.lastRound) {
           this.speaking = true
-          this.speak(['posledni'], PHRASES[this.lang].posledni, () => {
-            this.speaking = false
-            this.nextCallAt = Math.max(this.nextCallAt, this.elapsed() + AFTER_ANNOUNCE_MS)
-          })
+          this.speak(
+            ['posledni'],
+            PHRASES[this.lang].posledni,
+            () => {
+              this.speaking = false
+              this.nextCallAt = Math.max(this.nextCallAt, this.elapsed() + AFTER_ANNOUNCE_MS)
+            },
+            LAST_ROUND_LEAD_S,
+          )
         }
         break
       case 'warning':
@@ -318,7 +348,6 @@ export class WorkoutRunner {
   private finish(): void {
     this.finished = true
     this.accumulated = totalMs(this.segs)
-    if (this.runningSince !== null) this.activeMs += performance.now() - this.runningSince
     this.runningSince = null
     if (this.timer) clearInterval(this.timer)
     this.timer = null
@@ -336,7 +365,7 @@ export class WorkoutRunner {
       : phaseAt(this.segs, this.elapsed())
     const now = performance.now()
     const moveIndex =
-      this.voiceActive && this.combo && this.clipStarts.length > 0
+      this.voiceActive && this.combo && !this.repeat && this.clipStarts.length > 0
         ? this.clipStarts.filter((t) => t <= now).length - 1
         : -1
     this.onView({
@@ -344,6 +373,8 @@ export class WorkoutRunner {
       rounds: this.config.rounds,
       combo: this.combo,
       moveIndex,
+      repeat: this.repeat && this.combo !== null,
+      tempo: this.tempo(),
       upcoming: this.upcoming,
       callSeq: this.callSeq,
       punches: this.punches,
@@ -351,7 +382,7 @@ export class WorkoutRunner {
       speaking: this.voiceActive,
       paused: this.runningSince === null && !this.finished,
       wakeLockFailed: this.wakeLockFailed,
-      activeMs: this.activeMs + (this.runningSince === null ? 0 : now - this.runningSince),
+      boxedMs: this.config.rounds * this.config.roundSec * 1000 - this.skippedRoundMs,
     })
   }
 }

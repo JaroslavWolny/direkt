@@ -2,7 +2,10 @@
 
 export type Intensity = 0 | 1 | 2
 export const INTENSITIES: readonly Intensity[] = [0, 1, 2]
-export const INTENSITY_LABEL: Record<Intensity, string> = { 0: 'Lehká', 1: 'Střední', 2: 'Tvrdá' }
+/** Volba v nastavení: pevné tempo, nebo stupňované po kolech (7.10). */
+export type IntensityChoice = Intensity | 'ramp'
+export const INTENSITY_CHOICES: readonly IntensityChoice[] = [...INTENSITIES, 'ramp']
+export const INTENSITY_LABEL: Record<IntensityChoice, string> = { 0: 'Lehká', 1: 'Střední', 2: 'Tvrdá', ramp: 'Rostoucí' }
 
 /** Čas na provedení jedné akce (úder i obrana), stejný pro všechna tempa. */
 export const PER_ACTION_MS = 700
@@ -15,6 +18,9 @@ export const FIRST_CALL_DELAY_MS = 1500
 export const LEVEL_WEIGHTS = [0.5, 0.3, 0.2] as const
 /** Kolik posledních komb se nesmí opakovat (víc nejde než velikost bazénu − 1). */
 export const NO_REPEAT_WINDOW = 3
+/** „Znovu!" místo nového komba: pravděpodobnost a max. počet po sobě (7.9). */
+export const REPEAT_CHANCE = 0.25
+export const MAX_REPEATS = 2
 
 /** Klepnutí 10 s před koncem kola, jen pro kola aspoň 30 s. */
 export const WARNING_BEFORE_END_MS = 10_000

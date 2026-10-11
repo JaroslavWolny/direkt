@@ -2,7 +2,7 @@
 import { LEVELS, type Combo, type Level } from '../data/combos'
 import { DEFAULT_VOICE, isVoiceId, type VoiceId } from '../data/voices'
 import { isMove } from '../data/moves'
-import { INTENSITIES, LIMITS, type Intensity, type Limit } from '../engine/constants'
+import { INTENSITY_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
 
 export interface Settings {
@@ -62,7 +62,7 @@ export function sanitizeConfig(x: unknown): WorkoutConfig {
     roundSec: clampToLimit(o.roundSec, LIMITS.roundSec, d.roundSec),
     restSec: clampToLimit(o.restSec, LIMITS.restSec, d.restSec),
     level: pickFrom<Level>(o.level, LEVELS, d.level),
-    intensity: pickFrom<Intensity>(o.intensity, INTENSITIES, d.intensity),
+    intensity: pickFrom<IntensityChoice>(o.intensity, INTENSITY_CHOICES, d.intensity),
   }
 }
 

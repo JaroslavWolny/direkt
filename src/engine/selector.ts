@@ -1,6 +1,6 @@
-// Výběr komba (DOKUMENTACE.md kap. 7.1).
+// Výběr komba (DOKUMENTACE.md kap. 7.1, Znovu 7.9).
 import type { Combo, Level } from '../data/combos'
-import { LEVEL_WEIGHTS, NO_REPEAT_WINDOW } from './constants'
+import { LEVEL_WEIGHTS, MAX_REPEATS, NO_REPEAT_WINDOW, REPEAT_CHANCE } from './constants'
 
 /** Zapnutá komba s úrovní ≤ zvolené. */
 export const buildPool = (combos: readonly Combo[], disabled: ReadonlySet<string>, level: Level): Combo[] =>
@@ -41,3 +41,7 @@ export function createSelector(pool: readonly Combo[], level: Level, rng: () => 
     return combo
   }
 }
+
+/** „Znovu!" místo nového komba? `repeats` = kolikrát po sobě už zaznělo; nejvýš MAX_REPEATS (7.9). */
+export const shouldRepeat = (rng: () => number, repeats: number): boolean =>
+  repeats < MAX_REPEATS && rng() < REPEAT_CHANCE

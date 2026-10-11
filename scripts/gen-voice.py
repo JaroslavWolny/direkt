@@ -35,14 +35,14 @@ TEXTS = {
         't1': 'Jedna na tělo!', 't2': 'Dva na tělo!', 't3': 'Tři na tělo!',
         't4': 'Čtyři na tělo!', 't5': 'Pět na tělo!', 't6': 'Šest na tělo!',
         'uklon': 'Úklon!', 'zaklon': 'Záklon!', 'ponor': 'Ponoř!', 'kryt': 'Kryt!', 'vzad': 'Vzad!', 'ukrok': 'Úkrok!',
-        'pripravse': 'Připrav se!', 'posledni': 'Poslední kolo!', 'naplno': 'Naplno!', 'hotovo': 'Hotovo. Dobrá práce!',
+        'pripravse': 'Připrav se!', 'posledni': 'Poslední kolo!', 'naplno': 'Naplno!', 'znovu': 'Znovu!', 'hotovo': 'Hotovo. Dobrá práce!',
     },
     'en': {
         'n1': 'One!', 'n2': 'Two!', 'n3': 'Three!', 'n4': 'Four!', 'n5': 'Five!', 'n6': 'Six!',
         't1': 'One body!', 't2': 'Two body!', 't3': 'Three body!',
         't4': 'Four body!', 't5': 'Five body!', 't6': 'Six body!',
         'uklon': 'Slip!', 'zaklon': 'Pull!', 'ponor': 'Roll!', 'kryt': 'Block!', 'vzad': 'Back!', 'ukrok': 'Pivot!',
-        'pripravse': 'Get ready!', 'posledni': 'Last round!', 'naplno': 'All out!', 'hotovo': 'Time! Great work!',
+        'pripravse': 'Get ready!', 'posledni': 'Last round!', 'naplno': 'All out!', 'znovu': 'Again!', 'hotovo': 'Time! Great work!',
     },
 }
 

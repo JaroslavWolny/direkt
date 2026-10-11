@@ -15,6 +15,7 @@ const CLIP_IDS = [
   'pripravse',
   'posledni',
   'naplno',
+  'znovu',
   'hotovo',
 ]
 

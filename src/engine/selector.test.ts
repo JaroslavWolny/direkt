@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { BUILTIN_COMBOS, type Combo, type Level } from '../data/combos'
-import { FIRST_CALL_DELAY_MS, INTENSITIES, PER_ACTION_MS, WARNING_BEFORE_END_MS } from './constants'
+import { FIRST_CALL_DELAY_MS, INTENSITIES, MAX_REPEATS, PER_ACTION_MS, WARNING_BEFORE_END_MS } from './constants'
 import { mulberry32 } from './random'
-import { buildPool, createSelector } from './selector'
-import { comboWindowMs, fitsInRound, gapMs, inFinisher } from './timing'
+import { buildPool, createSelector, shouldRepeat } from './selector'
+import { comboWindowMs, fitsInRound, gapMs, inFinisher, tempoForRound } from './timing'
 
 const draw = (level: Level, n: number, seed = 1, pool = buildPool(BUILTIN_COMBOS, new Set(), level)) => {
   const next = createSelector(pool, level, mulberry32(seed))
@@ -142,5 +142,54 @@ describe('finiš (7.8)', () => {
   it('kolo bez klepnutí (pod 30 s) finiš nemá', () => {
     expect(inFinisher(round(5_000, 20_000))).toBe(false)
     expect(comboWindowMs(5_000, 20_000)).toBe(5_000)
+  })
+})
+
+describe('Znovu (7.9)', () => {
+  const run = (seed: number) => {
+    const rng = mulberry32(seed)
+    let repeats = 0
+    return Array.from({ length: 10_000 }, () => {
+      repeats = shouldRepeat(rng, repeats) ? repeats + 1 : 0
+      return repeats
+    })
+  }
+
+  it('padne zhruba ve čtvrtině hlášení a nikdy víc než 2× po sobě', () => {
+    const seq = run(42)
+    const rate = seq.filter((r) => r > 0).length / seq.length
+    expect(Math.max(...seq)).toBe(MAX_REPEATS)
+    expect(rate).toBeGreaterThan(0.21) // ustálený stav ≈ 0,238 (strop 2× sníží 25 %)
+    expect(rate).toBeLessThan(0.27)
+  })
+
+  it('po dvou „Znovu" vždy nové kombo', () => {
+    expect(shouldRepeat(() => 0, MAX_REPEATS)).toBe(false)
+    expect(shouldRepeat(() => 0, 0)).toBe(true)
+    expect(shouldRepeat(() => 0.99, 0)).toBe(false)
+  })
+
+  it('se seedem deterministické', () => {
+    expect(run(7)).toEqual(run(7))
+  })
+})
+
+describe('stupňované tempo (7.10)', () => {
+  const tempos = (rounds: number) => Array.from({ length: rounds }, (_, i) => tempoForRound('ramp', i + 1, rounds))
+
+  it('od Lehkého po Tvrdé rovnoměrně', () => {
+    expect(tempos(3)).toEqual([0, 1, 2])
+    expect(tempos(6)).toEqual([0, 0, 1, 1, 2, 2])
+    expect(tempos(2)).toEqual([0, 2])
+    expect(tempos(12)[0]).toBe(0)
+    expect(tempos(12)[11]).toBe(2)
+  })
+
+  it('jedno kolo = Střední', () => {
+    expect(tempos(1)).toEqual([1])
+  })
+
+  it('pevná intenzita se po kolech nemění', () => {
+    for (const i of INTENSITIES) expect([1, 2, 3].map((r) => tempoForRound(i, r, 3))).toEqual([i, i, i])
   })
 })
