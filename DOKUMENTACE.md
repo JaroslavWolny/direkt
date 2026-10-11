@@ -707,7 +707,7 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   |---|---|---|---|
   | 0,0–2,2 | Háček | kobalt, obří bílá 1 → 2 → 3 dopadají po 0,6 s | „One!" „Two!" „Three!" + úder |
   | 2,2–4,4 | Hlavička | papír, „ŽÁDNÉ / ŘEČI. / JEN / ÚDERY." řádek po řádku (poslední dva akcent) | úder na každý řádek |
-  | 4,4–9,7 | Appka v kole | ink, nahoře „TELEFON / K PYTLI." + „Trenér hlásí komba. Ty biješ.", zespodu vyjede telefon s obrazovkou kola (skutečné HTML a CSS appky), čas běží, pilulka skáče po úderech přesně s hlasem, pak „Znovu" | gong, „One, two, three body, slip!", „Again!" |
+  | 4,4–9,7 | Appka v kole | ink, nahoře „TRENÉR / V MOBILU." + „Hlásí komba čísly. Ty biješ." (uživatel vybral z 5 variant; „k pytli" = česky „k ničemu"), zespodu vyjede telefon s obrazovkou kola (skutečné HTML a CSS appky), čas běží, pilulka skáče po úderech přesně s hlasem, pak „Znovu" | gong, „One, two, three body, slip!", „Again!" |
   | 9,7–12,9 | Funkce | karty po 0,55 s: „50 KOMB" · „ÚKLON. ZÁKLON. KRYT." · „PLÁN NA 4 TÝDNY" · „4 HLASY TRENÉRA" · „FINIŠ NAPLNO" (1 s) | úder na kartu; finiš 2× klepnutí + „All out!" |
   | 12,9–16,0 | Výzva | kobalt, spadne pytel, logotyp, „ZDARMA. / BEZ REGISTRACE.", `direkt-indol.vercel.app`, „iPhone: Safari → Sdílet → Přidat na plochu"; dole volno na nálepku Odkaz | 3× gong (konec kola) |
 
