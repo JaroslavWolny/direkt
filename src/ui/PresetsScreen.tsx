@@ -3,10 +3,9 @@ import type { WorkoutConfig } from '../engine/timeline'
 import { newId, type Preset } from '../store/storage'
 import { RoundBar } from './bars'
 import { IconButton, SwipeRow } from './controls'
-import { plural, presetMeta, workoutMinutes } from './format'
+import { presetMeta, workoutMinutes } from './format'
 import { IconBack, IconPlus } from './icons'
 import { useThemeColor } from './useThemeColor'
-import { useWholeRows } from './useWholeRows'
 import { WorkoutForm } from './WorkoutForm'
 
 interface Props {
@@ -22,7 +21,6 @@ interface Props {
 export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: Props) {
   useThemeColor('--paper')
   const [creating, setCreating] = useState(false)
-  const listRef = useWholeRows(presets.length)
 
   return (
     <div className="screen">
@@ -31,14 +29,17 @@ export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: P
         <IconButton label="Zpět" onClick={onBack}>
           <IconBack />
         </IconButton>
-        <span className="top-bar-note">
-          {presets.length} {plural(presets.length, 'uložený', 'uložené', 'uložených')}
-        </span>
+        <IconButton label="Nový trénink" onClick={() => setCreating(true)}>
+          <IconPlus />
+        </IconButton>
       </header>
 
-      <h1 className="display title-1">Tréninky</h1>
+      <div className="page-title">
+        <h1 className="display">Tréninky</h1>
+        <span className="count">{presets.length}</span>
+      </div>
 
-      <div className="list-scroll" ref={listRef}>
+      <div className="list-scroll">
         {presets.length === 0 ? (
           <div className="empty">
             <strong>Zatím žádný trénink.</strong>
@@ -72,11 +73,6 @@ export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: P
           ))
         )}
       </div>
-
-      <button type="button" className="primary-btn" onClick={() => setCreating(true)}>
-        <IconPlus />
-        Nový trénink
-      </button>
 
       {creating && (
         <WorkoutForm

@@ -6,11 +6,10 @@ import type { Library } from '../store/storage'
 import { ComboBuilder } from './ComboBuilder'
 import { ComboDetail } from './ComboDetail'
 import { IconButton, SwipeRow } from './controls'
-import { comboSec, formatSec, plural } from './format'
+import { comboSec, formatSec } from './format'
 import { IconBack, IconPlus } from './icons'
 import { PunchSequence } from './punch'
 import { useThemeColor } from './useThemeColor'
-import { useWholeRows } from './useWholeRows'
 
 interface Props {
   all: readonly Combo[]
@@ -29,7 +28,6 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
   const [detailId, setDetailId] = useState<string | null>(null)
   const disabled = new Set(library.disabled)
   const custom = library.custom
-  const listRef = useWholeRows(custom.length)
   const detail = custom.find((c) => c.id === detailId) ?? null
 
   const setEnabled = (id: string, on: boolean) =>
@@ -53,18 +51,18 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
         <IconButton label="Zpět" onClick={onBack}>
           <IconBack />
         </IconButton>
-        <span className="top-bar-note">
-          {custom.length} {plural(custom.length, 'kombo', 'komba', 'komb')}
-        </span>
+        <IconButton label="Sestavit kombo" onClick={() => setBuilding(true)}>
+          <IconPlus />
+        </IconButton>
       </header>
 
       <h1 className="display title-2">
         Vlastní
         <br />
-        komba
+        komba<span className="count">{custom.length}</span>
       </h1>
 
-      <div className="list-scroll" ref={listRef}>
+      <div className="list-scroll">
         {custom.length === 0 ? (
           <div className="empty">
             <strong>Zatím žádné kombo.</strong>
@@ -86,11 +84,6 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
           ))
         )}
       </div>
-
-      <button type="button" className="primary-btn" onClick={() => setBuilding(true)}>
-        <IconPlus />
-        Sestavit kombo
-      </button>
 
       {building && (
         <ComboBuilder

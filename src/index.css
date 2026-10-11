@@ -213,11 +213,6 @@ svg {
   font-weight: 600;
 }
 
-.top-bar-note {
-  font-size: 15px;
-  color: var(--muted);
-}
-
 .page-title {
   display: flex;
   flex: none;
@@ -949,14 +944,12 @@ svg {
 .list-scroll {
   flex: 1 1 auto;
   min-height: 0;
-  margin: 20px -20px 12px;
-  padding: 0 20px 1px; /* 1 px: poslední řádek dojede na stejnou pozici jako přichycení (−1 px) */
+  /* až k dolnímu okraji obrazovky jako .scroll; přidat se dá „+" nahoře (kap. 10) */
+  margin: 20px -20px calc(-28px - var(--sab));
+  padding: 0 20px calc(28px + var(--sab));
+  overflow-x: hidden;
   overflow-y: auto;
-}
-
-/* Seznam má výšku na celé řádky (useWholeRows); zbytek místa je vzduch nad tlačítkem u dna. */
-.list-scroll + .primary-btn {
-  margin-top: auto;
+  overscroll-behavior-y: contain;
 }
 
 /* Seznam pod pevnou hlavičkou: odrolovaný obsah mizí pod hranou s hairline, ne pod pilulkami
@@ -1411,15 +1404,21 @@ svg {
   opacity: 0.4;
 }
 
-.title-1 {
-  flex: none;
-  margin-top: 12px;
-}
-
 .title-2 {
   flex: none;
   margin-top: 12px;
   line-height: 0.95;
+}
+
+/* počet hned za druhým řádkem nadpisu, jinak jako .page-title .count */
+.title-2 .count {
+  margin-left: 10px;
+  font-size: 17px;
+  font-stretch: 100%;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
 }
 
 .settings-title {

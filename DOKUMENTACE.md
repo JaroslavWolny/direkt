@@ -500,20 +500,21 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   řekne), přepínač „Zařadit do tréninku" (dřívější zapnout/vypnout), u vlastního Smazat.
 
 ### 9.4 Vlastní komba (`VlastniKomba.html`, paper)
-- Zpět, vpravo „N komb". Nadpis „VLASTNÍ / KOMBA". Řádek: název 17/600 + délka, pod tím
+- Zpět, vpravo kulaté **+** (Sestavit kombo). Nadpis „VLASTNÍ / KOMBA" a hned za ním počet
+  (jako u Komb). Řádek: název 17/600 + délka, pod tím
   PunchSequence M (34 px). Ťuk → detail (9.3). **Swipe doleva → Smazat.**
-- Prázdný stav „Zatím žádné kombo. Sestav první." Dole PrimaryButton **+ Sestavit kombo**
+- Prázdný stav „Zatím žádné kombo. Sestav první." **+** nahoře
   → editor ve stejném stylu: název, náhled sekvence, klávesy 1–6, T (přepne poslední úder
   na tělo), obrana (Ú Z P K V ÚK), ⌫, úroveň, Uložit. Pravidla jako dřív (1–8 akcí,
   žádný duplikát).
 
 ### 9.5 Uložené tréninky (`Treninky.html`, paper)
-- Zpět, vpravo „N uložených". Nadpis „TRÉNINKY". Řádek: název, meta
+- Zpět, vpravo kulaté **+** (Nový trénink). Nadpis „TRÉNINKY" a vedle počet (jako u Komb). Řádek: název, meta
   „3 kola · 2:00 / 1:00 · Začátečník", RoundBar (kolo ink, u úrovně Expert akcent; pauza
   hairline), vpravo celková délka v minutách (34 px + „min"),
   `kola × kolo + (kola − 1) × pauza` zaokrouhleno.
 - **Ťuk na řádek = spustí trénink** (jako v předloze; START v gestu). Swipe doleva → Smazat.
-- PrimaryButton **+ Nový trénink** → formulář: název, počet kol, délka kola, pauza, úroveň
+- **+** nahoře → formulář: název, počet kol, délka kola, pauza, úroveň
   (předvyplněno aktuálním nastavením).
 - **Vestavěné tréninky** (v10 rozšířeno ze 3 na 9; formáty z pravidel a trenérských webů,
   zdroje níže). Hodnoty musí sedět do LIMITS (kolo 1–10 min po 30 s, pauza 15 s–3 min):
@@ -579,7 +580,7 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   v `public/fonts` (latin + latin-ext). Nadpisy a čísla `font-stretch: 125%` + 850/900,
   verzálky; text 400–600. Časovač 128 / 0.86, −3 %, tabular-nums; odpočet 520 / 0.78.
 - Okraje 20 px, nahoře safe area + 20 px, dole safe area + 24–32 px. **Rolující obsah** (Domů,
-  Komba, Nastavení, Plán) sahá až k dolnímu okraji obrazovky a spodní okraj má uvnitř — jinak se
+  Komba, Vlastní komba, Tréninky, Nastavení, Plán) sahá až k dolnímu okraji obrazovky a spodní okraj má uvnitř — jinak se
   poslední řádek usekne nad prázdným pruhem (uživatel 11. 10. 2026, Domů s řádkem Plán). Rádiusy: pilulky 999,
   karty 28, skupiny 20, segmenty a pruhy 2. Dotyková plocha min. 44 × 44.
 - **Žádné stíny, přechody, záře, fotky, emoji.** Ploché barvy, velká typografie.
@@ -588,12 +589,12 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   ukáže se na hraně hairline přes celou šířku (jako lišta v iOS). Řádky se přichytávají
   (`scroll-snap`), takže seznam se zastaví vždy na celém řádku a nikde netrčí useknutá kolečka.
   Bez přechodu do ztracena — design zakazuje přechody.
-- **Seznam nad tlačítkem na celé řádky** (Tréninky, Vlastní komba): výška seznamu se dopočítá
-  na celý počet řádků (`useWholeRows`), řádky se přichytávají, takže v klidu nikde netrčí useknutý
-  řádek — ani nahoře, ani nad tlačítkem. Dole je vidět jen hairline dalšího řádku (= pokračuje);
-  zbytek místa (míň než řádek) je vzduch nad `PrimaryButton`, který drží u spodní hrany.
-  Plovoucí tlačítko přes seznam uživatel zamítl (obsah trčel kolem pilulky). (Uživatel
-  11. 10. 2026: useknutý poslední řádek nad tlačítkem — „vyřeš originálně a chytřeji".) Atribut `data-scrolled` nastavuje jeden posluchač rolování v `main.tsx`
+- **Přidávání v seznamech** (Tréninky, Vlastní komba): kulaté **+** vpravo v horní liště
+  (stejné jako hledání u Komb, vzor iOS — Hodiny, Zkratky), žádné tlačítko pod seznamem. Seznam
+  tak dojede až k dolnímu okraji displeje a řádky pod něj prostě odjíždějí. Zamítnuté varianty
+  (uživatel 11. 10. 2026): řádek useknutý nad PrimaryButton; plovoucí pilulka přes seznam
+  (obsah trčel kolem ní); seznam na celé řádky nad tlačítkem (prázdná díra, nevypadá to, že
+  seznam pokračuje — „aby to nevypadalo jako AI slop"). Atribut `data-scrolled` nastavuje jeden posluchač rolování v `main.tsx`
   (uživatel 11. 10. 2026: useknuté řádky pod filtry „nevypadají dobře").
 - **Stavová lišta:** styl `default` → appka začíná pod neprůhlednou lištou v barvě
   obrazovky (paper / akcent v kole / ink v pauze). Za běhu ji iOS 27 barví podle fixního
