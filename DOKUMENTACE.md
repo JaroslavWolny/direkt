@@ -687,3 +687,36 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 - **Zdroje** v `marketing/` (HTML + `brand.css`, screenshoty v `marketing/shots/`),
   vykreslení přes Chrome v přesném rozměru; hotové PNG + `texty.txt` na plochu do
   `~/Desktop/DIREKT-marketing/`.
+
+### 15.1 Promo video do IG story (uživatel 11. 10. 2026: „marketing video na IG storku… promo")
+
+- **Formát** (research): 1080 × 1920 (9:16), H.264 High + `yuv420p`, 30 fps, AAC 48 kHz, MP4
+  s `faststart`, do 60 s; bezpečná zóna jako u obrázků (důležité jen v pásu y 250–1580).
+  Hlasitost jako u reelů uživatele: **−14 LUFS**, true peak ≤ −1 dBTP. Zdroje:
+  [wyzowl](https://wyzowl.com/instagram-story-dimensions/), [moonb](https://www.moonb.io/blog/instagram-story-specs),
+  [postfa.st](https://postfa.st/sizes/instagram/stories/2025).
+- **Délka 16 s**, střihy na zvuk. Vzhled = appka (kap. 10): ploché barvy, Archivo 125 % / 850–900,
+  verzálky, žádné přechody barev, stíny ani fotky. Pohyb = dopad (zmenšení z většího + opacity)
+  jako úvod 1-2-3 (10.1).
+- **Zvuk = appka:** klipy hlasu Harry (`public/voice/harry/`), gong a klepnutí stejnou syntézou
+  jako `src/audio/sounds.ts` i se stejným kompresorem; navíc jen tlumený úder do pytle pod
+  dopady textu. Hudbu si uživatel může přidat v Instagramu.
+- **Scénář:**
+
+  | Čas | Scéna | Obraz | Zvuk |
+  |---|---|---|---|
+  | 0,0–2,2 | Háček | kobalt, obří bílá 1 → 2 → 3 dopadají po 0,6 s | „One!" „Two!" „Three!" + úder |
+  | 2,2–4,4 | Hlavička | papír, „ŽÁDNÉ / ŘEČI. / JEN / ÚDERY." řádek po řádku (poslední dva akcent) | úder na každý řádek |
+  | 4,4–9,7 | Appka v kole | ink, nahoře „TELEFON / K PYTLI." + „Trenér hlásí komba. Ty biješ.", zespodu vyjede telefon s obrazovkou kola (skutečné HTML a CSS appky), čas běží, pilulka skáče po úderech přesně s hlasem, pak „Znovu" | gong, „One, two, three body, slip!", „Again!" |
+  | 9,7–12,9 | Funkce | karty po 0,55 s: „50 KOMB" · „ÚKLON. ZÁKLON. KRYT." · „PLÁN NA 4 TÝDNY" · „4 HLASY TRENÉRA" · „FINIŠ NAPLNO" (1 s) | úder na kartu; finiš 2× klepnutí + „All out!" |
+  | 12,9–16,0 | Výzva | kobalt, spadne pytel, logotyp, „ZDARMA. / BEZ REGISTRACE.", `direkt-indol.vercel.app`, „iPhone: Safari → Sdílet → Přidat na plochu"; dole volno na nálepku Odkaz | 3× gong (konec kola) |
+
+- Jen pravdivá tvrzení (kap. 15): 50 komb, obrana, plán na 4 týdny, 4 hlasy, finiš, zdarma, bez
+  registrace.
+- **Zdroje** v `marketing/video/`: `promo.html` (kompozice, čas řídí `seek(t)` — každý snímek je
+  čistá funkce času), `phone-round.html` (obrazovka kola s `src/index.css`), `render.mjs` (Node bez
+  závislostí: vlastní statický server, headless Chrome přes DevTools protokol, snímky PNG, zvuk
+  z `OfflineAudioContext`, ffmpeg: dvouprůchodový `loudnorm`, x264 CRF 18). Náhled v prohlížeči:
+  `node --experimental-websocket marketing/video/render.mjs --serve` → `/marketing/video/promo.html?play`
+  (render bez `--serve`; Node 20 potřebuje příznak kvůli WebSocketu).
+- Výstup: `~/Desktop/DIREKT-marketing/DIREKT-story-promo.mp4` + doplněné `texty.txt`.

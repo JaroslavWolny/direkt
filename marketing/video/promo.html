@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>DIREKT — promo do IG story</title>
+    <link rel="stylesheet" href="../brand.css" />
+    <style>
+      /* DOKUMENTACE.md 15.1 — 1080 × 1920, důležité jen v pásu y 250–1580. */
+      body,
+      .stage {
+        width: 1080px;
+        height: 1920px;
+      }
+
+      .stage {
+        position: relative;
+        overflow: hidden;
+        background: var(--accent);
+      }
+
+      .scene,
+      .card {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .on {
+        display: block;
+      }
+
+      .center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+
+      .brand-white {
+        fill: var(--white);
+      }
+
+      .brand-accent {
+        fill: var(--accent);
+      }
+
+      .brand-ink {
+        fill: var(--ink);
+      }
+
+      /* A — háček 1-2-3 */
+      .num {
+        grid-area: 1 / 1;
+        font-size: 760px;
+        font-stretch: 125%;
+        font-weight: 900;
+        line-height: 0.78;
+      }
+
+      /* B — hlavička */
+      .head {
+        position: absolute;
+        top: 600px;
+        left: 72px;
+        font-size: 180px;
+      }
+
+      .head span,
+      .lines span {
+        transform-origin: 0 60%;
+      }
+
+      /* C — appka v kole */
+      .cap {
+        position: absolute;
+        top: 270px;
+        left: 72px;
+        font-size: 120px;
+      }
+
+      .sub {
+        position: absolute;
+        top: 520px;
+        left: 72px;
+        color: var(--muted-on-dark);
+        font-size: 44px;
+        font-weight: 500;
+      }
+
+      /* bublina hlášky (y 616 bodů) končí nad bezpečnou čarou: 600 + 1,5 × (12 + 616) ≈ 1542 */
+      #phone {
+        top: 600px;
+        left: 228px;
+        background: #262624; /* darkFill appky — černý rám by na ink pozadí zmizel */
+      }
+
+      .phone .glass iframe {
+        display: block;
+        width: 393px;
+        height: 852px;
+        border: 0;
+        transform: scale(var(--s));
+        transform-origin: 0 0;
+      }
+
+      .phone .island,
+      .phone .status {
+        z-index: 1;
+      }
+
+      /* D — funkce */
+      .lines {
+        position: absolute;
+        inset: 0 72px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-stretch: 125%;
+        font-weight: 850;
+        line-height: 0.92;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        transform-origin: 0 50%;
+      }
+
+      .big {
+        font-size: 440px;
+        line-height: 0.8;
+      }
+
+      .pill {
+        align-self: flex-start;
+        margin: 24px 0 0 -28px;
+        padding: 18px 40px 26px;
+        border-radius: 999px;
+        background: var(--white);
+        color: var(--accent);
+      }
+
+      /* E — výzva */
+      #bag {
+        position: absolute;
+        top: 0;
+        left: -55px;
+      }
+
+      #wordmark {
+        position: absolute;
+        top: 282px;
+        left: 72px;
+      }
+
+      .cta {
+        position: absolute;
+        top: 1000px;
+        left: 72px;
+        font-size: 120px;
+      }
+
+      .url {
+        position: absolute;
+        top: 1262px;
+        left: 72px;
+        font-size: 54px;
+        font-weight: 700;
+      }
+
+      .hint {
+        position: absolute;
+        top: 1338px;
+        left: 72px;
+        font-size: 36px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage" id="stage">
+      <section class="scene blue" id="sA">
+        <div class="center">
+          <span class="num" id="a0">1</span>
+          <span class="num" id="a1">2</span>
+          <span class="num" id="a2">3</span>
+        </div>
+      </section>
+
+      <section class="scene paper" id="sB">
+        <p class="display head">
+          <span id="b0">Žádné</span>
+          <span id="b1">řeči.</span>
+          <span id="b2" class="accent-text">Jen</span>
+          <span id="b3" class="accent-text">údery.</span>
+        </p>
+      </section>
+
+      <section class="scene dark" id="sC">
+        <p class="display cap" id="c0"><span>Telefon</span><span>k pytli.</span></p>
+        <p class="sub" id="c1">Trenér hlásí komba. Ty biješ.</p>
+        <div class="phone" id="phone" style="--s: 1.5">
+          <div class="glass">
+            <iframe id="round" src="phone-round.html" title="Obrazovka kola"></iframe>
+            <div class="island"></div>
+            <div class="status light">
+              <span>9:41</span>
+              <span class="icons">
+                <svg viewBox="0 0 18 12" aria-hidden="true"><g fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></g></svg>
+                <svg viewBox="0 0 16 12" aria-hidden="true"><path fill="currentColor" d="M8 2.5c2.6 0 5 .9 6.9 2.5L16 3.8C13.8 1.9 11 .9 8 .9S2.2 1.9 0 3.8L1.1 5C3 3.4 5.4 2.5 8 2.5zm0 3.2c1.8 0 3.4.6 4.7 1.7l1.1-1.2C12.2 4.9 10.2 4.1 8 4.1S3.8 4.9 2.2 6.2l1.1 1.2C4.6 6.3 6.2 5.7 8 5.7zm0 3.2c.9 0 1.7.3 2.4.9L8 12.2 5.6 9.8c.7-.6 1.5-.9 2.4-.9z" /></svg>
+                <svg viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4" /><rect x="2" y="2" width="17" height="9" rx="2" fill="currentColor" /><rect x="24.5" y="4.5" width="1.8" height="4" rx=".9" fill="currentColor" opacity=".4" /></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene" id="sD">
+        <div class="card blue" id="d0"><p class="lines"><span class="big">50</span><span style="font-size: 170px">komb</span></p></div>
+        <div class="card dark" id="d1"><p class="lines" style="font-size: 150px"><span>Úklon.</span><span>Záklon.</span><span>Kryt.</span></p></div>
+        <div class="card paper" id="d2"><p class="lines" style="font-size: 190px"><span>Plán</span><span>na <span class="accent-text">4</span></span><span>týdny</span></p></div>
+        <div class="card blue" id="d3"><p class="lines" style="font-size: 150px"><span>4 hlasy</span><span>trenéra</span></p></div>
+        <div class="card dark" id="d4"><p class="lines" style="font-size: 190px"><span>Finiš</span><span class="pill" style="font-size: 150px">naplno</span></p></div>
+      </section>
+
+      <section class="scene blue" id="sE">
+        <svg id="bag" aria-hidden="true" width="1218" height="1218" viewBox="0 0 1024 1024">
+          <rect class="brand-white" x="612" y="0" width="160" height="770" />
+          <circle class="brand-accent" cx="446" cy="574" r="222" />
+          <circle class="brand-ink" cx="446" cy="574" r="196" />
+        </svg>
+        <svg id="wordmark" role="img" aria-label="direkt" width="316" height="61" viewBox="70 0 3820 737">
+          <g class="brand-white" transform="translate(0 725) scale(1 -1)">
+            <rect x="588" y="0" width="224" height="725" />
+            <circle class="brand-accent" cx="356" cy="264" r="306" />
+            <circle class="brand-ink" cx="356" cy="264" r="276" />
+            <path transform="translate(942 0)" d="M60 590V725H284V590ZM60 0V528H284V0Z" />
+            <path transform="translate(1276 0)" d="M60 0V528H242L257 442H266Q285 477 312 499Q339 521 370 531Q401 541 432 541Q454 541 472.5 538Q491 535 509 528V362H406Q375 362 352 352.5Q329 343 314 326.5Q299 310 291.5 287.5Q284 265 284 238V0Z" />
+            <path transform="translate(1781 0)" d="M415 -12Q302 -12 216.5 17Q131 46 83.5 107.5Q36 169 36 264Q36 357 83 418.5Q130 480 213 510Q296 540 405 540Q519 540 602 511Q685 482 730 421Q775 360 775 264V226H270Q272 189 289 164Q306 139 338.5 127Q371 115 417 115Q447 115 470.5 121Q494 127 510 137.5Q526 148 534 161Q542 174 542 188H774Q774 138 745.5 100.5Q717 63 667.5 38Q618 13 553 0.5Q488 -12 415 -12ZM271 328H535Q535 345 527 360Q519 375 503.5 387Q488 399 465.5 406Q443 413 415 413Q371 413 341 401.5Q311 390 293.5 370.5Q276 351 271 328Z" />
+            <path transform="translate(2582 0)" d="M60 0V725H284V333L493 528H766L547 316L771 0H509L377 198L284 134V0Z" />
+            <path transform="translate(3345 0)" d="M364 -12Q292 -12 240 2Q188 16 160 52.5Q132 89 132 156V387H27V528H141L185 688H356V528H507V387H356V210Q356 171 374 150Q392 129 444 129H507V7Q493 2 466 -2.5Q439 -7 411 -9.5Q383 -12 364 -12Z" />
+          </g>
+        </svg>
+        <p class="display cta"><span id="e0">Zdarma.</span><span id="e1">Bez účtu.</span></p>
+        <p class="url" id="e2">direkt-indol.vercel.app</p>
+        <p class="hint" id="e3">iPhone: Safari → Sdílet → Přidat na plochu</p>
+      </section>
+    </div>
+
+    <script type="module">
+      // Scénář DOKUMENTACE.md 15.1. Obraz i zvuk vznikají z jedné časové osy; seek(t) je čistá funkce času.
+      const FPS = 30
+      const DURATION = 16
+      const VOICE = '/public/voice/harry/'
+      const CLIPS = ['n1', 'n2', 'n3', 't3', 'uklon', 'znovu', 'naplno']
+      const COMBO = { clips: ['n1', 'n2', 't3', 'uklon'], words: ['1', '2', '3 BODY', 'SLIP'], say: '„One, two, three body, slip!“' }
+
+      // Časy scén (s)
+      const A = { from: 0, to: 2.2, hits: [0.1, 0.7, 1.3] }
+      const B = { from: 2.2, to: 4.4, hits: [2.3, 2.5, 2.7, 2.9] }
+      const C = { from: 4.4, to: 9.7, phoneIn: 4.4, gong: 4.65, combo: 5.3, again: 8.3 }
+      const D = { from: 9.7, to: 12.9, cards: [9.7, 10.25, 10.8, 11.35, 11.9], clap: 11.92 }
+      const E = { from: 12.9, to: DURATION, bag: 12.95, gong: 13.0 }
+      /** Jako v appce: klipy 30 ms po naplánování, 70 ms mezi slovy, „Naplno" 0,3 s po klepnutí. */
+      const LEAD = 0.03
+      const WORD_GAP = 0.07
+
+      const $ = (id) => document.getElementById(id)
+      const clamp01 = (x) => Math.min(1, Math.max(0, x))
+      const easeOut = (x) => 1 - (1 - x) ** 3
+      const prog = (t, t0, dur) => clamp01((t - t0) / dur)
+
+      /** Dopad jako úvod appky: ze zvětšení na 1 + opacity. */
+      function hit(el, t, t0, from = 1.6, dur = 0.14) {
+        const p = easeOut(prog(t, t0, dur))
+        el.style.opacity = t < t0 ? 0 : p
+        el.style.transform = `scale(${from + (1 - from) * p})`
+      }
+      function rise(el, t, t0, dur = 0.3, dy = 40) {
+        const p = easeOut(prog(t, t0, dur))
+        el.style.opacity = p
+        el.style.transform = `translateY(${(1 - p) * dy}px)`
+      }
+      const show = (el, on) => el.classList.toggle('on', on)
+
+      // ---------- klipy: délky pro časování (ořez ticha jako src/audio/voice.ts) ----------
+      const clips = {}
+      function audible(buffer) {
+        const data = buffer.getChannelData(0)
+        let first = 0
+        while (first < data.length && Math.abs(data[first]) < 0.003) first++
+        let last = data.length - 1
+        while (last > first && Math.abs(data[last]) < 0.003) last--
+        const offset = Math.max(0, first / buffer.sampleRate - 0.01)
+        const end = Math.min(buffer.duration, last / buffer.sampleRate + 0.01)
+        return { buffer, offset, duration: Math.max(0.05, end - offset) }
+      }
+      async function loadClips(ctx) {
+        for (const id of CLIPS) {
+          const res = await fetch(`${VOICE}${id}.mp3`)
+          clips[id] = audible(await ctx.decodeAudioData(await res.arrayBuffer()))
+        }
+      }
+
+      /** Začátky slov komba (s) — pilulka skáče přesně s hlasem. */
+      let starts = []
+      let comboEnd = 0
+      function buildTimeline() {
+        let t = C.combo + LEAD
+        starts = COMBO.clips.map((id) => {
+          const s = t
+          t += clips[id].duration + WORD_GAP
+          return s
+        })
+        comboEnd = t - WORD_GAP
+      }
+
+      // ---------- obraz ----------
+      const roundWin = () => $('round').contentWindow
+      function roundState(t) {
+        const elapsed = Math.max(0, t - C.gong)
+        const left = Math.ceil(180 - elapsed - 1e-9)
+        const timer = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+        const words = (k) => COMBO.words.map((text, i) => ({ text, state: k < 0 ? '' : i < k ? 'done' : i === k ? 'now' : '' }))
+        const base = { timer, progress: elapsed / 180, count: '4 údery' }
+        if (t >= C.again) return { ...base, label: 'Znovu', words: words(-1), say: '„Again!“' }
+        if (t >= comboEnd) return { ...base, label: 'Kombo', words: words(-1), say: COMBO.say }
+        if (t >= starts[0]) {
+          const k = starts.filter((s) => s <= t).length - 1
+          return { ...base, label: 'Kombo', count: `Úder ${k + 1} ze 4`, words: words(k), say: COMBO.say }
+        }
+        return { ...base, label: 'Kombo', words: words(-1), say: 'Poslouchej trenéra.' }
+      }
+
+      function seek(t) {
+        show($('sA'), t < A.to)
+        show($('sB'), t >= B.from && t < B.to)
+        show($('sC'), t >= C.from && t < C.to)
+        show($('sD'), t >= D.from && t < D.to)
+        show($('sE'), t >= E.from)
+
+        // A: každé číslo platí do dalšího
+        A.hits.forEach((h, i) => {
+          const el = $(`a${i}`)
+          hit(el, t, h)
+          if (i < A.hits.length - 1 && t >= A.hits[i + 1]) el.style.opacity = 0
+        })
+        // B: řádky dopadají po sobě
+        B.hits.forEach((h, i) => hit($(`b${i}`), t, h, 1.35, 0.12))
+        // C: titulek, telefon zespodu, obrazovka kola
+        rise($('c0'), t, C.from, 0.3)
+        rise($('c1'), t, C.from + 0.12, 0.3)
+        const p = easeOut(prog(t, C.phoneIn, 0.35))
+        $('phone').style.transform = `translateY(${(1 - p) * 500}px)`
+        $('phone').style.opacity = p
+        roundWin().setRound?.(roundState(t))
+        // D: karty po sobě, text dopadá
+        D.cards.forEach((c, i) => {
+          const end = D.cards[i + 1] ?? D.to
+          show($(`d${i}`), t >= c && t < end)
+          hit($(`d${i}`).firstElementChild, t, c, 1.15, 0.12)
+        })
+        // E: pytel spadne, pak logotyp a text
+        const drop = easeOut(prog(t, E.bag, 0.26))
+        $('bag').style.transform = `translateY(${(drop - 1) * 100}%)`
+        rise($('wordmark'), t, E.bag + 0.2, 0.2, 0)
+        rise($('e0'), t, E.bag + 0.25)
+        rise($('e1'), t, E.bag + 0.33)
+        rise($('e2'), t, E.bag + 0.5)
+        rise($('e3'), t, E.bag + 0.6)
+      }
+
+      // ---------- zvuk: stejná syntéza jako src/audio/sounds.ts ----------
+      function mulberry32(a) {
+        return () => {
+          a |= 0
+          a = (a + 0x6d2b79f5) | 0
+          let t = Math.imul(a ^ (a >>> 15), 1 | a)
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+        }
+      }
+      async function renderAudio() {
+        const rate = 48000
+        const ctx = new OfflineAudioContext(1, Math.ceil(DURATION * rate), rate)
+        const comp = ctx.createDynamicsCompressor()
+        comp.threshold.value = -6
+        comp.knee.value = 6
+        comp.ratio.value = 12
+        comp.attack.value = 0.002
+        comp.release.value = 0.15
+        const out = ctx.createGain()
+        out.connect(comp).connect(ctx.destination)
+
+        const rnd = mulberry32(7)
+        const noise = ctx.createBuffer(1, Math.floor(rate * 0.25), rate)
+        noise.getChannelData(0).forEach((_, i, d) => (d[i] = rnd() * 2 - 1))
+        const burst = (t, freq, q, level, decay, type = 'bandpass') => {
+          const src = ctx.createBufferSource()
+          src.buffer = noise
+          const f = ctx.createBiquadFilter()
+          f.type = type
+          f.frequency.value = freq
+          f.Q.value = q
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(level, t)
+          g.gain.exponentialRampToValueAtTime(0.0001, t + decay)
+          src.connect(f).connect(g).connect(out)
+          src.start(t)
+          src.stop(t + decay + 0.01)
+        }
+        const strike = (t) => {
+          const bus = ctx.createGain()
+          bus.gain.value = 0.42
+          bus.connect(out)
+          for (const [ratio, amp] of [[1, 1], [2.32, 0.55], [4.25, 0.32], [6.63, 0.18]]) {
+            const decay = 1.6 / Math.sqrt(ratio)
+            const osc = ctx.createOscillator()
+            osc.frequency.value = 830 * ratio
+            const g = ctx.createGain()
+            g.gain.setValueAtTime(0.0001, t)
+            g.gain.exponentialRampToValueAtTime(amp, t + 0.005)
+            g.gain.exponentialRampToValueAtTime(0.0001, t + decay)
+            osc.connect(g).connect(bus)
+            osc.start(t)
+            osc.stop(t + decay + 0.05)
+          }
+          burst(t, 3200, 0.8, 0.5, 0.04)
+        }
+        const bell = (t, times) => {
+          for (let i = 0; i < times; i++) strike(t + 0.02 + i * 0.42)
+        }
+        const clap = (t, times) => {
+          for (let i = 0; i < times; i++) burst(t + 0.02 + i * 0.16, 2000, 1.2, 1, 0.06)
+        }
+        /** Tlumený úder do pytle — jediný zvuk navíc oproti appce. */
+        const thud = (t, level = 0.55) => {
+          const osc = ctx.createOscillator()
+          osc.frequency.setValueAtTime(120, t)
+          osc.frequency.exponentialRampToValueAtTime(45, t + 0.12)
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(0.0001, t)
+          g.gain.exponentialRampToValueAtTime(level, t + 0.004)
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28)
+          osc.connect(g).connect(out)
+          osc.start(t)
+          osc.stop(t + 0.3)
+          burst(t, 700, 0.7, level * 0.6, 0.06, 'lowpass')
+        }
+        const voice = (t, id) => {
+          const c = clips[id]
+          const src = ctx.createBufferSource()
+          src.buffer = c.buffer
+          src.connect(out)
+          src.start(t, c.offset, c.duration)
+        }
+
+        A.hits.forEach((h, i) => {
+          thud(h)
+          voice(h + LEAD, ['n1', 'n2', 'n3'][i])
+        })
+        B.hits.forEach((h) => thud(h, 0.4))
+        bell(C.gong, 1)
+        COMBO.clips.forEach((id, i) => voice(starts[i], id))
+        voice(C.again + LEAD, 'znovu')
+        D.cards.slice(0, 4).forEach((c) => thud(c, 0.45))
+        clap(D.clap, 2)
+        voice(D.clap + 0.33, 'naplno')
+        bell(E.gong, 3)
+
+        const data = (await ctx.startRendering()).getChannelData(0)
+        // WAV 16 bit mono
+        const buf = new DataView(new ArrayBuffer(44 + data.length * 2))
+        const str = (o, s) => [...s].forEach((ch, i) => buf.setUint8(o + i, ch.charCodeAt(0)))
+        str(0, 'RIFF')
+        buf.setUint32(4, 36 + data.length * 2, true)
+        str(8, 'WAVEfmt ')
+        buf.setUint32(16, 16, true)
+        buf.setUint16(20, 1, true)
+        buf.setUint16(22, 1, true)
+        buf.setUint32(24, rate, true)
+        buf.setUint32(28, rate * 2, true)
+        buf.setUint16(32, 2, true)
+        buf.setUint16(34, 16, true)
+        str(36, 'data')
+        buf.setUint32(40, data.length * 2, true)
+        data.forEach((v, i) => buf.setInt16(44 + i * 2, Math.max(-1, Math.min(1, v)) * 0x7fff, true))
+        let bin = ''
+        const bytes = new Uint8Array(buf.buffer)
+        for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+        return btoa(bin)
+      }
+
+      // ---------- start ----------
+      const frameLoaded = new Promise((r) => {
+        if ($('round').contentDocument?.readyState === 'complete' && roundWin().setRound) r()
+        else $('round').addEventListener('load', () => r(), { once: true })
+      })
+      window.ready = (async () => {
+        await loadClips(new OfflineAudioContext(1, 1, 48000))
+        buildTimeline()
+        await frameLoaded
+        await document.fonts.ready
+        await $('round').contentDocument.fonts.ready
+        seek(0)
+      })()
+      window.seek = async (t) => {
+        seek(t)
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      }
+      window.renderAudio = renderAudio
+      window.FPS = FPS
+      window.DURATION = DURATION
+
+      // Náhled v prohlížeči: ?play přehrává dokola (bez zvuku), ?t=5.4 ukáže jeden okamžik.
+      const q = new URLSearchParams(location.search)
+      window.ready.then(() => {
+        if (q.has('t')) seek(Number(q.get('t')))
+        if (q.has('play')) {
+          const t0 = performance.now()
+          const loop = (now) => {
+            seek(((now - t0) / 1000) % DURATION)
+            requestAnimationFrame(loop)
+          }
+          requestAnimationFrame(loop)
+        }
+      })
+    </script>
+  </body>
+</html>
