@@ -515,6 +515,29 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - **Ťuk na řádek = spustí trénink** (jako v předloze; START v gestu). Swipe doleva → Smazat.
 - PrimaryButton **+ Nový trénink** → formulář: název, počet kol, délka kola, pauza, úroveň
   (předvyplněno aktuálním nastavením).
+- **Vestavěné tréninky** (v10 rozšířeno ze 3 na 9; formáty z pravidel a trenérských webů,
+  zdroje níže). Hodnoty musí sedět do LIMITS (kolo 1–10 min po 30 s, pauza 15 s–3 min):
+
+  | Trénink | Kola | Kolo / pauza | Úroveň | Tempo | Proč |
+  |---|---|---|---|---|---|
+  | Rozcvička | 3 | 2:00 / 1:00 | Začátečník | Lehké | začátečnický formát 3 × 2 min (Boxing Insider, Gymdesk) |
+  | Amatérský zápas | 3 | 3:00 / 1:00 | Pokročilý | Střední | amatéři elite/youth 3 × 3 min, pauza 1 min (IBA) |
+  | Profi kola | 6 | 3:00 / 1:00 | Expert | Tvrdé | kratší profi zápas |
+  | Technika | 4 | 3:00 / 1:00 | Pokročilý | Lehké | technická kola 4 × 3 min — drilovat, dokud je tělo čerstvé (Ross Boxing) |
+  | Kondice | 5 | 3:00 / 1:00 | Pokročilý | Rostoucí | „The Grind" 5 × 3 min, poslední kolo naplno (Boxing Insider) |
+  | Silové minuty | 10 | 1:00 / 1:00 | Pokročilý | Tvrdé | silová kola 60–90 s naplno, 10 × 1 min (Ross Boxing) |
+  | Vypalovák | 8 | 3:00 / 0:30 | Expert | Tvrdé | „The Burner" 8 × 3 min s pauzou 30 s (Boxing Insider) |
+  | Zápas o titul – ženy | 10 | 2:00 / 1:00 | Expert | Střední | titulový zápas žen 10 × 2 min (WBC) |
+  | Zápas o titul – muži | 12 | 3:00 / 1:00 | Expert | Rostoucí | titulový zápas mužů 12 × 3 min |
+
+  Kdo už má seznam uložený (appka ho zapíše při prvním spuštění), dostane nové tréninky
+  **jednou na konec** podle `presetsVersion` (kap. 11); smazané vestavěné se nevrací.
+  Zdroje: [IBA přes IABA](https://iaba.ie/rule-change-introduced-u22-championships/),
+  [England Boxing](https://englandboxing.org/?p=1671),
+  [Boxing Insider](https://boxinginsider.com/training/heavy-bag-workout-guide/),
+  [Gymdesk](https://gymdesk.com/blog/heavy-bag-workout),
+  [Ross Boxing](https://www.rossboxing.com/thegym/thegym24.htm),
+  [The Ringer: WBC 10 × 2](https://www.theringer.com/2018/07/11/mma/women-boxing-wbc-round-length-restriction).
 
 ### 9.6 Nastavení (`Nastaveni.html`, paper, skupiny na bílých kartách r20)
 - **Hlas trenéra:** řádek pro každý hlas (jméno + „Angličtina · bojovník" apod.), ťuk na řádek
@@ -594,6 +617,7 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 | `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
+| `presetsVersion` | verze vestavěného seznamu, kterou už `presets` obsahuje (chybí = 1, v10 = 2); starší → doplní se tréninky, které od té verze přibyly (9.5) |
 | `plan` | `{ answers: { experience 0–3, goals: ('kondice' \| 'technika' \| 'sila' \| 'rychlost' \| 'obrana' \| 'hlava')[] (1–6), perWeek 2–5, minutes 10 \| 15 \| 20 \| 30 }, done }` nebo `null` — jen postup, tréninky se počítají z odpovědí (7.11). Plán z v8 (jiné odpovědi) se zahodí. |
 
 Každý klíč se čte obranně: rozbitý JSON nebo hodnota mimo rozsah → výchozí hodnota,

@@ -4,6 +4,7 @@ import {
   DEFAULT_CONFIG,
   DEFAULT_PRESETS,
   DEFAULT_SETTINGS,
+  PRESETS_VERSION,
   sanitizeConfig,
   sanitizeLibrary,
   sanitizePlan,
@@ -134,10 +135,34 @@ describe('obranné čtení úložiště', () => {
   })
 
   it('tréninky: chybějící klíč → výchozí, prázdný seznam zůstane prázdný', () => {
-    expect(sanitizePresets(undefined)).toEqual(DEFAULT_PRESETS)
-    expect(sanitizePresets([])).toEqual([])
-    expect(sanitizePresets([{ id: 'a', name: '  Ráno  ', config: { rounds: 2 } }, { id: 'b', name: '' }, 3])).toEqual([
+    expect(sanitizePresets(undefined, undefined)).toEqual(DEFAULT_PRESETS)
+    expect(sanitizePresets([], PRESETS_VERSION)).toEqual([])
+    expect(sanitizePresets([{ id: 'a', name: '  Ráno  ', config: { rounds: 2 } }, { id: 'b', name: '' }, 3], PRESETS_VERSION)).toEqual([
       { id: 'a', name: 'Ráno', config: { ...DEFAULT_CONFIG, rounds: 2 } },
     ])
+  })
+
+  it('vestavěné tréninky sedí do limitů a mají unikátní id', () => {
+    for (const p of DEFAULT_PRESETS) expect(sanitizeConfig(p.config)).toEqual(p.config)
+    expect(new Set(DEFAULT_PRESETS.map((p) => p.id)).size).toBe(DEFAULT_PRESETS.length)
+  })
+
+  it('tréninky ze starší verze: nové vestavěné na konec, smazané se nevrací', () => {
+    const own = { id: 'p-1', name: 'Můj', config: DEFAULT_CONFIG }
+    const rozcvicka = DEFAULT_PRESETS[0]
+    // v1 bez verze: uživatel smazal Profi kola a Amatérský zápas, přidal vlastní
+    const upgraded = sanitizePresets([rozcvicka, own], undefined)
+    const ids = upgraded.map((p) => p.id)
+    expect(ids.slice(0, 2)).toEqual(['rozcvicka', 'p-1'])
+    expect(ids).not.toContain('profi')
+    expect(ids).not.toContain('amater')
+    expect(ids).toContain('vypalovak')
+    expect(ids).toContain('titul-muzi')
+    expect(upgraded).toHaveLength(2 + DEFAULT_PRESETS.length - 3)
+    // aktuální verze: nic se nepřidá (smazaný Vypalovák zůstane smazaný)
+    expect(sanitizePresets([rozcvicka, own], PRESETS_VERSION)).toHaveLength(2)
+    // co už v seznamu je, se nezdvojí
+    const vypalovak = DEFAULT_PRESETS.find((p) => p.id === 'vypalovak')!
+    expect(sanitizePresets([vypalovak], 1).filter((p) => p.id === 'vypalovak')).toHaveLength(1)
   })
 })

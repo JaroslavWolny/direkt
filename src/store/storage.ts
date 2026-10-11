@@ -52,7 +52,24 @@ export const DEFAULT_PRESETS: Preset[] = [
   { id: 'rozcvicka', name: 'Rozcvička', config: { rounds: 3, roundSec: 120, restSec: 60, level: 0, intensity: 0 } },
   { id: 'amater', name: 'Amatérský zápas', config: { rounds: 3, roundSec: 180, restSec: 60, level: 1, intensity: 1 } },
   { id: 'profi', name: 'Profi kola', config: { rounds: 6, roundSec: 180, restSec: 60, level: 2, intensity: 2 } },
+  { id: 'technika', name: 'Technika', config: { rounds: 4, roundSec: 180, restSec: 60, level: 1, intensity: 0 } },
+  { id: 'kondice', name: 'Kondice', config: { rounds: 5, roundSec: 180, restSec: 60, level: 1, intensity: 'ramp' } },
+  { id: 'silove-minuty', name: 'Silové minuty', config: { rounds: 10, roundSec: 60, restSec: 60, level: 1, intensity: 2 } },
+  { id: 'vypalovak', name: 'Vypalovák', config: { rounds: 8, roundSec: 180, restSec: 30, level: 2, intensity: 2 } },
+  { id: 'titul-zeny', name: 'Zápas o titul – ženy', config: { rounds: 10, roundSec: 120, restSec: 60, level: 2, intensity: 1 } },
+  { id: 'titul-muzi', name: 'Zápas o titul – muži', config: { rounds: 12, roundSec: 180, restSec: 60, level: 2, intensity: 'ramp' } },
 ]
+
+/** Verze vestavěného seznamu (9.5); trénink bez záznamu v PRESET_SINCE je tam od verze 1. */
+export const PRESETS_VERSION = 2
+const PRESET_SINCE: Record<string, number> = {
+  technika: 2,
+  kondice: 2,
+  'silove-minuty': 2,
+  vypalovak: 2,
+  'titul-zeny': 2,
+  'titul-muzi': 2,
+}
 
 const isObject = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x)
 
@@ -111,14 +128,25 @@ export function sanitizeLibrary(x: unknown): Library {
   return { disabled, custom }
 }
 
-/** Chybějící nebo rozbitý klíč → výchozí tréninky; prázdný seznam je platná volba. */
-export function sanitizePresets(x: unknown): Preset[] {
-  if (!Array.isArray(x)) return DEFAULT_PRESETS.map((p) => ({ ...p, config: { ...p.config } }))
-  return x.flatMap((p) =>
+const copyPreset = (p: Preset): Preset => ({ ...p, config: { ...p.config } })
+
+/**
+ * Chybějící nebo rozbitý klíč → výchozí tréninky; prázdný seznam je platná volba.
+ * Seznam uložený starší verzí (`version`, chybí = 1) dostane na konec vestavěné tréninky,
+ * které od té doby přibyly — jen jednou, smazané se nevrací.
+ */
+export function sanitizePresets(x: unknown, version: unknown): Preset[] {
+  if (!Array.isArray(x)) return DEFAULT_PRESETS.map(copyPreset)
+  const kept = x.flatMap((p) =>
     isObject(p) && typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim()
       ? [{ id: p.id, name: p.name.trim(), config: sanitizeConfig(p.config) }]
       : [],
   )
+  const from = typeof version === 'number' && Number.isInteger(version) ? version : 1
+  const added = DEFAULT_PRESETS.filter(
+    (p) => (PRESET_SINCE[p.id] ?? 1) > from && !kept.some((k) => k.id === p.id),
+  ).map(copyPreset)
+  return [...kept, ...added]
 }
 
 /** Rozbitý, neúplný nebo starý plán (v8) → žádný plán (dotazník jde vyplnit znovu). */
@@ -172,8 +200,11 @@ export const loadSettings = (): Settings => sanitizeSettings(read('settings'))
 export const saveSettings = (v: Settings): void => write('settings', v)
 export const loadLibrary = (): Library => sanitizeLibrary(read('combos'))
 export const saveLibrary = (v: Library): void => write('combos', v)
-export const loadPresets = (): Preset[] => sanitizePresets(read('presets'))
-export const savePresets = (v: Preset[]): void => write('presets', v)
+export const loadPresets = (): Preset[] => sanitizePresets(read('presets'), read('presetsVersion'))
+export const savePresets = (v: Preset[]): void => {
+  write('presets', v)
+  write('presetsVersion', PRESETS_VERSION)
+}
 export const loadPlan = (): Plan | null => sanitizePlan(read('plan'))
 export const savePlan = (v: Plan | null): void => write('plan', v)
 
