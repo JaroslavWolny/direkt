@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v2 (vzhled podle návrhu uživatele), 10. 10. 2026.
+Stav: v6 (finiš v posledních 10 s kola, počty na obrazovce Hotovo), 11. 10. 2026.
 
 ---
 
@@ -17,7 +17,7 @@ Ze screenshotu Instagramu `strikr.app` a researche:
 
 | Co | STRIKR | DIREKT v1 |
 |---|---|---|
-| Hlas hlásí komba v reálném čase během kola | ano | **ano** (čísly, česky) |
+| Hlas hlásí komba v reálném čase během kola | ano | **ano** (čísly; anglicky nebo česky podle hlasu) |
 | Náhodný výběr z aktivních komb | ano | **ano** |
 | Knihovna komb, vlastní komba, zapnout/vypnout | ano | **ano** |
 | Délka kola 1–10 min, pauza, 3 intenzity | ano | **ano** |
@@ -37,8 +37,8 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 
 - **Jen box.**
 - **Název: DIREKT.**
-- **Hlášení: čísla** (boxerské číslování). Čísla se vyslovují **česky** českým hlasem
-  — předpoklad, appka je celá česky.
+- **Hlášení: čísla** (boxerské číslování). Původně česky českým hlasem; od hlasu v5 je
+  výchozí angličtina, čeština zůstává jako volba (viz níže).
 - **v1 = jádro + vlastní komba + obrana v kombech + uložené tréninky.** Bez historie.
 - **Vzhled v2 podle návrhu uživatele** (8 obrazovek, dodáno 10. 10. 2026 odpoledne) →
   kap. 9 a 10. Návrh je vizuální směr. Kde jeho ukázkový obsah odporuje rozhodnutím výš
@@ -53,6 +53,9 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 - **Vzhled v4** (uživatel, 10. 10. 2026 večer): nový design z balíčku `DIREKT-predani.zip`
   (`design/ZADANI.md` + 8 předloh). „To je jen nový design" → přebírá se vzhled, ne stack
   (Expo), Zuzana, low kick ani změny logiky ze zadání (kap. 9–10).
+- **v6** (uživatel, 11. 10. 2026): **finiš** — posledních 10 s kola volné údery naplno
+  místo komb (7.8); obrazovka Hotovo ukáže počet komb a úderů. Nic se neukládá, historie
+  dál ne. Větší písmo komba v kole ne („to je v klidu, když to stejně poslouchám").
 
 ## 3. Platforma a stack
 
@@ -192,8 +195,8 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
   tempa. (Konstanty doladěné na pytli — AveReiDev/strikr PROJECT-STATUS.)
 - **Délka hlášení** = součet délek klipů (bez ticha na krajích) + 70 ms mezi slovy. Než se
   klipy načtou, odhad 450 ms na klip.
-- **Konec kola:** kombo se nespustí, pokud do konce kola zbývá méně než
-  `délka hlášení + 700 ms × akcí`. Radši ticho do gongu než useknuté kombo.
+- **Konec kola:** kombo se nespustí, pokud do začátku finiše (7.8; kolo bez finiše = do
+  konce kola) zbývá méně než `délka hlášení + 700 ms × akcí`. Radši ticho než useknuté kombo.
 - První hlášení 1,5 s po startovním gongu.
 - Všechny konstanty v `src/engine/constants.ts`.
 
@@ -209,7 +212,7 @@ nepočítají pauzu. Zvukové události vznikají porovnáním dvou po sobě jdo
 |---|---|---|
 | `beep` | 3, 2, 1 s před koncem přípravy a pauzy | krátké pípnutí |
 | `roundStart` | začátek kola | gong ×1; v posledním kole (pokud kol > 1) hlas „Poslední kolo" |
-| `warning` | 10 s před koncem kola (jen kola ≥ 30 s) | 2× klepnutí (jako klapačka v gymu) |
+| `warning` | 10 s před koncem kola (jen kola ≥ 30 s) | 2× klepnutí (jako klapačka v gymu) + hlas „Naplno!" — začíná finiš (7.8) |
 | `roundEnd` | konec kola | gong ×3 |
 | `finish` | konec posledního kola | po gongu hlas „Hotovo. Dobrá práce." |
 
@@ -245,6 +248,17 @@ hlášením kola 1.
 Zapnutá = R6. Vypnutá: hodiny běží dál i na pozadí; po návratu se zmeškané zvuky
 nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
 
+### 7.8 Finiš (posledních 10 s kola)
+
+- Začíná událostí `warning` (jen kola ≥ 30 s — kolo má min. 1:00, takže každé): 2× klepnutí,
+  hlas „Naplno!" / „All out!" a od té chvíle **žádné kombo** — volné údery naplno do gongu.
+- Komba se plánují tak, aby dohrála **před finišem** (7.2): okno pro komba = zbývající čas
+  kola − 10 s.
+- Pozastavení, pokračování ani návrat z pozadí ve finiši komba neobnoví; hláška se po pauze
+  neopakuje.
+- Obrazovka kola ve finiši ukazuje místo komba „NAPLNO" / „ALL OUT" (9.2).
+- Čisté funkce `comboWindowMs` a `inFinisher` v `src/engine/timing.ts`, testované.
+
 ## 8. Zvuk a hlas (`src/audio/`)
 
 - Vše hraje sdílená `AudioContext` z `context.ts` (výstup přes kompresor): hlas `voice.ts`,
@@ -263,12 +277,14 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
   jako celek `t1`–`t6` „Tři na tělo!" / „Three body!"; obrana `uklon zaklon ponor kryt vzad ukrok`
   „Úklon!" / „Slip!", „Záklon!" / „Pull!", „Ponoř!" / „Roll!", „Kryt!" / „Block!", „Vzad!" /
   „Back!", „Úkrok!" / „Pivot!"; hlášky `pripravse` „Připrav se!" / „Get ready!", `posledni`
-  „Poslední kolo!" / „Last round!", `hotovo` „Hotovo. Dobrá práce!" / „Time! Great work!".
+  „Poslední kolo!" / „Last round!", `naplno` „Naplno!" / „All out!" (finiš 7.8), `hotovo`
+  „Hotovo. Dobrá práce!" / „Time! Great work!".
 - **Generování** (`scripts/gen-voice.py`): syntéza → ořez ticha (Edge −50 dB, ElevenLabs −38 dB
   kvůli dozvuku výkřiků) → mírná komprese → mono 24 kHz → špička −1 dBFS → MP3 64 kb/s.
   **Úderné tempo:** výkřiky z ElevenLabs jsou protáhlé (číslo ~0,7 s, Antonín ~0,4 s), proto
   se klipy do komb zrychlí 1,3× bez změny výšky (ffmpeg `rubberband`); hlášky (připrav se,
-  poslední kolo, hotovo) ne. Rubberband nechá za slovem ~0,5 s ticha a na konci cvaknutí →
+  poslední kolo, naplno, hotovo) ne. Jednotlivé klipy jde přegenerovat zvlášť
+  (`--clip naplno`), ostatní zkontrolované klipy zůstanou. Rubberband nechá za slovem ~0,5 s ticha a na konci cvaknutí →
   konec ořízne `trim_end` (cvaknutí = úsek < 60 ms po ≥ 150 ms ticha; koncové t/p zůstane).
   ElevenLabs občas přidá citoslovce („Ha! Three") nebo slovo zkomolí, proto se **každý klip
   kontroluje převodem řeči na text** (scribe_v1) a délkou (číslo/obrana ≤ 0,65 s, na tělo
@@ -298,7 +314,7 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
 Zdroj pravdy pro vzhled: 8 HTML předloh 390 × 844 v `design/predlohy/` (z `design/ZADANI.md`,
 `{{accent}}` = kobaltová). Rozměry, barvy, písmo a texty se berou odtud. **Ze zadání se přebírá
 jen vzhled** (uživatel 10. 10. 2026: „to je jen nový design"). Funkce zůstávají podle kap. 1–8:
-web appka, hlas Antonín, jen box, 50 komb, odpočet s pípáním. Kde předloha ukazuje
+web appka, hlasy z kap. 8, jen box, 50 komb, odpočet s pípáním. Kde předloha ukazuje
 ukázková data, zobrazují se data appky.
 
 **Navigace:** kořen je Domů. Podobrazovky mají vlevo kulaté tlačítko zpět. Trénink je přes
@@ -332,13 +348,16 @@ celou obrazovku a podle fáze má podobu Odpočet → Kolo → Pauza → … →
   „„Jedna, dva, tři na tělo!"" / „„One, two, three body!"". Čipy v odpočtu a pauze
   („3T", „Ú") zůstávají zápisem appky (legenda v Kombech). Dole Další kolo (= přeskočit zbytek kola, 7.5) ·
   pauza/pokračovat (bílý kruh 84 px) · Konec (dialog).
+  **Finiš** (7.8): řádek „Finiš" / „Do gongu", místo sekvence „NAPLNO" / „ALL OUT" v bílé
+  pilulce (styl aktuálního úderu), bublina „„Naplno!"" / „„All out!"".
 - **Pauza** (`Pauza.html`, ink): ×, „Kolo 1 ze 3 hotovo", RoundProgress (hotová kola
   bílá); „PAUZA", „Další kolo za" / „Pozastaveno", čas 128 px, pruh 8 px plněný akcentem;
   karta **Další kombo** (předem vylosované první kombo dalšího kola) s názvem a obrácenou
   sekvencí; kulaté pozastavení 60 px + bílá pilulka **Přeskočit pauzu**.
 - **Hotovo** (není v předlohách, styl paper): „HOTOVO", obří počet kol v akcentu,
-  „kola · celkem m:ss" (skutečně odcvičený čas bez pauz a přeskočených úseků),
-  PrimaryButton **Znovu** (stejný trénink) a pilulka **Domů**.
+  „kola · celkem m:ss" (skutečně odcvičený čas bez pauz a přeskočených úseků), pod tím
+  „42 komb · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
+  se neukládá), PrimaryButton **Znovu** (stejný trénink) a pilulka **Domů**.
 - **Dialog „Ukončit trénink?"**: bílá karta r28, Pokračovat / Ukončit.
 
 ### 9.3 Komba (`Komba.html`, paper)
@@ -422,8 +441,7 @@ nikdy pád. Vestavěná komba se do úložiště nepíšou (nová komba v update
 ## 12. Mimo rozsah v1
 
 Muay Thai / kickbox, historie a statistiky, plán a onboarding, účty a synchronizace,
-haptika, běh se zamčeným displejem, ovládání hudby, anglické hlášení, světlý režim,
-vyhledávání v kombech, úprava už uloženého komba.
+haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava už uloženého komba.
 
 ## 13. Ověření
 
@@ -432,7 +450,8 @@ vyhledávání v kombech, úprava už uloženého komba.
   (10 000 losů), 100 % u Začátečníka; okno bez opakování; bazén 1 a 2 komb; prázdný
   bazén; mezery pro všechna tempa; hlídání konce kola nikdy nepřetáhne; časová osa
   (hranice fází, celková délka); každá událost právě jednou i při velkém skoku času;
-  text řeči; obranné čtení úložiště; přeskočení fáze pustí jen události na hranici.
+  text řeči; obranné čtení úložiště; přeskočení fáze pustí jen události na hranici; žádné
+  kombo nepřetáhne do finiše; začátek a konec finiše.
 - `npm run build` (tsc + vite) a `npm run lint` čisté.
 - **Prohlížeč** (chrome-devtools, viewport iPhone 15 Pro 393 × 852, DPR 3, simulované
   safe-area 59/34 px): projet trénink 1 kolo × 1 min, žádné chyby v konzoli, hlášení
@@ -442,9 +461,13 @@ vyhledávání v kombech, úprava už uloženého komba.
 **Na telefonu (uživatel):**
 1. Safari → URL → Sdílet → Přidat na plochu → otevřít z plochy.
 2. Nastavení → Hlas trenéra → poslechnout Harry / Charlie / Adam / Antonín, jeden vybrat.
-3. Trénink 1 × 1:00: „Připrav se", pípání 3-2-1, gong, komba, klepnutí v 0:10, 3× gong.
-4. S hudbou ze Spotify: hudba se při hlášení ztiší a vrátí.
-5. Tichý režim: s vypnutým přepínačem (R7) zjistit, jestli je slyšet; se zapnutým musí být.
+3. Trénink 1 × 1:00: „Připrav se", pípání 3-2-1, gong, komba, v 0:10 klepnutí + „Naplno!"
+   a do gongu žádné kombo, 3× gong; Hotovo ukáže počet komb a úderů.
+4. S hudbou ze Spotify na obvyklou hlasitost: hudba se **neztiší** (R3 — web to neumí), hlas
+   ji musí přehlušit sám. Ověřit, že jsou čísla slyšet od pytle během úderů. Když ne →
+   nahlásit (řešení: hlasitější klipy / tvrdší kompresor, jinak ztlumit hudbu).
+5. Tichý režim: s vypnutým přepínačem (R7) zjistit, jestli je slyšet; se zapnutým musí být
+   (a hudba se zastaví).
 6. 15 min tréninku: displej nezhasne.
 7. Zamknout telefon uprostřed kola → po odemčení je trénink na pauze.
 8. Režim letadlo → appka z plochy naběhne.
@@ -470,6 +493,9 @@ vyhledávání v kombech, úprava už uloženého komba.
     (390 × 844), deploy, uživatel přeinstaluje ikonu.
 11. **v5:** úderné anglické hlasy (ElevenLabs) + výběr hlasu v Nastavení → kontrola klipů
     přepisem, testy, build, deploy.
+12. **v6:** git repozitář; finiš (7.8) + počty na Hotovo; klip `naplno` pro 4 hlasy (kontrola
+    přepisem); oprava dokumentace a README podle skutečnosti → testy, build, kontrola
+    v prohlížeči, deploy.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")
 
