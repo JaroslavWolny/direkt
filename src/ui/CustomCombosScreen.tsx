@@ -10,6 +10,7 @@ import { comboSec, formatSec, plural } from './format'
 import { IconBack, IconPlus } from './icons'
 import { PunchSequence } from './punch'
 import { useThemeColor } from './useThemeColor'
+import { useWholeRows } from './useWholeRows'
 
 interface Props {
   all: readonly Combo[]
@@ -28,6 +29,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
   const [detailId, setDetailId] = useState<string | null>(null)
   const disabled = new Set(library.disabled)
   const custom = library.custom
+  const listRef = useWholeRows(custom.length)
   const detail = custom.find((c) => c.id === detailId) ?? null
 
   const setEnabled = (id: string, on: boolean) =>
@@ -62,7 +64,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
         komba
       </h1>
 
-      <div className="list-scroll">
+      <div className="list-scroll" ref={listRef}>
         {custom.length === 0 ? (
           <div className="empty">
             <strong>Zatím žádné kombo.</strong>

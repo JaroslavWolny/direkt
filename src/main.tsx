@@ -19,6 +19,15 @@ if (location.search.includes('sw-reset')) {
   registerSW({ immediate: true, onNeedReload })
 }
 
+// Seznam pod pevnou hlavičkou ukáže po odrolování hranu (kap. 10). Scroll nebublá → capture.
+document.addEventListener(
+  'scroll',
+  (e) => {
+    if (e.target instanceof HTMLElement) e.target.toggleAttribute('data-scrolled', e.target.scrollTop > 0)
+  },
+  { capture: true, passive: true },
+)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

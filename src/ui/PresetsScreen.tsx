@@ -6,6 +6,7 @@ import { IconButton, SwipeRow } from './controls'
 import { plural, presetMeta, workoutMinutes } from './format'
 import { IconBack, IconPlus } from './icons'
 import { useThemeColor } from './useThemeColor'
+import { useWholeRows } from './useWholeRows'
 import { WorkoutForm } from './WorkoutForm'
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: Props) {
   useThemeColor('--paper')
   const [creating, setCreating] = useState(false)
+  const listRef = useWholeRows(presets.length)
 
   return (
     <div className="screen">
@@ -36,7 +38,7 @@ export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: P
 
       <h1 className="display title-1">Tréninky</h1>
 
-      <div className="list-scroll">
+      <div className="list-scroll" ref={listRef}>
         {presets.length === 0 ? (
           <div className="empty">
             <strong>Zatím žádný trénink.</strong>

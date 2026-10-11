@@ -101,7 +101,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
         ))}
       </div>
 
-      <div className="scroll">
+      <div className="scroll under-header">
         <p className="legend">{LEGEND}</p>
         {list.map((c) => (
           <button

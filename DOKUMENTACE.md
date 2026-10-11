@@ -583,6 +583,18 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   poslední řádek usekne nad prázdným pruhem (uživatel 11. 10. 2026, Domů s řádkem Plán). Rádiusy: pilulky 999,
   karty 28, skupiny 20, segmenty a pruhy 2. Dotyková plocha min. 44 × 44.
 - **Žádné stíny, přechody, záře, fotky, emoji.** Ploché barvy, velká typografie.
+- **Seznam pod pevnou hlavičkou** (Komba pod filtry, Vlastní komba, Tréninky): obsah se při rolování
+  neschovává přímo pod pilulky či nadpis, ale pod hranu 12 px pod nimi; jakmile je seznam odrolovaný,
+  ukáže se na hraně hairline přes celou šířku (jako lišta v iOS). Řádky se přichytávají
+  (`scroll-snap`), takže seznam se zastaví vždy na celém řádku a nikde netrčí useknutá kolečka.
+  Bez přechodu do ztracena — design zakazuje přechody.
+- **Seznam nad tlačítkem na celé řádky** (Tréninky, Vlastní komba): výška seznamu se dopočítá
+  na celý počet řádků (`useWholeRows`), řádky se přichytávají, takže v klidu nikde netrčí useknutý
+  řádek — ani nahoře, ani nad tlačítkem. Dole je vidět jen hairline dalšího řádku (= pokračuje);
+  zbytek místa (míň než řádek) je vzduch nad `PrimaryButton`, který drží u spodní hrany.
+  Plovoucí tlačítko přes seznam uživatel zamítl (obsah trčel kolem pilulky). (Uživatel
+  11. 10. 2026: useknutý poslední řádek nad tlačítkem — „vyřeš originálně a chytřeji".) Atribut `data-scrolled` nastavuje jeden posluchač rolování v `main.tsx`
+  (uživatel 11. 10. 2026: useknuté řádky pod filtry „nevypadají dobře").
 - **Stavová lišta:** styl `default` → appka začíná pod neprůhlednou lištou v barvě
   obrazovky (paper / akcent v kole / ink v pauze). Za běhu ji iOS 27 barví podle fixního
   pruhu u horního okraje (R11): každá `.screen` začíná `<i className="screen-edge">` —

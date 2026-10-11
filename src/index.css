@@ -863,7 +863,7 @@ svg {
 }
 
 .legend {
-  margin: 14px 0 8px;
+  margin: 0 0 8px; /* 13 px nad .under-header + 1 px hrany = původních 14 px */
   font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
@@ -950,8 +950,43 @@ svg {
   flex: 1 1 auto;
   min-height: 0;
   margin: 20px -20px 12px;
-  padding: 0 20px;
+  padding: 0 20px 1px; /* 1 px: poslední řádek dojede na stejnou pozici jako přichycení (−1 px) */
   overflow-y: auto;
+}
+
+/* Seznam má výšku na celé řádky (useWholeRows); zbytek místa je vzduch nad tlačítkem u dna. */
+.list-scroll + .primary-btn {
+  margin-top: auto;
+}
+
+/* Seznam pod pevnou hlavičkou: odrolovaný obsah mizí pod hranou s hairline, ne pod pilulkami
+   (kap. 10; data-scrolled nastavuje main.tsx). Hrana je průhledná i v klidu, ať nic neposkočí.
+   Přichycení: řádek se zastaví celý pod hranou a jeho vlastní hairline schová hrana (−1 px). */
+.scroll.under-header {
+  margin-top: 13px;
+}
+
+.list-scroll,
+.scroll.under-header {
+  border-top: 1px solid transparent;
+  scroll-snap-type: y mandatory;
+}
+
+.list-scroll > *,
+.scroll.under-header > * {
+  scroll-snap-align: start;
+  scroll-margin-top: -1px;
+}
+
+/* nahoře v klidu zůstane vzhled předlohy (scrollTop 0, žádná hrana) */
+.list-scroll > :first-child,
+.scroll.under-header > :first-child {
+  scroll-margin-top: 0;
+}
+
+.list-scroll[data-scrolled],
+.scroll.under-header[data-scrolled] {
+  border-top-color: var(--hairline);
 }
 
 /* ---------- Tréninky (Treninky.html) ---------- */
