@@ -1,11 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { LEVELS } from '../data/combos'
+import { BUILTIN_COMBOS } from '../data/combos'
+import { isDefense } from '../data/moves'
 import { LIMITS } from './constants'
-import { buildPlan, GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type PlanAnswers } from './plan'
+import {
+  buildPlan,
+  EXPERIENCES,
+  GOALS,
+  MINUTES,
+  PER_WEEK,
+  PLAN_WEEKS,
+  TRAINING_DAYS,
+  type Goal,
+  type PlanAnswers,
+} from './plan'
+import { focusPool } from './selector'
 
-const ALL: PlanAnswers[] = LEVELS.flatMap((experience) =>
-  GOALS.flatMap((goal) =>
-    PER_WEEK.flatMap((perWeek) => MINUTES.map((minutes) => ({ experience, goal, perWeek, minutes }))),
+/** Všechny neprázdné podmnožiny cílů. */
+const GOAL_SETS: Goal[][] = Array.from({ length: 2 ** GOALS.length - 1 }, (_, m) =>
+  GOALS.filter((_, i) => ((m + 1) >> i) & 1),
+)
+
+const ALL: PlanAnswers[] = EXPERIENCES.flatMap((experience) =>
+  GOAL_SETS.flatMap((goals) =>
+    PER_WEEK.flatMap((perWeek) => MINUTES.map((minutes) => ({ experience, goals, perWeek, minutes }))),
   ),
 )
 
@@ -16,16 +33,25 @@ const durationSec = (c: { rounds: number; roundSec: number; restSec: number }) =
 const onStep = (v: number, lim: { min: number; max: number; step: number }) =>
   v >= lim.min && v <= lim.max && (v - lim.min) % lim.step === 0
 
-describe('plán (7.11)', () => {
-  it('4 týdny × zvolený počet tréninků, týdny po pořadí', () => {
+const first = (a: PlanAnswers, goal: Goal, week = 1) =>
+  buildPlan(a).find((s) => s.goal === goal && s.week === week)?.config
+
+describe('plán v9 (7.11)', () => {
+  it('4 týdny × frekvence, dny s odstupem podle rozvrhu', () => {
     for (const a of ALL) {
       const plan = buildPlan(a)
       expect(plan).toHaveLength(PLAN_WEEKS * a.perWeek)
-      expect(plan.map((s) => s.week)).toEqual([...plan.map((s) => s.week)].sort((x, y) => x - y))
+      for (let w = 1; w <= PLAN_WEEKS; w++) {
+        expect(plan.filter((s) => s.week === w).map((s) => s.weekday)).toEqual(TRAINING_DAYS[a.perWeek])
+      }
     }
+    expect(TRAINING_DAYS[2]).toEqual([0, 3]) // Po Čt
+    expect(TRAINING_DAYS[3]).toEqual([0, 2, 4]) // Po St Pá
+    expect(TRAINING_DAYS[4]).toEqual([0, 1, 3, 4]) // Po Út Čt Pá
+    expect(TRAINING_DAYS[5]).toEqual([0, 1, 2, 3, 4]) // Po–Pá
   })
 
-  it('každý trénink je platné nastavení a vejde se do zvolených minut', () => {
+  it('každý trénink je platné nastavení a nepřesáhne zvolenou délku', () => {
     for (const a of ALL) {
       for (const s of buildPlan(a)) {
         const c = s.config
@@ -34,72 +60,77 @@ describe('plán (7.11)', () => {
         expect(onStep(c.roundSec, LIMITS.roundSec)).toBe(true)
         expect(onStep(c.restSec, LIMITS.restSec)).toBe(true)
         expect(durationSec(c)).toBeLessThanOrEqual(a.minutes * 60)
-        expect(c.focus).toBe(s.focus)
+        expect(c.focus).toBe(s.goal)
       }
     }
   })
 
-  it('poslední týden využije zvolený čas (chybí méně než jedno kolo s pauzou)', () => {
+  it('progrese: každý týden nejvýš jeden krok (+1 kolo, nebo pauza −0:15), nikdy obojí', () => {
     for (const a of ALL) {
-      for (const s of buildPlan(a).filter((x) => x.week === PLAN_WEEKS)) {
-        const c = s.config
-        if (c.rounds < LIMITS.rounds.max) {
-          expect(a.minutes * 60 - durationSec(c)).toBeLessThan(c.roundSec + c.restSec)
+      for (const goal of a.goals) {
+        const weeks = Array.from({ length: PLAN_WEEKS }, (_, w) => first({ ...a, goals: [goal] }, goal, w + 1))
+        for (let i = 1; i < weeks.length; i++) {
+          const [prev, cur] = [weeks[i - 1]!, weeks[i]!]
+          const moreRounds = cur.rounds - prev.rounds
+          const shorterRest = prev.restSec - cur.restSec
+          expect([0, 1]).toContain(moreRounds)
+          expect([0, 15]).toContain(shorterRest)
+          expect(moreRounds > 0 && shorterRest > 0).toBe(false)
         }
       }
     }
   })
 
-  it('objem po týdnech neklesá a pauza se neprodlužuje', () => {
-    for (const a of ALL) {
-      for (const focus of GOALS) {
-        // první trénink daného zaměření v každém týdnu
-        const byWeek = Array.from({ length: PLAN_WEEKS }, (_, w) =>
-          buildPlan(a).find((s) => s.week === w + 1 && s.focus === focus),
-        ).filter((s) => s !== undefined)
-        for (let i = 1; i < byWeek.length; i++) {
-          const [prev, cur] = [byWeek[i - 1].config, byWeek[i].config]
-          expect(cur.rounds * cur.roundSec).toBeGreaterThanOrEqual(prev.rounds * prev.roundSec)
-          expect(cur.restSec).toBeLessThanOrEqual(prev.restSec)
-        }
-      }
-    }
-  })
-
-  it('hlavní zaměření převažuje: H V H V', () => {
-    const week1 = (a: PlanAnswers) => buildPlan(a).filter((s) => s.week === 1).map((s) => s.focus)
-    expect(week1({ experience: 1, goal: 'kondice', perWeek: 2, minutes: 25 })).toEqual(['kondice', 'technika'])
-    expect(week1({ experience: 1, goal: 'technika', perWeek: 3, minutes: 25 })).toEqual(['technika', 'kondice', 'technika'])
-    expect(week1({ experience: 1, goal: 'kondice', perWeek: 4, minutes: 25 })).toEqual([
+  it('cíle se střídají po řadě dlaždic, napříč dny i týdny', () => {
+    const plan = buildPlan({ experience: 1, goals: ['obrana', 'kondice', 'technika'], perWeek: 2, minutes: 15 })
+    expect(plan.map((s) => s.goal)).toEqual([
       'kondice',
       'technika',
+      'obrana',
+      'kondice',
+      'technika',
+      'obrana',
       'kondice',
       'technika',
     ])
   })
 
-  it('začátečník, 15 min: start 3 × 2:00 / 1:00, konec 5 kol', () => {
-    const plan = buildPlan({ experience: 0, goal: 'technika', perWeek: 2, minutes: 15 })
-    expect(plan[0].config).toMatchObject({ rounds: 3, roundSec: 120, restSec: 60, level: 0, intensity: 0 })
-    expect(plan[plan.length - 2].config).toMatchObject({ rounds: 5, roundSec: 120, restSec: 60 })
+  it('zkušenost: úroveň komb, kolo a tempo', () => {
+    const tech = (experience: 0 | 1 | 2 | 3) => first({ experience, goals: ['technika'], perWeek: 3, minutes: 30 }, 'technika')
+    expect(tech(0)).toMatchObject({ level: 0, roundSec: 120, restSec: 60, intensity: 0 })
+    expect(tech(1)).toMatchObject({ level: 1, roundSec: 120, restSec: 60, intensity: 0 })
+    expect(tech(2)).toMatchObject({ level: 1, roundSec: 180, restSec: 60, intensity: 0 })
+    expect(tech(3)).toMatchObject({ level: 2, roundSec: 180, restSec: 60, intensity: 1 })
   })
 
-  it('kondice: pauzy se zkracují, od 3. týdne tvrdé tempo (kromě začátečníka)', () => {
-    const plan = buildPlan({ experience: 2, goal: 'kondice', perWeek: 2, minutes: 40 })
-    const k = plan.filter((s) => s.focus === 'kondice').map((s) => s.config)
-    expect(k.map((c) => c.restSec)).toEqual([60, 45, 45, 30])
-    expect(k.map((c) => c.intensity)).toEqual(['ramp', 'ramp', 2, 2])
-    expect(k[3]).toMatchObject({ rounds: 11, roundSec: 180 }) // 11 × 3:00 / 0:30 = 38 min
-    const zacatek = buildPlan({ experience: 0, goal: 'kondice', perWeek: 2, minutes: 25 }).filter((s) => s.focus === 'kondice')
-    expect(zacatek.map((s) => s.config.intensity)).toEqual(['ramp', 'ramp', 'ramp', 'ramp'])
+  it('cíle: kondice kratší pauza a rostoucí tempo, síla kratší kola s delší pauzou, rychlost tvrdě', () => {
+    const a = (goal: Goal): PlanAnswers => ({ experience: 2, goals: [goal], perWeek: 3, minutes: 30 })
+    expect(first(a('kondice'), 'kondice')).toMatchObject({ roundSec: 180, restSec: 45, intensity: 'ramp' })
+    expect(first(a('sila'), 'sila')).toMatchObject({ roundSec: 150, restSec: 90, intensity: 0 })
+    expect(first(a('rychlost'), 'rychlost')).toMatchObject({ roundSec: 180, restSec: 60, intensity: 2 })
+    expect(first(a('hlava'), 'hlava')).toMatchObject({ roundSec: 180, restSec: 60, intensity: 1 })
+    // síla pauzu nezkracuje — progrese jen koly
+    const sila = Array.from({ length: PLAN_WEEKS }, (_, w) => first(a('sila'), 'sila', w + 1)!.restSec)
+    expect(sila).toEqual([90, 90, 90, 90])
   })
 
-  it('technika: od 3. týdne o úroveň výš, nejvýš Expert', () => {
-    const levels = (experience: 0 | 1 | 2) =>
-      buildPlan({ experience, goal: 'technika', perWeek: 2, minutes: 25 })
-        .filter((s) => s.focus === 'technika')
-        .map((s) => s.config.level)
-    expect(levels(0)).toEqual([0, 0, 1, 1])
-    expect(levels(2)).toEqual([2, 2, 2, 2])
+  it('začátečník, technika, 15 min: start 3 × 2:00 / 1:00 (start ze zdrojů), pak +kolo / −pauza / +kolo', () => {
+    const a: PlanAnswers = { experience: 0, goals: ['technika'], perWeek: 2, minutes: 15 }
+    const weeks = Array.from({ length: PLAN_WEEKS }, (_, w) => first(a, 'technika', w + 1)!)
+    expect(weeks.map((c) => [c.rounds, c.restSec])).toEqual([
+      [3, 60],
+      [4, 60],
+      [4, 45],
+      [5, 45],
+    ])
+  })
+
+  it('Obrana bere jen komba s obranou; bez nich celý bazén', () => {
+    const pool = focusPool(BUILTIN_COMBOS, 'obrana')
+    expect(pool.length).toBeGreaterThan(0)
+    expect(pool.every((c) => c.moves.some(isDefense))).toBe(true)
+    const bezObrany = BUILTIN_COMBOS.filter((c) => !c.moves.some(isDefense))
+    expect(focusPool(bezObrany, 'obrana')).toBe(bezObrany)
+    expect(focusPool(BUILTIN_COMBOS, 'kondice')).toBe(BUILTIN_COMBOS)
   })
 })

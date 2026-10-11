@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>DIREKT – tvůj plán</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+body{margin:0;background:#F3F2EE}
+a{color:#111111;text-decoration:none}a:hover{color:#000000}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 20px 24px; display: flex; flex-direction: column; background: #F3F2EE; color: #111111; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Otazka3.html" aria-label="Zpět" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #E6E4DD; border-radius: 999px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<a href="Otazka1.html" style="min-height: 44px; padding: 0 16px; display: flex; align-items: center; background: #E6E4DD; border-radius: 999px; font-size: 15px; font-weight: 600">Upravit odpovědi</a>
+</header>
+<h1 style="margin: 16px 0 0; font-stretch: 125%; font-weight: 850; font-size: 40px; line-height: 1; letter-spacing: -0.01em; text-transform: uppercase">Tvůj plán</h1>
+<p style="margin: 8px 0 0; font-size: 15px; line-height: 1.45; color: #6B6A66">Pro začátečníka na kondici a techniku, 3× týdně do 15 minut. Každý týden přidáme jedno kolo.</p>
+<section aria-label="Týden 1" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600">
+<span>Týden 1 ze 4</span>
+<span style="color: #6B6A66">30 min celkem</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+<span aria-label="{{d.aria}}" style="width: 42px; height: 42px; box-sizing: border-box; justify-self: center; display: flex; align-items: center; justify-content: center; background: {{d.bg}}; border: {{d.border}}; color: {{d.fg}}; border-radius: 999px; font-size: 13px; font-weight: 600">{{d.label}}</span>
+</sc-for>
+</div>
+</section>
+<a href="Odpocet.html" aria-label="Začít dnešní trénink: Základní kondice" style="display: flex; flex-direction: column; gap: 12px; margin-top: 18px; padding: 20px; background: {{accent}}; color: #FFFFFF; border-radius: 28px">
+<div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+<span>Dnes · pondělí</span>
+<span>8 min</span>
+</div>
+<span style="font-stretch: 125%; font-weight: 850; font-size: 24px; line-height: 1; text-transform: uppercase">Základní kondice</span>
+<div aria-hidden="true" style="display: flex; gap: 4px; height: 8px">
+<span style="flex: 2 1 0; background: #FFFFFF; border-radius: 2px"></span>
+<span style="flex: 1 1 0; background: rgba(255,255,255,0.3); border-radius: 2px"></span>
+<span style="flex: 2 1 0; background: #FFFFFF; border-radius: 2px"></span>
+<span style="flex: 1 1 0; background: rgba(255,255,255,0.3); border-radius: 2px"></span>
+<span style="flex: 2 1 0; background: #FFFFFF; border-radius: 2px"></span>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between">
+<span style="font-size: 15px">3 kola · 2:00 / 1:00</span>
+<span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; color: {{accent}}; border-radius: 999px"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"></path></svg></span>
+</div>
+</a>
+<div style="display: flex; flex-direction: column; margin-top: 10px">
+<sc-for list="{{next}}" as="n" hint-placeholder-count="2">
+<div style="min-height: 60px; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #DCDAD3">
+<span style="font-stretch: 125%; font-weight: 850; font-size: 15px; text-transform: uppercase">{{n.day}}</span>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 16px; font-weight: 600">{{n.name}}</span>
+<span style="font-size: 13px; color: #6B6A66">{{n.meta}}</span>
+</div>
+<span style="font-size: 15px; font-weight: 500">{{n.min}} min</span>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#2C3BFF","options":["#2C3BFF","#FF3B2F","#0B8F5A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#2C3BFF';
+    const plan = { 0: 'today', 2: 'train', 4: 'train' };
+    const names = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
+    const full = ['pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'];
+    const days = names.map((label, i) => {
+      const kind = plan[i] || 'rest';
+      return {
+        label: label,
+        aria: full[i] + (kind === 'today' ? ', dnešní trénink' : kind === 'train' ? ', trénink' : ', volno'),
+        fg: kind === 'rest' ? '#6B6A66' : '#FFFFFF',
+        bg: kind === 'today' ? accent : kind === 'train' ? '#111111' : 'transparent',
+        border: kind === 'rest' ? '1.5px solid #DCDAD3' : '0'
+      };
+    });
+    const next = [
+      { day: 'St', name: 'Technika + obrana', meta: '5 kol · 1:30 / 0:45', min: 11 },
+      { day: 'Pá', name: 'Kondice + komba', meta: '4 kola · 2:00 / 1:00', min: 11 }
+    ];
+    return { accent: accent, days: days, next: next };
+  }
+}
+</script>
+</body>
+</html>

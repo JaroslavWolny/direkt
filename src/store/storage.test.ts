@@ -64,21 +64,29 @@ describe('obranné čtení úložiště', () => {
     expect(sanitizeSettings({ prepSec: 22.4 }).prepSec).toBe(20)
   })
 
-  it('plán: platný se načte, rozbitý = žádný, postup se ořízne', () => {
-    const answers = { experience: 1, goal: 'kondice', perWeek: 3, minutes: 25 }
+  it('plán: platný se načte, rozbitý nebo z v8 = žádný, postup se ořízne', () => {
+    const answers = { experience: 1, goals: ['kondice', 'technika'], perWeek: 3, minutes: 15 }
     expect(sanitizePlan({ answers, done: 5 })).toEqual({ answers, done: 5 })
     expect(sanitizePlan({ answers, done: 99 })?.done).toBe(12)
     expect(sanitizePlan({ answers, done: -2 })?.done).toBe(0)
     expect(sanitizePlan({ answers, done: 'x' })?.done).toBe(0)
-    expect(sanitizePlan({ answers: { ...answers, minutes: 30 }, done: 1 })).toBeNull()
-    expect(sanitizePlan({ answers: { ...answers, goal: 'sila' }, done: 1 })).toBeNull()
+    // neznámé cíle pryč, pořadí podle dlaždic
+    expect(sanitizePlan({ answers: { ...answers, goals: ['obrana', 'x', 'kondice'] } })?.answers.goals).toEqual([
+      'kondice',
+      'obrana',
+    ])
+    expect(sanitizePlan({ answers: { ...answers, goals: [] }, done: 1 })).toBeNull()
+    expect(sanitizePlan({ answers: { ...answers, minutes: 25 }, done: 1 })).toBeNull()
+    expect(sanitizePlan({ answers: { experience: 1, goal: 'kondice', perWeek: 3, minutes: 25 }, done: 1 })).toBeNull()
     expect(sanitizePlan(null)).toBeNull()
     expect(sanitizePlan('plán')).toBeNull()
   })
 
-  it('úvod: chybějící příznak = ještě neproběhl', () => {
-    expect(sanitizeSettings({}).onboarded).toBe(false)
-    expect(sanitizeSettings({ onboarded: true }).onboarded).toBe(true)
+  it('úvod: verze, kterou už viděl (v8 ukládal true)', () => {
+    expect(sanitizeSettings({}).onboarded).toBe(0)
+    expect(sanitizeSettings({ onboarded: true }).onboarded).toBe(1)
+    expect(sanitizeSettings({ onboarded: 2 }).onboarded).toBe(2)
+    expect(sanitizeSettings({ onboarded: 'ano' }).onboarded).toBe(0)
   })
 
   it('stupňovaná intenzita se načte, neznámá padne na výchozí', () => {

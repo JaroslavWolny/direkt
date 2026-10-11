@@ -21,8 +21,8 @@ export const NO_REPEAT_WINDOW = 3
 /** „Znovu!" místo nového komba: pravděpodobnost a max. počet po sobě (7.9). */
 export const REPEAT_CHANCE = 0.25
 export const MAX_REPEATS = 2
-/** Trénink plánu se zaměřením Technika drilluje víc (7.11). */
-export const REPEAT_CHANCE_TECHNIKA = 0.4
+/** Trénink plánu Technika a Obrana drilluje víc (7.11). */
+export const REPEAT_CHANCE_DRILL = 0.4
 
 /** Klepnutí 10 s před koncem kola, jen pro kola aspoň 30 s. */
 export const WARNING_BEFORE_END_MS = 10_000

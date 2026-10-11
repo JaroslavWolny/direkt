@@ -2,9 +2,9 @@ import { voiceDurationMs, clipsFor } from '../audio/voice'
 import type { VoiceId, VoiceLang } from '../data/voices'
 import { LEVEL_LABEL } from '../data/combos'
 import { wordText, type Move } from '../data/moves'
-import { INTENSITY_LABEL, type Intensity } from '../engine/constants'
-import type { PlanAnswers } from '../engine/plan'
-import type { Focus, WorkoutConfig } from '../engine/timeline'
+import type { Intensity } from '../engine/constants'
+import type { Goal, PlanAnswers, Weekday } from '../engine/plan'
+import type { WorkoutConfig } from '../engine/timeline'
 import { gapMs } from '../engine/timing'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -49,13 +49,44 @@ export const wordsAreLong = (moves: readonly Move[], lang: VoiceLang): boolean =
 
 // ---------- plán (7.11) ----------
 
-export const EXPERIENCE_LABEL = ['Začínám', 'Trénuju', 'Závodím'] as const
-export const FOCUS_LABEL: Record<Focus, string> = { kondice: 'Kondice', technika: 'Technika' }
+export const DAY_SHORT = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'] as const
+export const DAY_NAME = ['pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'] as const
 
-/** Řádek tréninku plánu: „4 kola · 3:00 / 0:45 · Rostoucí". */
-export const sessionMeta = (c: WorkoutConfig): string =>
-  `${rounds(c.rounds)} · ${formatSec(c.roundSec)} / ${formatSec(c.restSec)} · ${INTENSITY_LABEL[c.intensity]}`
+/** Dnešní den v týdnu jako v plánu: 0 = pondělí. */
+export const todayWeekday = (): Weekday => ((new Date().getDay() + 6) % 7) as Weekday
 
-/** Odpovědi dotazníku: „Trénuju · Kondice · 3× týdně · 25 min". */
-export const answersText = (a: PlanAnswers): string =>
-  `${EXPERIENCE_LABEL[a.experience]} · ${FOCUS_LABEL[a.goal]} · ${a.perWeek}× týdně · ${a.minutes} min`
+/** Název tréninku plánu. */
+export const GOAL_NAME: Record<Goal, string> = {
+  kondice: 'Kondice',
+  technika: 'Technika',
+  sila: 'Síla úderu',
+  rychlost: 'Rychlost',
+  obrana: 'Obrana',
+  hlava: 'Vyčistit hlavu',
+}
+
+/** Štítek karty tréninku na řadě: „Dnes · pondělí", jinak „Na řadě · středa" (7.11). */
+export const sessionLabel = (weekday: Weekday): string =>
+  `${weekday === todayWeekday() ? 'Dnes' : 'Na řadě'} · ${DAY_NAME[weekday]}`
+
+/** „3 kola · 2:00 / 1:00" */
+export const sessionMeta = (c: WorkoutConfig): string => `${rounds(c.rounds)} · ${formatSec(c.roundSec)} / ${formatSec(c.restSec)}`
+
+const FOR_WHOM = ['začátečníka', 'mírně pokročilého', 'pokročilého', 'závodníka'] as const
+const GOAL_ACC: Record<Goal, string> = {
+  kondice: 'kondici',
+  technika: 'techniku',
+  sila: 'sílu úderu',
+  rychlost: 'rychlost',
+  obrana: 'obranu',
+  hlava: 'vyčištění hlavy',
+}
+
+/** „kondici, techniku a obranu" */
+const joinAnd = (xs: readonly string[]): string =>
+  xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} a ${xs[xs.length - 1]}`
+
+/** Shrnutí odpovědí jednou větou (Plan.html). */
+export const planSummary = (a: PlanAnswers): string =>
+  `Pro ${FOR_WHOM[a.experience]} na ${joinAnd(a.goals.map((g) => GOAL_ACC[g]))}, ${a.perWeek}× týdně do ${a.minutes} minut. ` +
+  'Každý týden přidáme kolo, nebo zkrátíme pauzu.'

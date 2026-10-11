@@ -1,89 +1,66 @@
 import { useEffect, useState, type CSSProperties } from 'react'
+import { BagMark, Wordmark } from './brand'
+import { IconArrow } from './icons'
 import { useThemeColor } from './useThemeColor'
 
-export type IntroVariant = 'a' | 'b' | 'c'
-
 /** Kdy je animace u konce (časy v CSS, DOKUMENTACE.md 10.1). */
-const END_MS: Record<IntroVariant, number> = { a: 1900, b: 2050, c: 1850 }
-/** B: papír vyjede nahoru a plocha je kobaltová — stavová lišta se přebarví s ní. */
-const FLIP_MS = 1050
+const END_MS = 1850
 
 const reducedMotion = (): boolean =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
-const delay = (i: number) => ({ '--i': i }) as CSSProperties
-
-/** Pohyblivá část — jen do konce animace. */
-function Stage({ variant }: { variant: IntroVariant }) {
-  if (variant === 'c') {
-    return (
-      <span className="intro-stage intro-words" aria-hidden="true">
-        {['Jab', 'Cross', 'Hák'].map((w, i) => (
-          <span key={w} className="intro-word" style={delay(i)}>
-            {w}
-            <i>{w}</i>
-          </span>
-        ))}
-      </span>
-    )
-  }
-  const nums = variant === 'a' ? ['1', '2', '3'] : ['3', '2', '1']
-  return (
-    <span className="intro-stage" aria-hidden="true">
-      {nums.map((n, i) => (
-        <span key={n} className="intro-num" style={delay(i)}>
-          {n}
-        </span>
-      ))}
-    </span>
-  )
-}
+const order = (i: number) => ({ '--i': i }) as CSSProperties
 
 interface Props {
-  variant: IntroVariant
+  /** Návrat z dotazníku: rovnou konečný stav, 1-2-3 se neopakuje. */
+  animate: boolean
+  /** Volat v gestu — zazní gong (iOS pustí zvuk jen z ťuknutí). */
   onPlan: () => void
   onSkip: () => void
 }
 
-/** Úvod při prvním spuštění (DOKUMENTACE.md 9.0); ťuk během animace skočí na konec. */
-export function IntroScreen({ variant, onPlan, onSkip }: Props) {
-  const [ended, setEnded] = useState(reducedMotion)
-  const [flipped, setFlipped] = useState(() => variant !== 'b' || reducedMotion())
-  useThemeColor(flipped ? '--accent' : '--paper')
+/** Úvod (DOKUMENTACE.md 9.0, Uvod.html): 1-2-3, pak se složí obrazovka. Ťuk = skok na konec. */
+export function IntroScreen({ animate, onPlan, onSkip }: Props) {
+  useThemeColor('--accent')
+  const [ended, setEnded] = useState(() => !animate || reducedMotion())
 
   useEffect(() => {
     if (ended) return
-    const t = setTimeout(() => setEnded(true), END_MS[variant])
+    const t = setTimeout(() => setEnded(true), END_MS)
     return () => clearTimeout(t)
-  }, [ended, variant])
-  useEffect(() => {
-    if (flipped) return
-    const t = setTimeout(() => setFlipped(true), FLIP_MS)
-    return () => clearTimeout(t)
-  }, [flipped])
-
-  const skip = () => {
-    setEnded(true)
-    setFlipped(true)
-  }
+  }, [ended])
 
   return (
-    <div
-      className={`screen on-accent intro intro-${variant}${ended ? ' ended' : ''}`}
-      onClick={ended ? undefined : skip}
-    >
-      {variant === 'b' && !ended && <span className="intro-paper" aria-hidden="true" />}
-      <div className="intro-mid">
-        {!ended && <Stage variant={variant} />}
-        <span className="intro-logo">DIREKT</span>
-        <span className="intro-tag">Žádné řeči. Jen údery.</span>
+    <div className={ended ? 'screen on-accent intro ended' : 'screen on-accent intro'} onClick={ended ? undefined : () => setEnded(true)}>
+      {!ended && (
+        <span className="intro-stage" aria-hidden="true">
+          {['1', '2', '3'].map((n, i) => (
+            <span key={n} className="intro-num" style={order(i)}>
+              {n}
+            </span>
+          ))}
+        </span>
+      )}
+      <BagMark className="intro-bag" />
+      <Wordmark className="intro-wordmark" />
+      <div className="grow" />
+      <div className="intro-copy">
+        <h1 className="intro-title">
+          {['První', 'kolo', 'začíná.'].map((w, i) => (
+            <span key={w} style={order(i)}>
+              {w}
+            </span>
+          ))}
+        </h1>
+        <p className="intro-text">Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.</p>
       </div>
       <div className="intro-actions">
-        <button type="button" className="primary-btn white" onClick={onPlan}>
-          Sestavit plán
+        <button type="button" className="intro-cta" onClick={onPlan}>
+          Sestavit můj plán
+          <IconArrow size={22} />
         </button>
-        <button type="button" className="pill-btn big on-accent" onClick={onSkip}>
-          Bez plánu
+        <button type="button" className="intro-skip" onClick={onSkip}>
+          Přeskočit, chci rovnou trénovat
         </button>
       </div>
     </div>

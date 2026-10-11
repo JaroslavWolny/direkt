@@ -3,7 +3,7 @@ import { LEVELS, type Combo, type Level } from '../data/combos'
 import { DEFAULT_VOICE, isVoiceId, type VoiceId } from '../data/voices'
 import { isMove } from '../data/moves'
 import { INTENSITY_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
-import { GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type Goal, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
+import { EXPERIENCES, GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type Experience, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
 import type { WorkoutConfig } from '../engine/timeline'
 
 export interface Settings {
@@ -11,8 +11,8 @@ export interface Settings {
   silentOverride: boolean
   autoPause: boolean
   voice: VoiceId
-  /** Úvod a dotazník už proběhly (9.0). */
-  onboarded: boolean
+  /** Verze úvodu, kterou už viděl (9.0); menší než ONBOARDING_VERSION = ukázat. */
+  onboarded: number
 }
 
 export interface Library {
@@ -33,6 +33,9 @@ export interface Plan {
   done: number
 }
 
+/** v9: nový úvod a dotazník se ukážou i tomu, kdo prošel úvodem v8. */
+export const ONBOARDING_VERSION = 2
+
 export const MAX_MOVES = 8
 export const MAX_NAME = 30
 
@@ -42,7 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
   silentOverride: false,
   autoPause: true,
   voice: DEFAULT_VOICE,
-  onboarded: false,
+  onboarded: 0,
 }
 export const DEFAULT_LIBRARY: Library = { disabled: [], custom: [] }
 export const DEFAULT_PRESETS: Preset[] = [
@@ -84,7 +87,8 @@ export function sanitizeSettings(x: unknown): Settings {
     silentOverride: o.silentOverride === true,
     autoPause: o.autoPause !== false,
     voice: isVoiceId(o.voice) ? o.voice : d.voice,
-    onboarded: o.onboarded === true,
+    // v8 ukládal true
+    onboarded: o.onboarded === true ? 1 : typeof o.onboarded === 'number' && Number.isInteger(o.onboarded) ? Math.max(0, o.onboarded) : 0,
   }
 }
 
@@ -117,21 +121,22 @@ export function sanitizePresets(x: unknown): Preset[] {
   )
 }
 
-/** Rozbitý nebo neúplný plán → žádný plán (dotazník jde vyplnit znovu). */
+/** Rozbitý, neúplný nebo starý plán (v8) → žádný plán (dotazník jde vyplnit znovu). */
 export function sanitizePlan(x: unknown): Plan | null {
   if (!isObject(x) || !isObject(x.answers)) return null
   const a = x.answers
+  const goals = Array.isArray(a.goals) ? GOALS.filter((g) => (a.goals as unknown[]).includes(g)) : []
   if (
-    !LEVELS.includes(a.experience as Level) ||
-    !GOALS.includes(a.goal as Goal) ||
+    !EXPERIENCES.includes(a.experience as Experience) ||
+    goals.length === 0 ||
     !PER_WEEK.includes(a.perWeek as PerWeek) ||
     !MINUTES.includes(a.minutes as Minutes)
   ) {
     return null
   }
   const answers: PlanAnswers = {
-    experience: a.experience as Level,
-    goal: a.goal as Goal,
+    experience: a.experience as Experience,
+    goals,
     perWeek: a.perWeek as PerWeek,
     minutes: a.minutes as Minutes,
   }

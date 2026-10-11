@@ -140,11 +140,3 @@ export function IconStop({ size = 16 }: IconProps) {
     </Filled>
   )
 }
-
-export function IconCheck({ size = 18 }: IconProps) {
-  return (
-    <Stroke size={size} width={2}>
-      <path d="M5 12.5l4.5 4.5L19 7.5" />
-    </Stroke>
-  )
-}

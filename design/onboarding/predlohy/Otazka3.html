@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>DIREKT – dotazník 3: čas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+body{margin:0;background:#F3F2EE}
+a{color:#111111;text-decoration:none}a:hover{color:#000000}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 64px 20px 28px; display: flex; flex-direction: column; background: #F3F2EE; color: #111111; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Otazka2.html" aria-label="Zpět" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #E6E4DD; border-radius: 999px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<span style="font-size: 15px; font-weight: 600">3 ze 3</span>
+<span aria-hidden="true" style="width: 44px"></span>
+</header>
+<div aria-hidden="true" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 20px">
+<div style="height: 4px; background: #111111; border-radius: 2px"></div>
+<div style="height: 4px; background: #111111; border-radius: 2px"></div>
+<div style="height: 4px; background: #111111; border-radius: 2px"></div>
+</div>
+<h1 style="margin: 28px 0 0; font-stretch: 125%; font-weight: 850; font-size: 34px; line-height: 0.95; letter-spacing: -0.01em; text-transform: uppercase">Kolik času<br>máš?</h1>
+<section style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #6B6A66">Kolikrát týdně</h2>
+<div role="radiogroup" aria-label="Kolikrát týdně" style="display: flex; justify-content: space-between">
+<sc-for list="{{freqs}}" as="f" hint-placeholder-count="4">
+<sc-if value="{{f.on}}" hint-placeholder-val="{{ false }}">
+<button type="button" role="radio" aria-checked="true" aria-label="{{f.aria}}" onClick="{{f.pick}}" style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; background: #111111; color: #FFFFFF; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-stretch: 125%; font-weight: 850; font-size: 26px; cursor: pointer">{{f.n}}×</button>
+</sc-if>
+<sc-if value="{{f.off}}" hint-placeholder-val="{{ true }}">
+<button type="button" role="radio" aria-checked="false" aria-label="{{f.aria}}" onClick="{{f.pick}}" style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; color: #111111; border: 0; border-radius: 999px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-stretch: 125%; font-weight: 850; font-size: 26px; cursor: pointer">{{f.n}}×</button>
+</sc-if>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #6B6A66">Jak dlouhý trénink</h2>
+<div role="radiogroup" aria-label="Délka tréninku" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{lens}}" as="l" hint-placeholder-count="4">
+<sc-if value="{{l.on}}" hint-placeholder-val="{{ false }}">
+<button type="button" role="radio" aria-checked="true" onClick="{{l.pick}}" style="height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: {{accent}}; color: #FFFFFF; border: 0; border-radius: 20px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; cursor: pointer"><span style="font-stretch: 125%; font-weight: 850; font-size: 26px">{{l.n}}</span><span style="font-size: 13px">min</span></button>
+</sc-if>
+<sc-if value="{{l.off}}" hint-placeholder-val="{{ true }}">
+<button type="button" role="radio" aria-checked="false" onClick="{{l.pick}}" style="height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: #FFFFFF; color: #111111; border: 0; border-radius: 20px; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; cursor: pointer"><span style="font-stretch: 125%; font-weight: 850; font-size: 26px">{{l.n}}</span><span style="font-size: 13px; color: #6B6A66">min</span></button>
+</sc-if>
+</sc-for>
+</div>
+</section>
+<p style="margin: 28px 0 0; padding-top: 16px; border-top: 1px solid #DCDAD3; font-size: 17px; line-height: 1.4">To je <strong style="font-weight: 700">{{total}} minut boxu</strong> týdně.</p>
+<div style="flex: 1 1 auto"></div>
+<a href="Plan.html" style="height: 60px; display: flex; align-items: center; justify-content: center; background: #111111; color: #FFFFFF; border-radius: 999px; font-size: 17px; font-weight: 600">Sestavit plán</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#2C3BFF","options":["#2C3BFF","#FF3B2F","#0B8F5A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { freq: 3, len: 15 };
+  }
+  renderVals() {
+    const s = this.state;
+    const freqs = [2, 3, 4, 5].map((n) => ({
+      n: n,
+      aria: n + 'krát týdně',
+      on: s.freq === n,
+      off: s.freq !== n,
+      pick: () => this.setState({ freq: n })
+    }));
+    const lens = [10, 15, 20, 30].map((n) => ({
+      n: n,
+      on: s.len === n,
+      off: s.len !== n,
+      pick: () => this.setState({ len: n })
+    }));
+    return { accent: this.props.accent ?? '#2C3BFF', freqs: freqs, lens: lens, total: s.freq * s.len };
+  }
+}
+</script>
+</body>
+</html>

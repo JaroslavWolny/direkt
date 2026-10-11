@@ -1,10 +1,19 @@
 // Výběr komba (DOKUMENTACE.md kap. 7.1, Znovu 7.9).
 import type { Combo, Level } from '../data/combos'
+import { isDefense } from '../data/moves'
 import { LEVEL_WEIGHTS, MAX_REPEATS, NO_REPEAT_WINDOW, REPEAT_CHANCE } from './constants'
+import type { Focus } from './timeline'
 
 /** Zapnutá komba s úrovní ≤ zvolené. */
 export const buildPool = (combos: readonly Combo[], disabled: ReadonlySet<string>, level: Level): Combo[] =>
   combos.filter((c) => c.level <= level && !disabled.has(c.id))
+
+/** Trénink Obrana bere jen komba s obranou; kdyby žádné nebylo zapnuté, celý bazén (7.11). */
+export function focusPool(pool: readonly Combo[], focus: Focus | undefined): readonly Combo[] {
+  if (focus !== 'obrana') return pool
+  const defense = pool.filter((c) => c.moves.some(isDefense))
+  return defense.length > 0 ? defense : pool
+}
 
 export function createSelector(pool: readonly Combo[], level: Level, rng: () => number): () => Combo {
   if (pool.length === 0) throw new Error('Prázdný bazén komb')

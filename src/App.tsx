@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
+import { resumeContext, setSilentOverride } from './audio/context'
+import { bell } from './audio/sounds'
 import { loadVoice } from './audio/voice'
 import { BUILTIN_COMBOS } from './data/combos'
 import { voiceLang } from './data/voices'
 import type { Intensity, IntensityChoice } from './engine/constants'
 import { buildPlan, type PlanAnswers } from './engine/plan'
-import { buildPool } from './engine/selector'
+import { buildPool, focusPool } from './engine/selector'
 import type { WorkoutConfig } from './engine/timeline'
 import {
   loadConfig,
@@ -12,6 +14,7 @@ import {
   loadPlan,
   loadPresets,
   loadSettings,
+  ONBOARDING_VERSION,
   sameConfig,
   saveConfig,
   saveLibrary,
@@ -22,9 +25,9 @@ import {
 } from './store/storage'
 import { CombosScreen } from './ui/CombosScreen'
 import { CustomCombosScreen } from './ui/CustomCombosScreen'
-import { FOCUS_LABEL } from './ui/format'
+import { GOAL_NAME, sessionLabel } from './ui/format'
 import { HomeScreen, type Screen } from './ui/HomeScreen'
-import { IntroScreen, type IntroVariant } from './ui/IntroScreen'
+import { IntroScreen } from './ui/IntroScreen'
 import { PlanScreen } from './ui/PlanScreen'
 import { PresetsScreen } from './ui/PresetsScreen'
 import { QuizScreen } from './ui/QuizScreen'
@@ -41,9 +44,8 @@ interface Running {
   persist: boolean
 }
 
-/** `?intro=a|b|c` ukáže úvod v dané variantě i po onboardingu (náhled, 9.0). */
-const introParam = new URLSearchParams(location.search).get('intro')
-const introPreview = ['a', 'b', 'c'].includes(introParam ?? '') ? (introParam as IntroVariant) : null
+/** `?intro` ukáže úvod znovu i po onboardingu (náhled, 9.0). */
+const introPreview = new URLSearchParams(location.search).has('intro')
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home')
@@ -52,9 +54,13 @@ export default function App() {
   const [library, setLibrary] = useState(loadLibrary)
   const [presets, setPresets] = useState(loadPresets)
   const [plan, setPlan] = useState(loadPlan)
-  const [onboarding, setOnboarding] = useState<'intro' | 'quiz' | null>(() =>
-    introPreview || !settings.onboarded ? 'intro' : null,
+  const [onboarding, setOnboarding] = useState<'intro' | 'quiz' | 'plan' | null>(() =>
+    introPreview || settings.onboarded < ONBOARDING_VERSION ? 'intro' : null,
   )
+  /** Dotazník z úvodu (→ plán v onboardingu), nebo z menu (→ plán z menu). */
+  const [flow, setFlow] = useState<'onboarding' | 'menu'>('onboarding')
+  const [quizStep, setQuizStep] = useState(0)
+  const [introPlayed, setIntroPlayed] = useState(false)
   const [running, setRunning] = useState<Running | null>(null)
   const workout = useWorkout()
 
@@ -67,7 +73,7 @@ export default function App() {
   useEffect(() => savePlan(plan), [plan])
 
   const all = useMemo(() => [...BUILTIN_COMBOS, ...library.custom], [library.custom])
-  const poolFor = (c: WorkoutConfig) => buildPool(all, new Set(library.disabled), c.level)
+  const poolFor = (c: WorkoutConfig) => focusPool(buildPool(all, new Set(library.disabled), c.level), c.focus)
   const sessions = useMemo(() => (plan ? buildPlan(plan.answers) : []), [plan])
   const nextIndex = plan && plan.done < sessions.length ? plan.done : null
   const next = nextIndex === null ? null : sessions[nextIndex]
@@ -76,7 +82,7 @@ export default function App() {
 
   /** Karta na Domů: další trénink plánu, jinak vlastní nastavení (9.1). */
   const card: Running = next
-    ? { config: next.config, name: `Týden ${next.week} · ${FOCUS_LABEL[next.focus]}`, planIndex: nextIndex, persist: false }
+    ? { config: next.config, name: GOAL_NAME[next.goal], planIndex: nextIndex, persist: false }
     : {
         config,
         name: presets.find((p) => sameConfig(p.config, config))?.name ?? 'Vlastní trénink',
@@ -94,15 +100,28 @@ export default function App() {
     workout.start(r.config, settings, poolFor(r.config), onFinish)
   }
 
-  const endOnboarding = () => {
-    setSettings((s) => ({ ...s, onboarded: true }))
-    setOnboarding(null)
+  const markOnboarded = () => {
+    setSettings((s) => ({ ...s, onboarded: ONBOARDING_VERSION }))
     if (introPreview) history.replaceState(null, '', location.pathname)
+  }
+  const quiz = (from: 'onboarding' | 'menu', step = 0) => {
+    setFlow(from)
+    setQuizStep(step)
+    setOnboarding('quiz')
   }
   const newPlan = (answers: PlanAnswers) => {
     setPlan({ answers, done: 0 })
-    endOnboarding()
-    setScreen('home')
+    markOnboarded()
+    if (flow === 'onboarding') {
+      setOnboarding('plan')
+    } else {
+      setOnboarding(null)
+      setScreen('plan')
+    }
+  }
+  const leaveTo = (s: Screen) => {
+    setOnboarding(null)
+    setScreen(s)
   }
 
   if (workout.view && running) {
@@ -128,7 +147,7 @@ export default function App() {
         onClose={() => {
           workout.close()
           setRunning(null)
-          setScreen('home')
+          leaveTo('home')
         }}
       />
     )
@@ -136,30 +155,52 @@ export default function App() {
 
   if (onboarding === 'intro') {
     return (
-      <IntroScreen variant={introPreview ?? 'a'} onPlan={() => setOnboarding('quiz')} onSkip={endOnboarding} />
+      <IntroScreen
+        animate={!introPlayed}
+        onPlan={() => {
+          // gong v gestu — iOS pustí zvuk jen z ťuknutí (R1, 9.0)
+          setSilentOverride(settings.silentOverride)
+          void resumeContext()
+          bell(1)
+          setIntroPlayed(true)
+          quiz('onboarding')
+        }}
+        onSkip={() => {
+          markOnboarded()
+          leaveTo('home')
+        }}
+      />
     )
   }
   if (onboarding === 'quiz') {
     return (
       <QuizScreen
         initial={plan?.answers}
+        initialStep={quizStep}
         onDone={newPlan}
-        onClose={settings.onboarded && !introPreview ? () => setOnboarding(null) : endOnboarding}
+        onClose={() => {
+          setIntroPlayed(true)
+          setOnboarding(flow === 'onboarding' ? 'intro' : null)
+        }}
       />
     )
   }
 
   const home = () => setScreen('home')
-  if (screen === 'plan' && plan) {
+  const planMode = onboarding === 'plan' ? 'onboarding' : screen === 'plan' ? 'menu' : null
+  if (planMode && plan) {
     return (
       <PlanScreen
         plan={plan}
-        onNew={() => setOnboarding('quiz')}
+        mode={planMode}
+        onStart={() => start(card)}
+        onEdit={() => quiz(planMode)}
+        onBack={planMode === 'onboarding' ? () => quiz('onboarding', 2) : home}
+        onHome={() => leaveTo('home')}
         onEnd={() => {
           setPlan(null)
-          home()
+          leaveTo('home')
         }}
-        onBack={home}
       />
     )
   }
@@ -221,12 +262,12 @@ export default function App() {
         <HomeScreen
           config={card.config}
           workoutName={card.name}
-          cardLabel={nextIndex !== null ? `Plán · trénink ${nextIndex + 1} z ${sessions.length}` : 'Dnešní trénink'}
+          cardLabel={next ? sessionLabel(next.weekday) : 'Dnešní trénink'}
           poolSize={poolFor(card.config).length}
           planCount={plan ? `${plan.done}/${sessions.length}` : '—'}
           counts={{ combos: all.length, custom: library.custom.length, presets: presets.length }}
           onStart={() => start(card)}
-          onNavigate={(s) => (s === 'plan' && !plan ? setOnboarding('quiz') : setScreen(s))}
+          onNavigate={(s) => (s === 'plan' && !plan ? quiz('menu') : setScreen(s))}
         />
       )
   }

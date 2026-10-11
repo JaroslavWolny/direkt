@@ -6,7 +6,7 @@ import { acquireWakeLock, reacquireWakeLock, releaseWakeLock } from '../audio/wa
 import type { Combo } from '../data/combos'
 import { voiceLang, type VoiceId, type VoiceLang } from '../data/voices'
 import { isDefense, speechText } from '../data/moves'
-import { FIRST_CALL_DELAY_MS, REPEAT_CHANCE, REPEAT_CHANCE_TECHNIKA, type Intensity } from '../engine/constants'
+import { FIRST_CALL_DELAY_MS, REPEAT_CHANCE, REPEAT_CHANCE_DRILL, type Intensity } from '../engine/constants'
 import { createSelector, shouldRepeat } from '../engine/selector'
 import {
   buildSegments,
@@ -281,7 +281,8 @@ export class WorkoutRunner {
   private call(windowMs: number): void {
     const last = this.lastCombo
     // „Znovu!" = stejné kombo ještě jednou, hlas řekne jen to slovo (7.9).
-    const chance = this.config.focus === 'technika' ? REPEAT_CHANCE_TECHNIKA : REPEAT_CHANCE
+    const drill = this.config.focus === 'technika' || this.config.focus === 'obrana'
+    const chance = drill ? REPEAT_CHANCE_DRILL : REPEAT_CHANCE
     const again = last !== null && shouldRepeat(this.rng, this.repeats, chance)
     const combo = again ? last : (this.upcoming ?? this.next())
     if (!again) this.upcoming = null
