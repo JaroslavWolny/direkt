@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { buildPlan, PLAN_WEEKS, type Weekday } from '../engine/plan'
+import { t } from '../i18n'
 import type { Plan } from '../store/storage'
 import { RoundBar } from './bars'
 import { ConfirmDialog, IconButton } from './controls'
-import { DAY_NAME, DAY_SHORT, GOAL_NAME, planSummary, sessionLabel, sessionMeta, workoutMinutes, workoutSec } from './format'
+import { sessionLabel, sessionMeta, workoutMinutes, workoutSec } from './format'
 import { IconBack, IconPlay } from './icons'
 import { useThemeColor } from './useThemeColor'
 
@@ -22,6 +23,8 @@ interface Props {
 /** Tvůj plán (DOKUMENTACE.md 9.7, Plan.html): týden na řadě, trénink na řadě, další v týdnu. */
 export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd }: Props) {
   useThemeColor('--paper')
+  const s = t().plan
+  const goalName = t().goal
   const [asking, setAsking] = useState(false)
   const sessions = buildPlan(plan.answers)
   const next = plan.done < sessions.length ? sessions[plan.done] : null
@@ -30,39 +33,36 @@ export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd 
   const weekMin = Math.round(inWeek.reduce((sum, s) => sum + workoutSec(s.config), 0) / 60)
 
   const dayState = (d: Weekday): 'next' | 'train' | 'done' | 'rest' => {
-    const s = inWeek.find((x) => x.weekday === d)
-    if (!s) return 'rest'
-    return s.index === plan.done ? 'next' : s.index < plan.done ? 'done' : 'train'
+    const x = inWeek.find((y) => y.weekday === d)
+    if (!x) return 'rest'
+    return x.index === plan.done ? 'next' : x.index < plan.done ? 'done' : 'train'
   }
-  const DAY_ARIA = { next: 'trénink na řadě', train: 'trénink', done: 'hotovo', rest: 'volno' } as const
 
   return (
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <div className="scroll">
         <header className="top-bar">
-          <IconButton label="Zpět" onClick={onBack}>
+          <IconButton label={t().back} onClick={onBack}>
             <IconBack />
           </IconButton>
           <button type="button" className="pill-btn" onClick={onEdit}>
-            Upravit odpovědi
+            {s.edit}
           </button>
         </header>
-        <h1 className="display plan-title">Tvůj plán</h1>
-        <p className="plan-summary">{planSummary(plan.answers)}</p>
+        <h1 className="display plan-title">{s.title}</h1>
+        <p className="plan-summary">{s.summary(plan.answers)}</p>
 
-        <section className="plan-week" aria-label={`Týden ${week}`}>
+        <section className="plan-week" aria-label={s.weekAria(week)}>
           <div className="plan-week-head">
-            <span>
-              Týden {week} ze {PLAN_WEEKS}
-            </span>
-            <span className="muted">{weekMin} min celkem</span>
+            <span>{s.week(week, PLAN_WEEKS)}</span>
+            <span className="muted">{s.weekTotal(weekMin)}</span>
           </div>
           <div className="plan-days">
-            {DAY_SHORT.map((label, d) => {
+            {s.dayShort.map((label, d) => {
               const state = dayState(d as Weekday)
               return (
-                <span key={label} className={`plan-day ${state}`} aria-label={`${DAY_NAME[d]}, ${DAY_ARIA[state]}`}>
+                <span key={label} className={`plan-day ${state}`} aria-label={`${s.dayName[d]}, ${s.dayState[state]}`}>
                   {label}
                 </span>
               )
@@ -71,12 +71,12 @@ export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd 
         </section>
 
         {next ? (
-          <button type="button" className="plan-card" aria-label={`Začít: ${GOAL_NAME[next.goal]}`} onClick={onStart}>
+          <button type="button" className="plan-card" aria-label={t().home.startAria(goalName[next.goal])} onClick={onStart}>
             <span className="plan-card-top">
               <span>{sessionLabel(next.weekday)}</span>
               <span>{workoutMinutes(next.config)} min</span>
             </span>
-            <span className="display-s plan-card-name">{GOAL_NAME[next.goal]}</span>
+            <span className="display-s plan-card-name">{goalName[next.goal]}</span>
             <RoundBar config={next.config} work="var(--white)" rest="var(--white-a30)" />
             <span className="plan-card-bottom">
               <span>{sessionMeta(next.config)}</span>
@@ -87,24 +87,24 @@ export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd 
           </button>
         ) : (
           <div className="plan-complete">
-            <p>Plán splněný.</p>
+            <p>{s.complete}</p>
             <button type="button" className="primary-btn" onClick={onEdit}>
-              Nový plán
+              {s.newPlan}
             </button>
           </div>
         )}
 
         <div className="plan-list">
           {inWeek
-            .filter((s) => s.index > plan.done)
-            .map((s) => (
-              <div key={s.index} className="plan-item">
-                <span className="plan-item-day">{DAY_SHORT[s.weekday]}</span>
+            .filter((x) => x.index > plan.done)
+            .map((x) => (
+              <div key={x.index} className="plan-item">
+                <span className="plan-item-day">{s.dayShort[x.weekday]}</span>
                 <span className="row-text">
-                  <strong>{GOAL_NAME[s.goal]}</strong>
-                  <span>{sessionMeta(s.config)}</span>
+                  <strong>{goalName[x.goal]}</strong>
+                  <span>{sessionMeta(x.config)}</span>
                 </span>
-                <span className="plan-item-min">{workoutMinutes(s.config)} min</span>
+                <span className="plan-item-min">{workoutMinutes(x.config)} min</span>
               </div>
             ))}
         </div>
@@ -112,21 +112,21 @@ export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd 
         {/* Navíc oproti předloze (9.7): odchod bez tréninku / ukončení plánu. */}
         {mode === 'onboarding' ? (
           <button type="button" className="plan-link" onClick={onHome}>
-            Domů
+            {t().homeLink}
           </button>
         ) : (
           <button type="button" className="plan-link" onClick={() => setAsking(true)}>
-            Ukončit plán
+            {s.end}
           </button>
         )}
       </div>
 
       {asking && (
         <ConfirmDialog
-          title="Ukončit plán?"
-          text="Postup se smaže."
-          confirm="Ukončit"
-          cancel="Zpět"
+          title={s.endTitle}
+          text={s.endText}
+          confirm={s.endConfirm}
+          cancel={t().back}
           onConfirm={onEnd}
           onCancel={() => setAsking(false)}
         />

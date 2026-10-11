@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { LEVEL_LABEL, LEVELS, type Combo, type Level } from '../data/combos'
+import { LEVELS, type Combo, type Level } from '../data/combos'
 import { comboTitle, isDefense, speechText } from '../data/moves'
 import type { VoiceId } from '../data/voices'
 import type { Intensity } from '../engine/constants'
+import { getLang, t } from '../i18n'
 import type { Library } from '../store/storage'
 import { ComboDetail } from './ComboDetail'
 import { IconButton } from './controls'
@@ -13,22 +14,15 @@ import { useThemeColor } from './useThemeColor'
 
 type Filter = 'vse' | Level | 'obrana'
 
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: 'vse', label: 'Vše' },
-  ...LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] })),
-  { value: 'obrana', label: 'Obrana' },
-]
-
-const LEGEND =
-  '1 jab · 2 cross · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo · Ú úklon · Z záklon · P ponoř · K kryt · V vzad · ÚK úkrok'
-
 const matchesFilter = (c: Combo, f: Filter) =>
   f === 'vse' ? true : f === 'obrana' ? c.moves.some(isDefense) : c.level === f
 
-/** Hledá v názvu i v textu řeči („tři na tělo"), bez ohledu na diakritiku. */
+/** Hledá v názvu i v textu řeči („tři na tělo"), v jazyce rozhraní, bez ohledu na diakritiku. */
 const fold = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-const matchesQuery = (c: Combo, q: string) =>
-  !q.trim() || fold(`${c.name ?? comboTitle(c.moves)} ${c.moves.join(' ')} ${speechText(c.moves)}`).includes(fold(q.trim()))
+const matchesQuery = (c: Combo, q: string) => {
+  const lang = getLang()
+  return !q.trim() || fold(`${c.name ?? comboTitle(c.moves, lang)} ${c.moves.join(' ')} ${speechText(c.moves, lang)}`).includes(fold(q.trim()))
+}
 
 interface Props {
   all: readonly Combo[]
@@ -43,6 +37,12 @@ interface Props {
 /** Komba (DOKUMENTACE.md 9.3, Komba.html). */
 export function CombosScreen({ all, library, onLibrary, intensity, voice, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
+  const s = t().combos
+  const filters: { value: Filter; label: string }[] = [
+    { value: 'vse', label: s.all },
+    ...LEVELS.map((l) => ({ value: l, label: t().level[l] })),
+    { value: 'obrana', label: s.defense },
+  ]
   const [filter, setFilter] = useState<Filter>('vse')
   const [searching, setSearching] = useState(false)
   const [query, setQuery] = useState('')
@@ -61,11 +61,11 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
-        <IconButton label="Zpět" onClick={onBack}>
+        <IconButton label={t().back} onClick={onBack}>
           <IconBack />
         </IconButton>
         <IconButton
-          label="Hledat kombo"
+          label={s.search}
           onClick={() => {
             setSearching(!searching)
             setQuery('')
@@ -76,7 +76,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
       </header>
 
       <div className="page-title">
-        <h1 className="display">Komba</h1>
+        <h1 className="display">{s.title}</h1>
         <span className="count">{list.length}</span>
       </div>
 
@@ -87,14 +87,14 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
           autoFocus
           value={query}
           enterKeyHint="search"
-          placeholder="Hledat (např. hák, 1 2 3)"
-          aria-label="Hledat kombo"
+          placeholder={s.placeholder}
+          aria-label={s.search}
           onChange={(e) => setQuery(e.target.value)}
         />
       )}
 
-      <div className="filters" role="group" aria-label="Filtr">
-        {FILTERS.map((f) => (
+      <div className="filters" role="group" aria-label={s.filter}>
+        {filters.map((f) => (
           <button key={f.value} type="button" aria-pressed={filter === f.value} onClick={() => setFilter(f.value)}>
             {f.label}
           </button>
@@ -102,7 +102,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
       </div>
 
       <div className="scroll under-header">
-        <p className="legend">{LEGEND}</p>
+        <p className="legend">{s.legend}</p>
         {list.map((c) => (
           <button
             key={c.id}
@@ -112,20 +112,20 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
           >
             <span className="combo-row">
               <span className="row-body">
-                <span className="name">{c.name ?? comboTitle(c.moves)}</span>
+                <span className="name">{c.name ?? comboTitle(c.moves, getLang())}</span>
                 <PunchSequence moves={c.moves} />
               </span>
               <span className="side">
                 <span>{formatSec(comboSec(c.moves, intensity, voice))}</span>
-                <span>{LEVEL_LABEL[c.level]}</span>
+                <span>{t().level[c.level]}</span>
               </span>
             </span>
           </button>
         ))}
         {list.length === 0 && (
           <div className="empty">
-            <strong>Nic nenalezeno.</strong>
-            <span>Zkus jiný název nebo filtr.</span>
+            <strong>{s.noneTitle}</strong>
+            <span>{s.noneText}</span>
           </div>
         )}
       </div>

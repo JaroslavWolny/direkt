@@ -1578,6 +1578,18 @@ svg {
   font-weight: 500;
 }
 
+/* přepínač jazyka pod Přeskočit (9.8) */
+.intro-lang {
+  align-self: center;
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
 /* neviditelná tlačítka během animace nejdou zmáčknout — ťuk jen přeskočí na konec */
 .intro:not(.ended) .intro-actions {
   pointer-events: none;

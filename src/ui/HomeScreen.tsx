@@ -1,4 +1,5 @@
 import type { WorkoutConfig } from '../engine/timeline'
+import { t } from '../i18n'
 import { RoundBar } from './bars'
 import { IconButton } from './controls'
 import { todayMeta, workoutMinutes } from './format'
@@ -23,29 +24,31 @@ interface Props {
 /** Domů (DOKUMENTACE.md 9.1, Main.html). */
 export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount, counts, onStart, onNavigate }: Props) {
   useThemeColor('--paper')
+  const s = t().home
   const menu: { screen: Screen; label: string; count: number | string }[] = [
-    { screen: 'plan', label: 'Plán', count: planCount },
-    { screen: 'komba', label: 'Komba', count: counts.combos },
-    { screen: 'vlastni', label: 'Vlastní komba', count: counts.custom },
-    { screen: 'treninky', label: 'Uložené tréninky', count: counts.presets },
+    { screen: 'plan', label: s.plan, count: planCount },
+    { screen: 'komba', label: s.combos, count: counts.combos },
+    { screen: 'vlastni', label: s.customCombos, count: counts.custom },
+    { screen: 'treninky', label: s.presets, count: counts.presets },
   ]
+  const [w1, w2, w3, w4] = s.title
 
   return (
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <span className="logo">DIREKT</span>
-        <IconButton label="Nastavení" onClick={() => onNavigate('nastaveni')}>
+        <IconButton label={s.settings} onClick={() => onNavigate('nastaveni')}>
           <IconSliders />
         </IconButton>
       </header>
 
       <div className="home-body">
         <h1 className="home-title">
-          <span>Žádné</span>
-          <span>řeči.</span>
-          <span className="accent">Jen</span>
-          <span className="accent">údery.</span>
+          <span>{w1}</span>
+          <span>{w2}</span>
+          <span className="accent">{w3}</span>
+          <span className="accent">{w4}</span>
         </h1>
 
         <div className="home-spacer" />
@@ -55,7 +58,7 @@ export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount
           type="button"
           className="today"
           disabled={poolSize === 0}
-          aria-label={`Začít: ${workoutName}`}
+          aria-label={s.startAria(workoutName)}
           onClick={onStart}
         >
           <span className="today-top">
@@ -68,15 +71,15 @@ export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount
           </span>
           <RoundBar config={config} work="var(--white)" rest="var(--white-a30)" />
           <span className="today-go">
-            <span className="display-s">Začít</span>
+            <span className="display-s">{s.go}</span>
             <span className="today-play">
               <IconPlay />
             </span>
           </span>
         </button>
-        {poolSize === 0 && <p className="home-warn">Zapni aspoň jedno kombo pro tuhle úroveň.</p>}
+        {poolSize === 0 && <p className="home-warn">{s.poolEmpty}</p>}
 
-        <nav className="menu" aria-label="Hlavní menu">
+        <nav className="menu" aria-label={s.menu}>
           {menu.map((m) => (
             <button key={m.screen} type="button" className="menu-row" onClick={() => onNavigate(m.screen)}>
               <span>{m.label}</span>

@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v9 (úvod, dotazník a plán podle předloh `design/onboarding/`), 11. 10. 2026.
+Stav: v11 (celá appka i anglicky, 9.8), 11. 10. 2026.
 
 ---
 
@@ -71,6 +71,9 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
   po pořadí** (vynechaný den nepropadne, „Dnes" jen když den sedí); „Přeskočit, chci rovnou
   trénovat" → **Domů bez plánu**. Plán se dál ukládá jen jako odpovědi + postup (ne
   `weeks`/`createdAt` z `ONBOARDING.md`).
+- **v11** (uživatel, 11. 10. 2026: „přidělej tam i EN možnost kompletně"): **celé rozhraní i
+  anglicky** — úvod, dotazník, plán, všechny obrazovky, názvy komb, zkratky, vestavěné tréninky.
+  Jazyk rozhraní je volba nezávislá na hlasu; slova v kole dál v jazyce hlasu (9.2). Pravidla 9.8.
 
 ## 3. Platforma a stack
 
@@ -421,7 +424,8 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   ikony), vlevo nahoře logotyp (SVG z předlohy), dole nadpis 44 px „PRVNÍ / KOLO / ZAČÍNÁ.",
   text „Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.", bílá
   pilulka **Sestavit můj plán →** (v gestu zazní gong) a odkaz **Přeskočit, chci rovnou
-  trénovat** (→ Domů bez plánu).
+  trénovat** (→ Domů bez plánu). Pod ním přepínač jazyka (9.8): v češtině odkaz „English",
+  v angličtině „Čeština" — přepne hned, úvod zůstane (bez nové animace).
 - **Otázky** (paper): zpět + „1 ze 3" uprostřed, RoundProgress 3 segmenty, nadpis 34 px,
   podtitul 15 px muted, dole PrimaryButton aktivní až po výběru. Předvyplněno minulými
   odpověďmi (Upravit odpovědi).
@@ -541,6 +545,8 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   [The Ringer: WBC 10 × 2](https://www.theringer.com/2018/07/11/mma/women-boxing-wbc-round-length-restriction).
 
 ### 9.6 Nastavení (`Nastaveni.html`, paper, skupiny na bílých kartách r20)
+- **Jazyk** (v11, první skupina): segmenty Čeština / English (jméno jazyka v něm samém);
+  nadpis skupiny v aktuálním jazyce („Jazyk" / „Language"). Platí hned (9.8).
 - **Hlas trenéra:** řádek pro každý hlas (jméno + „Angličtina · bojovník" apod.), ťuk na řádek
   = vybrat (kolečko vlevo), akcentové play vpravo = ukázka „One, two, three body, slip" v tom
   hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
@@ -568,6 +574,43 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - **Navíc oproti předloze:** dole odkaz **Domů** (v onboardingu — jinak by šlo z plánu odejít
   jen tréninkem) a z menu odkaz **Ukončit plán** (dialog „Ukončit plán?" / „Postup se smaže.").
   Splněný plán: místo karty „Plán splněný." a PrimaryButton **Nový plán**.
+
+### 9.8 Angličtina (v11)
+- **Jazyk rozhraní** `settings.lang` = `cs` / `en`, nezávislý na hlasu. Slova v kole a bublina jsou
+  dál přepis hlášky v jazyce hlasu (9.2) — anglický text s Antonínem ukáže „3 TĚLO", český s Harrym
+  „3 BODY". Čipy, legenda, názvy komb a vše ostatní jsou v jazyce rozhraní.
+- **První spuštění:** jazyk zařízení z `navigator.languages[0]` — `cs` a `sk` → čeština, jinak
+  angličtina. **iOS appka na ploše jazyk někdy hlásí špatně** (vrací `en-GB`, i když je telefon
+  německy — [Apple forum](https://developer.apple.com/forums/thread/775530)); pole `lang`
+  v manifestu iOS nečte ([firt.dev](https://firt.dev/notes/pwa-ios/)). Proto **přepínač už na
+  úvodu** (9.0) a v Nastavení (9.6). Kdo appku už měl (uložené nastavení bez `lang`) → čeština.
+- **Kde jsou texty:** `src/i18n/cs.ts` a `en.ts` se stejným tvarem (TypeScript pohlídá, že
+  angličtině nic nechybí), `src/i18n/index.ts` drží aktuální jazyk (`t()`, nastavuje ho App při
+  každém vykreslení). Slova úderů a obrany dál jen v `src/data/moves.ts` (kap. 5), pro oba jazyky.
+  `<html lang>` podle jazyka. Manifest a `meta description` zůstávají česky (iOS je nikde neukazuje).
+- **Vestavěné tréninky** jsou v úložišti česky (kap. 11); zobrazují se přeložené podle `id`.
+  Vlastní názvy (komba, tréninky, výchozí „Moje 3" / „My combo 3") se nepřekládají.
+- **Angličtina** — terminologie boxu, číslování podle anglických zdrojů z kap. 5 (přípona `b` =
+  body), zkratky obrany = první písmena slov, která říká hlas (kap. 8):
+
+  | Česky | Anglicky |
+  |---|---|
+  | Údery 1–6 (název komba) | Jab · Cross · Hook · Rear hook · Uppercut · Rear uppercut |
+  | Na tělo (čip „3T", slovo „3 TĚLO") | Body: čip „3B", slovo „3 BODY", v názvu „Body hook", „Rear body hook" |
+  | Úklon Ú · Záklon Z · Ponoř P · Kryt K · Vzad V · Úkrok ÚK | Slip S · Pull PL · Roll R · Block BL · Back BK · Pivot PV |
+  | Začátečník / Pokročilý / Expert | Beginner / Intermediate / Expert |
+  | Lehká / Střední / Tvrdá / Rostoucí | Easy / Medium / Hard / Rising |
+  | Kolo · Pauza · Odpočet · Finiš / Do gongu | Round · Rest · Countdown · Finisher / To the bell |
+  | Komba · Vlastní komba · Uložené tréninky · Plán | Combos · Custom combos · Saved workouts · Plan |
+  | Kondice · Technika · Síla úderu · Rychlost · Obrana · Vyčistit hlavu | Conditioning · Technique · Power · Speed · Defense · Clear your head |
+  | Začínám · Pár měsíců · Rok a víc · Závodím | Just starting · A few months · A year or more · I compete |
+  | Rozcvička · Amatérský zápas · Profi kola · Technika · Kondice · Silové minuty · Vypalovák · Zápas o titul – ženy / muži | Warm-up · Amateur bout · Pro rounds · Technique · Conditioning · Power minutes · The Burner („The Burner" z Boxing Insider, 9.5) · Women's / Men's title fight |
+
+- **Nadpisy** (styl jako česky — krátce, jazykem boxu, kap. 15): Domů „NO / TALK. / JUST /
+  PUNCHES." (= „Žádné řeči. Jen údery.", poslední dva akcent), úvod „ROUND / ONE / BEGINS.",
+  text „The coach calls the combos and keeps time. You just throw punches."
+- iOS cesty v angličtině tak, jak je iPhone ukazuje: Settings → Display & Brightness → Auto-Lock →
+  Never; Safari → Share → Add to Home Screen; Silent mode.
 
 ## 10. Vzhled (v4)
 
@@ -627,7 +670,7 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 | Klíč | Obsah |
 |---|---|
 | `config` | aktuální nastavení tréninku (7.4); `intensity` = 0 / 1 / 2 / `'ramp'` (Rostoucí) |
-| `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1) |
+| `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1), `lang` (`cs` / `en`, 9.8; chybí u uloženého nastavení → `cs`, bez nastavení → jazyk zařízení) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
 | `presetsVersion` | verze vestavěného seznamu, kterou už `presets` obsahuje (chybí = 1, v10 = 2); starší → doplní se tréninky, které od té verze přibyly (9.5) |
@@ -652,12 +695,15 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   kombo nepřetáhne do finiše; začátek a konec finiše; „Znovu" ≈ 25 % a nikdy víc než 2× po
   sobě; tempo stupňované po kolech; plán (všechny kombinace odpovědí): počet tréninků a dny,
   limity, čas ≤ zvoleným minutám, progrese po týdnech jen jedním krokem, střídání cílů, tabulky
-  zkušenosti a cílů; bazén Obrany; obranné čtení `plan`.
+  zkušenosti a cílů; bazén Obrany; obranné čtení `plan`; jazyk (`lang` z úložiště, výchozí
+  podle zařízení), anglické názvy komb a čipy, anglické texty mají všechny klíče jako české.
 - `npm run build` (tsc + vite) a `npm run lint` čisté.
 - **Prohlížeč** (chrome-devtools, viewport iPhone 15 Pro 393 × 852, DPR 3, simulované
   safe-area 59/34 px): projet trénink 1 kolo × 1 min, žádné chyby v konzoli, hlášení
   běží, všechny obrazovky se vejdou a odpovídají předlohám (kap. 9) — porovnání vedle sebe
-  se screenshoty vykreslených předloh 390 × 844.
+  se screenshoty vykreslených předloh 390 × 844. **Angličtina (v11):** projít všechny obrazovky
+  i v `en` — nic nepřeteče (delší slova: „Intermediate", „PUNCHES.", nadpisy dotazníku), žádný
+  zbylý český text mimo slova hlasu.
 
 **Na telefonu (uživatel):**
 1. Safari → URL → Sdílet → Přidat na plochu → otevřít z plochy.
@@ -666,6 +712,7 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
    a do gongu žádné kombo, 3× gong; Hotovo ukáže počet komb a úderů a „celkem 1:00".
    Během tréninku občas „Again!" bez čísel.
    Trénink 3 × 1:00 s Rostoucí: kolo 1 znatelně volnější mezery než kolo 3.
+10. Nastavení → Jazyk → English: celá appka anglicky, po zavření a otevření z plochy pořád.
 9. Po aktualizaci první otevření z plochy: 1-2-3 → úvod → Sestavit můj plán (gong) → 3 otázky
    → Tvůj plán → Domů ukazuje „Dnes · …" / „Na řadě · …". Trénink doběhnout → „1/N" v menu.
 4. S hudbou ze Spotify na obvyklou hlasitost: hudba se **neztiší** (R3 — web to neumí), hlas
@@ -708,6 +755,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
     vybere variantu úvodu, ostatní se smažou.
 15. **v9:** předlohy do `design/onboarding/` → plán z nových odpovědí (7.11) + testy → úvod
     (1-2-3 + Uvod.html), 3 otázky, Tvůj plán → vykreslené předlohy vedle appky 390 × 844,
+    deploy.
+16. **v11:** research (iOS jazyk v appce na ploše, anglická notace obrany) → dokumentace 9.8 →
+    `src/i18n/` + `lang` v nastavení + testy → všechny obrazovky v obou jazycích (screenshoty),
     deploy.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")

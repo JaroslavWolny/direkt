@@ -1,6 +1,7 @@
 // Sdílené komponenty z předloh (design/ZADANI.md kap. 3).
 import { useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import type { Limit } from '../engine/constants'
+import { t } from '../i18n'
 import { clampToLimit } from '../store/storage'
 import { IconMinus, IconPlus } from './icons'
 
@@ -57,7 +58,7 @@ export function Stepper({ label, value, limit, format, onChange }: StepperProps)
         <button
           type="button"
           className="icon-btn paper"
-          aria-label={`${label}: méně`}
+          aria-label={t().less(label)}
           disabled={value <= limit.min}
           onClick={() => step(-1)}
         >
@@ -67,7 +68,7 @@ export function Stepper({ label, value, limit, format, onChange }: StepperProps)
         <button
           type="button"
           className="icon-btn paper"
-          aria-label={`${label}: více`}
+          aria-label={t().more(label)}
           disabled={value >= limit.max}
           onClick={() => step(1)}
         >
@@ -193,8 +194,8 @@ export function SwipeRow({ label, onOpen, onDelete, children }: SwipeRowProps) {
 
   return (
     <div className="swipe">
-      <button type="button" className="swipe-action" aria-label={`Smazat ${label}`} tabIndex={dx ? 0 : -1} onClick={onDelete}>
-        Smazat
+      <button type="button" className="swipe-action" aria-label={t().deleteItem(label)} tabIndex={dx ? 0 : -1} onClick={onDelete}>
+        {t().delete}
       </button>
       <button
         type="button"

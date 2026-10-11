@@ -4,6 +4,7 @@ Trenér na boxovací pytel pro iPhone. Hlas během kola hlásí komba čísly
 („one, two, three body, slip" / „jedna, dva, tři na tělo, úklon"), gong začíná a končí kola,
 posledních 10 s kola je finiš naplno, mezi koly běží pauza. Ze 4 otázek sestaví plán na 4 týdny.
 Jen box. Web appka přidaná na plochu, funguje offline, žádný účet ani server.
+Rozhraní česky i anglicky (úvod nebo Nastavení → Jazyk), hlas trenéra se vybírá zvlášť.
 Živě: https://direkt-indol.vercel.app
 
 Co a proč se staví, je v **[DOKUMENTACE.md](DOKUMENTACE.md)** — změny nejdřív tam, pak kód.
@@ -31,7 +32,8 @@ npx vercel deploy --prod --yes
 
 Engine je čistý TypeScript v `src/engine/` (bez DOM, plně testovaný). Zvuk a hlas jsou
 jen v `src/audio/`, běh tréninku v `src/workout/runner.ts`, obrazovky v `src/ui/`.
-Komba a slova pro hlas: `src/data/combos.ts` a `src/data/moves.ts`.
+Komba a slova pro hlas: `src/data/combos.ts` a `src/data/moves.ts`. Texty rozhraní:
+`src/i18n/cs.ts` a `src/i18n/en.ts` (stejný tvar, TypeScript hlídá, že nic nechybí).
 
 Hlasové klipy: `scripts/gen-voice.py` (postup a závislosti v hlavičce skriptu, `--clip <id>`
 přegeneruje jen vybrané klipy). Klíč ElevenLabs je jen v `~/.config/elevenlabs.key`.

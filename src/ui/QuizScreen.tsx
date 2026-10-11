@@ -1,21 +1,21 @@
-import { useState, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import { EXPERIENCES, GOALS, MINUTES, PER_WEEK, type Experience, type Goal, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
+import { t } from '../i18n'
 import { RoundProgress } from './bars'
 import { IconButton } from './controls'
 import { IconBack } from './icons'
 import { useThemeColor } from './useThemeColor'
 
-const EXPERIENCE_TEXT: Record<Experience, string> = { 0: 'Začínám', 1: 'Pár měsíců', 2: 'Rok a víc', 3: 'Závodím' }
-/** Dlaždice cílů (Otazka2.html). */
-const GOAL_TILE: Record<Goal, string> = {
-  kondice: 'Kondici',
-  technika: 'Techniku',
-  sila: 'Sílu úderu',
-  rychlost: 'Rychlost',
-  obrana: 'Obranu',
-  hlava: 'Vyčistit hlavu',
-}
 const STEPS = 3
+
+/** Nadpis po řádcích (zalomení jako v předlohách). */
+const lines = (xs: readonly string[]): ReactNode =>
+  xs.map((x, i) => (
+    <Fragment key={x}>
+      {i > 0 && <br />}
+      {x}
+    </Fragment>
+  ))
 
 function Check({ size }: { size: number }) {
   return (
@@ -38,6 +38,7 @@ interface Props {
 /** Dotazník (DOKUMENTACE.md 9.0, Otazka1–3.html): Pokračovat až po výběru. */
 export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props) {
   useThemeColor('--paper')
+  const s = t().quiz
   const [step, setStep] = useState(initialStep)
   const [dir, setDir] = useState<'fwd' | 'back'>('fwd')
   const [experience, setExperience] = useState<Experience | null>(initial?.experience ?? null)
@@ -57,16 +58,10 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
   let next: { label: string; ready: boolean; onClick: () => void }
 
   if (step === 0) {
-    title = (
-      <>
-        Jak dlouho
-        <br />
-        boxuješ?
-      </>
-    )
-    note = 'Podle toho nastavím tempo a komba.'
+    title = lines(s.q1)
+    note = s.q1Note
     body = (
-      <div className="quiz-list" role="radiogroup" aria-label="Zkušenost">
+      <div className="quiz-list" role="radiogroup" aria-label={s.experienceAria}>
         {EXPERIENCES.map((e) => (
           <button
             key={e}
@@ -76,7 +71,7 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
             className="quiz-choice"
             onClick={() => setExperience(e)}
           >
-            {EXPERIENCE_TEXT[e]}
+            {s.experience[e]}
             <span className="quiz-tick" aria-hidden="true">
               {experience === e && <Check size={14} />}
             </span>
@@ -84,47 +79,36 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
         ))}
       </div>
     )
-    next = { label: 'Pokračovat', ready: experience !== null, onClick: () => go(1) }
+    next = { label: s.next, ready: experience !== null, onClick: () => go(1) }
   } else if (step === 1) {
-    title = (
-      <>
-        Co chceš
-        <br />
-        zlepšit?
-      </>
-    )
-    note = 'Vyber klidně víc možností.'
+    title = lines(s.q2)
+    note = s.q2Note
     body = (
-      <div className="quiz-grid" role="group" aria-label="Cíle">
+      <div className="quiz-grid" role="group" aria-label={s.goalsAria}>
         {GOALS.map((g) => (
           <button key={g} type="button" aria-pressed={goals.includes(g)} className="quiz-tile" onClick={() => toggleGoal(g)}>
-            {GOAL_TILE[g]}
+            {s.goalTile[g]}
             {goals.includes(g) && <Check size={18} />}
           </button>
         ))}
       </div>
     )
-    next = { label: 'Pokračovat', ready: goals.length > 0, onClick: () => go(2) }
+    next = { label: s.next, ready: goals.length > 0, onClick: () => go(2) }
   } else {
-    title = (
-      <>
-        Kolik času
-        <br />
-        máš?
-      </>
-    )
+    title = lines(s.q3)
+    const total = perWeek !== null && minutes !== null ? s.total(perWeek * minutes) : null
     body = (
       <>
         <section className="quiz-section">
-          <h2 className="caption">Kolikrát týdně</h2>
-          <div className="quiz-freq" role="radiogroup" aria-label="Kolikrát týdně">
+          <h2 className="caption">{s.perWeek}</h2>
+          <div className="quiz-freq" role="radiogroup" aria-label={s.perWeek}>
             {PER_WEEK.map((n) => (
               <button
                 key={n}
                 type="button"
                 role="radio"
                 aria-checked={perWeek === n}
-                aria-label={`${n}krát týdně`}
+                aria-label={s.perWeekAria(n)}
                 onClick={() => setPerWeek(n)}
               >
                 {n}×
@@ -133,8 +117,8 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
           </div>
         </section>
         <section className="quiz-section">
-          <h2 className="caption">Jak dlouhý trénink</h2>
-          <div className="quiz-len" role="radiogroup" aria-label="Délka tréninku">
+          <h2 className="caption">{s.length}</h2>
+          <div className="quiz-len" role="radiogroup" aria-label={s.lengthAria}>
             {MINUTES.map((m) => (
               <button key={m} type="button" role="radio" aria-checked={minutes === m} onClick={() => setMinutes(m)}>
                 <span>{m}</span>
@@ -143,16 +127,18 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
             ))}
           </div>
         </section>
-        {perWeek !== null && minutes !== null && (
+        {total && (
           <p className="quiz-total">
-            To je <strong>{perWeek * minutes} minut boxu</strong> týdně.
+            {total[0]}
+            <strong>{total[1]}</strong>
+            {total[2]}
           </p>
         )}
       </>
     )
     const ready = experience !== null && goals.length > 0 && perWeek !== null && minutes !== null
     next = {
-      label: 'Sestavit plán',
+      label: s.build,
       ready,
       onClick: () => {
         if (experience !== null && perWeek !== null && minutes !== null) {
@@ -166,12 +152,10 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
-        <IconButton label="Zpět" onClick={() => (step === 0 ? onClose() : go(step - 1))}>
+        <IconButton label={t().back} onClick={() => (step === 0 ? onClose() : go(step - 1))}>
           <IconBack />
         </IconButton>
-        <span className="top-bar-title">
-          {step + 1} ze {STEPS}
-        </span>
+        <span className="top-bar-title">{s.step(step + 1, STEPS)}</span>
         <span className="spacer-44" aria-hidden="true" />
       </header>
       <div className="quiz-progress">

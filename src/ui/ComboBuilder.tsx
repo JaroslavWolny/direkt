@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LEVEL_LABEL, LEVELS, sameMoves, type Combo, type Level } from '../data/combos'
+import { LEVELS, sameMoves, type Combo, type Level } from '../data/combos'
 import {
   DEFENSE_ABBR,
   DEFENSE_LABEL,
@@ -12,6 +12,7 @@ import {
   type BodyPunch,
   type Move,
 } from '../data/moves'
+import { getLang, t } from '../i18n'
 import { MAX_MOVES, MAX_NAME, newId } from '../store/storage'
 import { IconButton, Segmented, Sheet } from './controls'
 import { IconClose } from './icons'
@@ -24,10 +25,10 @@ interface Props {
   onCancel: () => void
 }
 
-const LEVEL_OPTIONS = LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] }))
-
 /** Editor komba (DOKUMENTACE.md 9.4) ve stylu předloh. */
 export function ComboBuilder({ existing, defaultName, onSave, onCancel }: Props) {
+  const s = t().builder
+  const lang = getLang()
   const [name, setName] = useState('')
   const [moves, setMoves] = useState<Move[]>([])
   const [level, setLevel] = useState<Level>(0)
@@ -49,17 +50,17 @@ export function ComboBuilder({ existing, defaultName, onSave, onCancel }: Props)
 
   const save = () => {
     if (existing.some((c) => c.level === level && sameMoves(c.moves, moves))) {
-      setError('Tohle kombo už máš.')
+      setError(s.duplicate)
       return
     }
     onSave({ id: newId('c'), level, moves, custom: true, name: name.trim() || defaultName })
   }
 
   return (
-    <Sheet label="Nové kombo" onClose={onCancel}>
+    <Sheet label={s.title} onClose={onCancel}>
       <div className="sheet-head">
-        <h2 className="display-s">Nové kombo</h2>
-        <IconButton label="Zavřít" onClick={onCancel}>
+        <h2 className="display-s">{s.title}</h2>
+        <IconButton label={t().close} onClick={onCancel}>
           <IconClose />
         </IconButton>
       </div>
@@ -71,42 +72,47 @@ export function ComboBuilder({ existing, defaultName, onSave, onCancel }: Props)
         maxLength={MAX_NAME}
         enterKeyHint="done"
         placeholder={defaultName}
-        aria-label="Název komba"
+        aria-label={s.nameAria}
         onChange={(e) => setName(e.target.value)}
       />
 
       <div className="preview">
-        {moves.length > 0 ? <PunchSequence moves={moves} size="m" /> : 'Ťukej údery a obranu'}
+        {moves.length > 0 ? <PunchSequence moves={moves} size="m" /> : s.hint}
       </div>
 
       <div className="keys">
         {PUNCHES.map((p) => (
-          <button key={p} type="button" className="num" aria-label={PUNCH_NAME[p]} disabled={full} onClick={() => update([...moves, p])}>
+          <button key={p} type="button" className="num" aria-label={PUNCH_NAME[lang][p]} disabled={full} onClick={() => update([...moves, p])}>
             {p}
           </button>
         ))}
         {DEFENSES.map((d) => (
-          <button key={d} type="button" className="mod" aria-label={DEFENSE_LABEL[d]} disabled={full} onClick={() => update([...moves, d])}>
-            {DEFENSE_ABBR[d]}
-            <small>{DEFENSE_LABEL[d].toLowerCase()}</small>
+          <button key={d} type="button" className="mod" aria-label={DEFENSE_LABEL[lang][d]} disabled={full} onClick={() => update([...moves, d])}>
+            {DEFENSE_ABBR[lang][d]}
+            <small>{DEFENSE_LABEL[lang][d].toLowerCase()}</small>
           </button>
         ))}
         <button
           type="button"
           className="mod wide3"
-          aria-label="Poslední úder na tělo"
+          aria-label={s.bodyAria}
           aria-pressed={!!last && isBody(last)}
           disabled={!lastPunch}
           onClick={toggleBody}
         >
-          T · na tělo
+          {s.body}
         </button>
-        <button type="button" className="fill wide3" aria-label="Smazat poslední" disabled={moves.length === 0} onClick={() => update(moves.slice(0, -1))}>
+        <button type="button" className="fill wide3" aria-label={s.deleteLast} disabled={moves.length === 0} onClick={() => update(moves.slice(0, -1))}>
           ⌫
         </button>
       </div>
 
-      <Segmented label="Úroveň" value={level} options={LEVEL_OPTIONS} onChange={setLevel} />
+      <Segmented
+        label={t().levelCaption}
+        value={level}
+        options={LEVELS.map((l) => ({ value: l, label: t().level[l] }))}
+        onChange={setLevel}
+      />
 
       {error && (
         <p className="error" role="alert">
@@ -115,7 +121,7 @@ export function ComboBuilder({ existing, defaultName, onSave, onCancel }: Props)
       )}
 
       <button type="button" className="primary-btn" disabled={moves.length === 0} onClick={save}>
-        Uložit kombo
+        {s.save}
       </button>
     </Sheet>
   )

@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react'
+import { LANG_NAME, t, type Lang } from '../i18n'
 import { BagMark, Wordmark } from './brand'
 import { IconArrow } from './icons'
 import { useThemeColor } from './useThemeColor'
@@ -17,11 +18,16 @@ interface Props {
   /** Volat v gestu — zazní gong (iOS pustí zvuk jen z ťuknutí). */
   onPlan: () => void
   onSkip: () => void
+  /** Přepínač jazyka pod Přeskočit (9.0, 9.8). */
+  lang: Lang
+  onLang: (lang: Lang) => void
 }
 
 /** Úvod (DOKUMENTACE.md 9.0, Uvod.html): 1-2-3, pak se složí obrazovka. Ťuk = skok na konec. */
-export function IntroScreen({ animate, onPlan, onSkip }: Props) {
+export function IntroScreen({ animate, onPlan, onSkip, lang, onLang }: Props) {
   useThemeColor('--accent')
+  const s = t().intro
+  const other: Lang = lang === 'cs' ? 'en' : 'cs'
   const [ended, setEnded] = useState(() => !animate || reducedMotion())
 
   useEffect(() => {
@@ -47,21 +53,24 @@ export function IntroScreen({ animate, onPlan, onSkip }: Props) {
       <div className="grow" />
       <div className="intro-copy">
         <h1 className="intro-title">
-          {['První', 'kolo', 'začíná.'].map((w, i) => (
+          {s.title.map((w, i) => (
             <span key={w} style={order(i)}>
               {w}
             </span>
           ))}
         </h1>
-        <p className="intro-text">Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.</p>
+        <p className="intro-text">{s.text}</p>
       </div>
       <div className="intro-actions">
         <button type="button" className="intro-cta" onClick={onPlan}>
-          Sestavit můj plán
+          {s.cta}
           <IconArrow size={22} />
         </button>
         <button type="button" className="intro-skip" onClick={onSkip}>
-          Přeskočit, chci rovnou trénovat
+          {s.skip}
+        </button>
+        <button type="button" className="intro-lang" lang={other} onClick={() => onLang(other)}>
+          {LANG_NAME[other]}
         </button>
       </div>
     </div>

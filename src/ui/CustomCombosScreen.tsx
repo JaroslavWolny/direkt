@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Combo } from '../data/combos'
 import type { VoiceId } from '../data/voices'
 import type { Intensity } from '../engine/constants'
+import { t } from '../i18n'
 import type { Library } from '../store/storage'
 import { ComboBuilder } from './ComboBuilder'
 import { ComboDetail } from './ComboDetail'
@@ -24,6 +25,7 @@ interface Props {
 /** Vlastní komba (DOKUMENTACE.md 9.4, VlastniKomba.html). */
 export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
+  const s = t().custom
   const [building, setBuilding] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const disabled = new Set(library.disabled)
@@ -48,33 +50,34 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
-        <IconButton label="Zpět" onClick={onBack}>
+        <IconButton label={t().back} onClick={onBack}>
           <IconBack />
         </IconButton>
-        <IconButton label="Sestavit kombo" onClick={() => setBuilding(true)}>
+        <IconButton label={s.build} onClick={() => setBuilding(true)}>
           <IconPlus />
         </IconButton>
       </header>
 
       <h1 className="display title-2">
-        Vlastní
+        {s.title[0]}
         <br />
-        komba<span className="count">{custom.length}</span>
+        {s.title[1]}
+        <span className="count">{custom.length}</span>
       </h1>
 
       <div className="list-scroll">
         {custom.length === 0 ? (
           <div className="empty">
-            <strong>Zatím žádné kombo.</strong>
-            <span>Sestav první.</span>
+            <strong>{s.emptyTitle}</strong>
+            <span>{s.emptyText}</span>
           </div>
         ) : (
           custom.map((c) => (
-            <SwipeRow key={c.id} label={c.name ?? 'Vlastní kombo'} onOpen={() => setDetailId(c.id)} onDelete={() => remove(c.id)}>
+            <SwipeRow key={c.id} label={c.name ?? s.fallbackName} onOpen={() => setDetailId(c.id)} onDelete={() => remove(c.id)}>
               <span className={disabled.has(c.id) ? 'custom-row off' : 'custom-row'}>
                 <span className="row-body">
                   <span className="head">
-                    <span className="name">{c.name ?? 'Vlastní kombo'}</span>
+                    <span className="name">{c.name ?? s.fallbackName}</span>
                     <span className="time">{formatSec(comboSec(c.moves, intensity, voice))}</span>
                   </span>
                   <PunchSequence moves={c.moves} size="m" />
@@ -88,7 +91,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
       {building && (
         <ComboBuilder
           existing={all}
-          defaultName={`Moje ${custom.length + 1}`}
+          defaultName={s.defaultName(custom.length + 1)}
           onSave={(combo) => {
             onLibrary({ ...library, custom: [...library.custom, combo] })
             setBuilding(false)

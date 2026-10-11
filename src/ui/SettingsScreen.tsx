@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { clipsFor, previewClips } from '../audio/voice'
-import { LEVEL_LABEL, LEVELS } from '../data/combos'
+import { LEVELS } from '../data/combos'
 import { parseMoves } from '../data/moves'
 import { VOICES, type VoiceInfo } from '../data/voices'
-import { INTENSITY_CHOICES, INTENSITY_LABEL, LIMITS } from '../engine/constants'
+import { INTENSITY_CHOICES, LIMITS } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
+import { LANG_NAME, LANGS, t } from '../i18n'
 import type { Settings } from '../store/storage'
 import { IconButton, Segmented, Stepper, SwitchRow } from './controls'
 import { formatSec } from './format'
@@ -22,12 +23,12 @@ interface Props {
 }
 
 const SAMPLE = clipsFor(parseMoves('1 2 3t uklon'))
-const LEVEL_OPTIONS = LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] }))
-const INTENSITY_OPTIONS = INTENSITY_CHOICES.map((i) => ({ value: i, label: INTENSITY_LABEL[i] }))
+const LANG_OPTIONS = LANGS.map((l) => ({ value: l, label: LANG_NAME[l] }))
 
 /** Nastavení (DOKUMENTACE.md 9.6, Nastaveni.html) — vše se ukládá hned. */
 export function SettingsScreen({ settings, onSettings, config, onConfig, planActive, onBack }: Props) {
   useThemeColor('--paper')
+  const s = t().settings
   const [playing, setPlaying] = useState<VoiceInfo['id'] | null>(null)
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => onSettings({ ...settings, [key]: value })
   const setCfg = <K extends keyof WorkoutConfig>(key: K, value: WorkoutConfig[K]) => onConfig({ ...config, [key]: value })
@@ -42,14 +43,19 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <div className="scroll">
-        <IconButton label="Zpět" onClick={onBack}>
+        <IconButton label={t().back} onClick={onBack}>
           <IconBack />
         </IconButton>
-        <h1 className="display settings-title">Nastavení</h1>
+        <h1 className="display settings-title">{s.title}</h1>
 
         <section className="section">
-          <h2 className="caption">Hlas trenéra</h2>
-          <div className="group" role="radiogroup" aria-label="Hlas trenéra">
+          <h2 className="caption">{s.language}</h2>
+          <Segmented label={s.language} value={settings.lang} options={LANG_OPTIONS} onChange={(v) => set('lang', v)} />
+        </section>
+
+        <section className="section">
+          <h2 className="caption">{s.voice}</h2>
+          <div className="group" role="radiogroup" aria-label={s.voice}>
             {VOICES.map((v) => (
               <div key={v.id} className="group-row tall">
                 <button
@@ -62,12 +68,14 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
                   <span className="radio" aria-hidden="true" />
                   <span className="row-text">
                     <strong>{v.name}</strong>
-                    <span>{v.note}</span>
+                    <span>
+                      {s.voiceLang[v.lang]} · {s.voiceStyle[v.id]}
+                    </span>
                   </span>
                 </button>
                 <IconButton
                   tone="accent"
-                  label={playing === v.id ? `Přehrávám ukázku: ${v.name}` : `Přehrát ukázku: ${v.name}`}
+                  label={playing === v.id ? s.playing(v.name) : s.play(v.name)}
                   onClick={() => test(v)}
                 >
                   {playing === v.id ? <IconSpeaker size={18} /> : <IconPlay size={16} />}
@@ -76,49 +84,56 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
             ))}
             <details className="disclosure">
               <summary>
-                Nic neslyšíš?
+                {s.cantHear}
                 <IconChevron />
               </summary>
-              <p>
-                iPhone je asi v tichém režimu — vypni ho, nebo níž zapni „Hrát i v tichém režimu" (zastaví ale
-                hudbu z telefonu).
-              </p>
+              <p>{s.cantHearText}</p>
             </details>
           </div>
         </section>
 
         <section className="section">
-          <h2 className="caption">Intenzita</h2>
-          <Segmented label="Intenzita" value={config.intensity} options={INTENSITY_OPTIONS} onChange={(v) => setCfg('intensity', v)} />
+          <h2 className="caption">{t().intensityCaption}</h2>
+          <Segmented
+            label={t().intensityCaption}
+            value={config.intensity}
+            options={INTENSITY_CHOICES.map((i) => ({ value: i, label: t().intensity[i] }))}
+            onChange={(v) => setCfg('intensity', v)}
+          />
         </section>
 
         <section className="section">
-          <h2 className="caption">Úroveň</h2>
-          <Segmented label="Úroveň" value={config.level} options={LEVEL_OPTIONS} onChange={(v) => setCfg('level', v)} />
+          <h2 className="caption">{t().levelCaption}</h2>
+          <Segmented
+            label={t().levelCaption}
+            value={config.level}
+            options={LEVELS.map((l) => ({ value: l, label: t().level[l] }))}
+            onChange={(v) => setCfg('level', v)}
+          />
         </section>
 
         <section className="section">
-          <h2 className="caption">Kolo</h2>
+          <h2 className="caption">{s.round}</h2>
           <div className="group">
-            <Stepper label="Počet kol" value={config.rounds} limit={LIMITS.rounds} format={String} onChange={(v) => setCfg('rounds', v)} />
-            <Stepper label="Délka kola" value={config.roundSec} limit={LIMITS.roundSec} format={formatSec} onChange={(v) => setCfg('roundSec', v)} />
-            <Stepper label="Pauza mezi koly" value={config.restSec} limit={LIMITS.restSec} format={formatSec} onChange={(v) => setCfg('restSec', v)} />
+            <Stepper label={t().roundCount} value={config.rounds} limit={LIMITS.rounds} format={String} onChange={(v) => setCfg('rounds', v)} />
+            <Stepper label={t().roundLength} value={config.roundSec} limit={LIMITS.roundSec} format={formatSec} onChange={(v) => setCfg('roundSec', v)} />
+            <Stepper label={t().restBetween} value={config.restSec} limit={LIMITS.restSec} format={formatSec} onChange={(v) => setCfg('restSec', v)} />
             <Stepper
-              label="Odpočet"
+              label={s.countdown}
               value={settings.prepSec}
               limit={LIMITS.prepSec}
               format={(v) => `${v} s`}
               onChange={(v) => set('prepSec', v)}
             />
           </div>
-          {planActive && <p className="settings-note">Plán má vlastní kola a tempo. Tohle platí pro trénink mimo plán.</p>}
+          {planActive && <p className="settings-note">{s.planNote}</p>}
         </section>
 
         <section className="section">
-          <h2 className="caption">Přehrávání</h2>
+          <h2 className="caption">{s.playback}</h2>
           <div className="group">
-            <SwitchRow label="Hrát i v tichém režimu" checked={settings.silentOverride} onChange={(v) => set('silentOverride', v)} />
-            <SwitchRow label="Automatická pauza na pozadí" checked={settings.autoPause} onChange={(v) => set('autoPause', v)} />
+            <SwitchRow label={s.silent} checked={settings.silentOverride} onChange={(v) => set('silentOverride', v)} />
+            <SwitchRow label={s.autoPause} checked={settings.autoPause} onChange={(v) => set('autoPause', v)} />
           </div>
         </section>
 
@@ -126,13 +141,10 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
           <div className="group single">
             <details className="disclosure">
               <summary>
-                O aplikaci
+                {s.about}
                 <IconChevron />
               </summary>
-              <p>
-                DIREKT {__APP_VERSION__} — trenér na boxovací pytel. Hlasy: ElevenLabs (Harry, Charlie, Adam) a Microsoft
-                Antonín. Písmo: Archivo (OFL). Na plochu: Safari → Sdílet → Přidat na plochu.
-              </p>
+              <p>{s.aboutText(__APP_VERSION__)}</p>
             </details>
           </div>
         </section>

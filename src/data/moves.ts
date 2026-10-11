@@ -1,4 +1,5 @@
-// Boxerské číslování a obrana (DOKUMENTACE.md kap. 5). Slova pro hlas se mění jen tady.
+// Boxerské číslování a obrana (DOKUMENTACE.md kap. 5). Slova pro hlas i rozhraní se mění jen tady.
+import type { Lang } from '../i18n'
 import type { VoiceLang } from './voices'
 
 export type Punch = '1' | '2' | '3' | '4' | '5' | '6'
@@ -18,22 +19,29 @@ const NUMBER_WORD: Record<Punch, string> = {
   '6': 'šest',
 }
 
-export const PUNCH_NAME: Record<Punch, string> = {
-  '1': 'přední direkt',
-  '2': 'zadní direkt',
-  '3': 'přední hák',
-  '4': 'zadní hák',
-  '5': 'přední zvedák',
-  '6': 'zadní zvedák',
+export const PUNCH_NAME: Record<Lang, Record<Punch, string>> = {
+  cs: {
+    '1': 'přední direkt',
+    '2': 'zadní direkt',
+    '3': 'přední hák',
+    '4': 'zadní hák',
+    '5': 'přední zvedák',
+    '6': 'zadní zvedák',
+  },
+  en: {
+    '1': 'jab',
+    '2': 'cross',
+    '3': 'lead hook',
+    '4': 'rear hook',
+    '5': 'lead uppercut',
+    '6': 'rear uppercut',
+  },
 }
 
-export const DEFENSE_LABEL: Record<Defense, string> = {
-  uklon: 'Úklon',
-  zaklon: 'Záklon',
-  ponor: 'Ponoř',
-  kryt: 'Kryt',
-  vzad: 'Vzad',
-  ukrok: 'Úkrok',
+/** Anglicky stejná slova, jaká říká hlas (9.8). */
+export const DEFENSE_LABEL: Record<Lang, Record<Defense, string>> = {
+  cs: { uklon: 'Úklon', zaklon: 'Záklon', ponor: 'Ponoř', kryt: 'Kryt', vzad: 'Vzad', ukrok: 'Úkrok' },
+  en: { uklon: 'Slip', zaklon: 'Pull', ponor: 'Roll', kryt: 'Block', vzad: 'Back', ukrok: 'Pivot' },
 }
 
 const DEFENSE_SPEECH: Record<Defense, string> = {
@@ -64,25 +72,34 @@ const DEFENSE_SPEECH_EN: Record<Defense, string> = {
   ukrok: 'pivot',
 }
 
-/** Jména úderů pro název komba (styl předloh: „Jab – Cross – Hák"). */
-const PUNCH_TITLE: Record<Punch, string> = {
-  '1': 'Jab',
-  '2': 'Cross',
-  '3': 'Hák',
-  '4': 'Zadní hák',
-  '5': 'Zvedák',
-  '6': 'Zadní zvedák',
+/** Jména úderů pro název komba, na hlavu / na tělo (styl předloh: „Jab – Cross – Hák"). */
+const PUNCH_TITLE: Record<Lang, Record<Punch, readonly [string, string]>> = {
+  cs: {
+    '1': ['Jab', 'Jab na tělo'],
+    '2': ['Cross', 'Cross na tělo'],
+    '3': ['Hák', 'Hák na tělo'],
+    '4': ['Zadní hák', 'Zadní hák na tělo'],
+    '5': ['Zvedák', 'Zvedák na tělo'],
+    '6': ['Zadní zvedák', 'Zadní zvedák na tělo'],
+  },
+  en: {
+    '1': ['Jab', 'Body jab'],
+    '2': ['Cross', 'Body cross'],
+    '3': ['Hook', 'Body hook'],
+    '4': ['Rear hook', 'Rear body hook'],
+    '5': ['Uppercut', 'Body uppercut'],
+    '6': ['Rear uppercut', 'Rear body uppercut'],
+  },
 }
 
-/** Zkratky obrany pro malé čipy (legenda na obrazovce Komba). */
-export const DEFENSE_ABBR: Record<Defense, string> = {
-  uklon: 'Ú',
-  zaklon: 'Z',
-  ponor: 'P',
-  kryt: 'K',
-  vzad: 'V',
-  ukrok: 'ÚK',
+/** Zkratky obrany pro malé čipy (legenda na obrazovce Komba); anglicky podle slov hlasu. */
+export const DEFENSE_ABBR: Record<Lang, Record<Defense, string>> = {
+  cs: { uklon: 'Ú', zaklon: 'Z', ponor: 'P', kryt: 'K', vzad: 'V', ukrok: 'ÚK' },
+  en: { uklon: 'S', zaklon: 'PL', ponor: 'R', kryt: 'BL', vzad: 'BK', ukrok: 'PV' },
 }
+
+/** Přípona úderu na tělo v čipu: „3T" / „3B" (anglická literatura píše b = body). */
+const BODY_MARK: Record<Lang, string> = { cs: 'T', en: 'B' }
 
 const ALL_MOVES = new Set<string>([...PUNCHES, ...PUNCHES.map((p) => `${p}t`), ...DEFENSES])
 
@@ -117,18 +134,19 @@ export function parseMoves(s: string): Move[] {
     })
 }
 
-/** Název komba z úderů: „Jab – Cross – Hák na tělo". */
-export const comboTitle = (moves: readonly Move[]): string =>
+/** Název komba z úderů: „Jab – Cross – Hák na tělo" / „Jab – Cross – Body hook". */
+export const comboTitle = (moves: readonly Move[], lang: Lang = 'cs'): string =>
   moves
-    .map((m) => (isDefense(m) ? DEFENSE_LABEL[m] : `${PUNCH_TITLE[m[0] as Punch]}${isBody(m) ? ' na tělo' : ''}`))
+    .map((m) => (isDefense(m) ? DEFENSE_LABEL[lang][m] : PUNCH_TITLE[lang][m[0] as Punch][isBody(m) ? 1 : 0]))
     .join(' – ')
 
-/** Text čipu: číslo, „3T", nebo zkratka obrany. */
-export const chipText = (m: Move): string => (isDefense(m) ? DEFENSE_ABBR[m] : isBody(m) ? `${m[0]}T` : m)
+/** Text čipu: číslo, „3T" / „3B", nebo zkratka obrany. */
+export const chipText = (m: Move, lang: Lang = 'cs'): string =>
+  isDefense(m) ? DEFENSE_ABBR[lang][m] : isBody(m) ? `${m[0]}${BODY_MARK[lang]}` : m
 
-/** Slovo do velké sekvence v kole: „3", „3 TĚLO", „ÚKLON". */
+/** Slovo do velké sekvence v kole (jazyk hlasu): „3", „3 TĚLO", „ÚKLON". */
 export function wordText(m: Move, lang: VoiceLang = 'cs'): string {
-  if (isDefense(m)) return (lang === 'en' ? DEFENSE_SPEECH_EN[m] : DEFENSE_LABEL[m]).toUpperCase()
+  if (isDefense(m)) return DEFENSE_LABEL[lang][m].toUpperCase()
   if (isBody(m)) return `${m[0]} ${lang === 'en' ? 'BODY' : 'TĚLO'}`
   return m
 }

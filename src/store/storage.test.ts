@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { chipText, comboTitle, parseMoves, speechText, wordText } from '../data/moves'
+import { detectLang } from '../i18n'
+import { cs } from '../i18n/cs'
+import { en } from '../i18n/en'
 import {
   DEFAULT_CONFIG,
   DEFAULT_PRESETS,
@@ -30,9 +33,16 @@ describe('text řeči', () => {
   it('název komba, čipy a slova do kola', () => {
     const m = parseMoves('1 2 3t uklon 6')
     expect(comboTitle(m)).toBe('Jab – Cross – Hák na tělo – Úklon – Zadní zvedák')
-    expect(m.map(chipText)).toEqual(['1', '2', '3T', 'Ú', '6'])
+    expect(m.map((x) => chipText(x))).toEqual(['1', '2', '3T', 'Ú', '6'])
     expect(m.map((x) => wordText(x))).toEqual(['1', '2', '3 TĚLO', 'ÚKLON', '6'])
     expect(m.map((x) => wordText(x, 'en'))).toEqual(['1', '2', '3 BODY', 'SLIP', '6'])
+  })
+
+  it('anglický název komba a čipy (9.8)', () => {
+    const m = parseMoves('1 2 3t uklon 4t 6')
+    expect(comboTitle(m, 'en')).toBe('Jab – Cross – Body hook – Slip – Rear body hook – Rear uppercut')
+    expect(m.map((x) => chipText(x, 'en'))).toEqual(['1', '2', '3B', 'S', '4B', '6'])
+    expect(parseMoves('zaklon ponor kryt vzad ukrok').map((x) => chipText(x, 'en'))).toEqual(['PL', 'R', 'BL', 'BK', 'PV'])
   })
 
   it('neznámý tah ve vestavěných datech je chyba', () => {
@@ -102,6 +112,13 @@ describe('obranné čtení úložiště', () => {
     expect(sanitizeSettings({ voice: 7 }).voice).toBe('harry')
   })
 
+  it('jazyk: uložený platí, staré nastavení = čeština, první spuštění = jazyk zařízení (9.8)', () => {
+    expect(sanitizeSettings({ lang: 'en' }, 'cs').lang).toBe('en')
+    expect(sanitizeSettings({ lang: 'de' }, 'en').lang).toBe('cs')
+    expect(sanitizeSettings({ onboarded: 2 }, 'en').lang).toBe('cs')
+    expect(sanitizeSettings(undefined, 'en').lang).toBe('en')
+  })
+
   it('vlastní komba: zahodí rozbitá, nechá platná', () => {
     const lib = sanitizeLibrary({
       disabled: ['z01', 5],
@@ -164,5 +181,37 @@ describe('obranné čtení úložiště', () => {
     // co už v seznamu je, se nezdvojí
     const vypalovak = DEFAULT_PRESETS.find((p) => p.id === 'vypalovak')!
     expect(sanitizePresets([vypalovak], 1).filter((p) => p.id === 'vypalovak')).toHaveLength(1)
+  })
+})
+
+describe('jazyk rozhraní (9.8)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('jazyk zařízení: čeština a slovenština → cs, jinak en', () => {
+    for (const [langs, want] of [
+      [['cs-CZ', 'en-US'], 'cs'],
+      [['sk'], 'cs'],
+      [['en-GB', 'cs-CZ'], 'en'],
+      [['de-DE'], 'en'],
+      [[], 'en'],
+    ] as const) {
+      vi.stubGlobal('navigator', { languages: langs, language: langs[0] })
+      expect(detectLang()).toBe(want)
+    }
+  })
+
+  it('angličtina má všechny texty jako čeština a nic prázdného', () => {
+    const keys = (o: object, at = ''): string[] =>
+      Object.entries(o).flatMap(([k, v]) =>
+        v && typeof v === 'object' && !Array.isArray(v) && k !== 'presetName' ? keys(v, `${at}${k}.`) : [`${at}${k}`],
+      )
+    expect(keys(en)).toEqual(keys(cs))
+    const empty = (o: object): boolean =>
+      Object.values(o).some((v) => (typeof v === 'string' ? !v.trim() : v && typeof v === 'object' ? empty(v) : false))
+    expect(empty(en)).toBe(false)
+  })
+
+  it('anglické názvy mají všechny vestavěné tréninky', () => {
+    expect(DEFAULT_PRESETS.every((p) => en.presetName[p.id])).toBe(true)
   })
 })

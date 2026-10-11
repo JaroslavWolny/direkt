@@ -1,0 +1,248 @@
+// České texty rozhraní (DOKUMENTACE.md 9.8). en.ts má stejný tvar; slova úderů jsou v data/moves.ts.
+import type { Level } from '../data/combos'
+import type { VoiceId, VoiceLang } from '../data/voices'
+import type { IntensityChoice } from '../engine/constants'
+import type { Experience, Goal, PlanAnswers } from '../engine/plan'
+
+/** Český tvar podle počtu: 1 kolo, 2–4 kola, 5+ kol. */
+const plural = (n: number, one: string, few: string, many: string): string =>
+  n === 1 ? one : n >= 2 && n <= 4 ? few : many
+
+const roundsWord = (n: number): string => plural(n, 'kolo', 'kola', 'kol')
+
+const FOR_WHOM = ['začátečníka', 'mírně pokročilého', 'pokročilého', 'závodníka'] as const
+const GOAL_ACC: Record<Goal, string> = {
+  kondice: 'kondici',
+  technika: 'techniku',
+  sila: 'sílu úderu',
+  rychlost: 'rychlost',
+  obrana: 'obranu',
+  hlava: 'vyčištění hlavy',
+}
+
+/** „kondici, techniku a obranu" */
+const joinAnd = (xs: readonly string[]): string =>
+  xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} a ${xs[xs.length - 1]}`
+
+export const cs = {
+  back: 'Zpět',
+  close: 'Zavřít',
+  resume: 'Pokračovat',
+  done: 'Hotovo',
+  homeLink: 'Domů',
+  delete: 'Smazat',
+  deleteItem: (name: string) => `Smazat ${name}`,
+  less: (label: string) => `${label}: méně`,
+  more: (label: string) => `${label}: více`,
+  level: { 0: 'Začátečník', 1: 'Pokročilý', 2: 'Expert' } as Record<Level, string>,
+  intensity: { 0: 'Lehká', 1: 'Střední', 2: 'Tvrdá', ramp: 'Rostoucí' } as Record<IntensityChoice, string>,
+  levelCaption: 'Úroveň',
+  intensityCaption: 'Intenzita',
+  roundsWord,
+  nRounds: (n: number) => `${n} ${roundsWord(n)}`,
+  nCombos: (n: number) => `${n} ${plural(n, 'kombo', 'komba', 'komb')}`,
+  nPunches: (n: number) => `${n} ${plural(n, 'úder', 'údery', 'úderů')}`,
+  roundCount: 'Počet kol',
+  roundLength: 'Délka kola',
+  restBetween: 'Pauza mezi koly',
+  /** Název tréninku plánu. */
+  goal: {
+    kondice: 'Kondice',
+    technika: 'Technika',
+    sila: 'Síla úderu',
+    rychlost: 'Rychlost',
+    obrana: 'Obrana',
+    hlava: 'Vyčistit hlavu',
+  } as Record<Goal, string>,
+  /** Vestavěné tréninky podle id; uložené názvy jsou česky (kap. 11), takže tady nic. */
+  presetName: {} as Record<string, string>,
+
+  home: {
+    settings: 'Nastavení',
+    title: ['Žádné', 'řeči.', 'Jen', 'údery.'],
+    today: 'Dnešní trénink',
+    custom: 'Vlastní trénink',
+    startAria: (name: string) => `Začít: ${name}`,
+    go: 'Začít',
+    meta: (rounds: string, work: string, rest: string) => `${rounds} · ${work} práce · ${rest} pauza`,
+    poolEmpty: 'Zapni aspoň jedno kombo pro tuhle úroveň.',
+    menu: 'Hlavní menu',
+    plan: 'Plán',
+    combos: 'Komba',
+    customCombos: 'Vlastní komba',
+    presets: 'Uložené tréninky',
+  },
+
+  intro: {
+    title: ['První', 'kolo', 'začíná.'],
+    text: 'Trenér ti hlásí komba, hlídá kola i pauzy. Ty se soustředíš jen na údery.',
+    cta: 'Sestavit můj plán',
+    skip: 'Přeskočit, chci rovnou trénovat',
+  },
+
+  quiz: {
+    step: (n: number, total: number) => `${n} ze ${total}`,
+    q1: ['Jak dlouho', 'boxuješ?'],
+    q1Note: 'Podle toho nastavím tempo a komba.',
+    experienceAria: 'Zkušenost',
+    experience: { 0: 'Začínám', 1: 'Pár měsíců', 2: 'Rok a víc', 3: 'Závodím' } as Record<Experience, string>,
+    q2: ['Co chceš', 'zlepšit?'],
+    q2Note: 'Vyber klidně víc možností.',
+    goalsAria: 'Cíle',
+    /** Dlaždice cílů (Otazka2.html). */
+    goalTile: {
+      kondice: 'Kondici',
+      technika: 'Techniku',
+      sila: 'Sílu úderu',
+      rychlost: 'Rychlost',
+      obrana: 'Obranu',
+      hlava: 'Vyčistit hlavu',
+    } as Record<Goal, string>,
+    q3: ['Kolik času', 'máš?'],
+    perWeek: 'Kolikrát týdně',
+    perWeekAria: (n: number) => `${n}krát týdně`,
+    length: 'Jak dlouhý trénink',
+    lengthAria: 'Délka tréninku',
+    /** „To je **60 minut boxu** týdně." — prostřední část tučně. */
+    total: (min: number): [string, string, string] => ['To je ', `${min} minut boxu`, ' týdně.'],
+    next: 'Pokračovat',
+    build: 'Sestavit plán',
+  },
+
+  plan: {
+    edit: 'Upravit odpovědi',
+    title: 'Tvůj plán',
+    week: (w: number, total: number) => `Týden ${w} ze ${total}`,
+    weekAria: (w: number) => `Týden ${w}`,
+    weekTotal: (min: number) => `${min} min celkem`,
+    dayShort: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
+    dayName: ['pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota', 'neděle'],
+    dayState: { next: 'trénink na řadě', train: 'trénink', done: 'hotovo', rest: 'volno' },
+    today: 'Dnes',
+    upNext: 'Na řadě',
+    complete: 'Plán splněný.',
+    newPlan: 'Nový plán',
+    end: 'Ukončit plán',
+    endTitle: 'Ukončit plán?',
+    endText: 'Postup se smaže.',
+    endConfirm: 'Ukončit',
+    progress: (done: number, total: number) => `Plán: ${done} z ${total} hotovo`,
+    /** Shrnutí odpovědí jednou větou (Plan.html, 7.11). */
+    summary: (a: PlanAnswers) =>
+      `Pro ${FOR_WHOM[a.experience]} na ${joinAnd(a.goals.map((g) => GOAL_ACC[g]))}, ${a.perWeek}× týdně do ${a.minutes} minut. ` +
+      'Každý týden přidáme kolo, nebo zkrátíme pauzu.',
+  },
+
+  workout: {
+    endTitle: 'Ukončit trénink?',
+    endText: 'Odboxovaná kola se nikam neukládají.',
+    endConfirm: 'Ukončit',
+    wakeLock: 'Displej může zhasnout — Nastavení → Displej a jas → Automatický zámek → Nikdy',
+    doneTitle: 'Hotovo',
+    goodWork: 'Dobrá práce.',
+    boxed: (rounds: number, time: string) => `${roundsWord(rounds)} · celkem ${time}`,
+    again: 'Znovu',
+    endAria: 'Ukončit trénink',
+    paused: 'Pozastaveno',
+    getReady: 'Připrav se',
+    prepSub: (name: string, rounds: number) => `${name} · kolo 1 ze ${rounds}`,
+    startingIn: (sec: number) => `Začínáme za ${sec} s`,
+    firstCombo: 'První kombo',
+    skip: 'Přeskočit',
+    roundDone: (round: number, rounds: number) => `Kolo ${round} ze ${rounds} hotovo`,
+    rest: 'Pauza',
+    nextRoundIn: 'Další kolo za',
+    nextCombo: 'Další kombo',
+    pauseRest: 'Pozastavit pauzu',
+    skipRest: 'Přeskočit pauzu',
+    closeAria: 'Zavřít trénink',
+    round: (round: number, rounds: number) => `Kolo ${round} ze ${rounds}`,
+    quickAria: 'Nastavení tréninku',
+    remaining: 'Zbývá',
+    currentCombo: 'Aktuální kombo',
+    finisher: 'Finiš',
+    repeat: 'Znovu',
+    combo: 'Kombo',
+    toBell: 'Do gongu',
+    punchOf: (k: number, n: number) => `Úder ${k} ze ${n}`,
+    listen: 'Poslouchej trenéra.',
+    nextRound: 'Další kolo',
+    pause: 'Pozastavit',
+    end: 'Konec',
+    rampRound: (round: number, tempo: string) => `Kolo ${round}: ${tempo}`,
+    fromNext: 'Platí od dalšího komba.',
+  },
+
+  combos: {
+    search: 'Hledat kombo',
+    title: 'Komba',
+    placeholder: 'Hledat (např. hák, 1 2 3)',
+    filter: 'Filtr',
+    all: 'Vše',
+    defense: 'Obrana',
+    legend:
+      '1 jab · 2 cross · 3 hák · 4 zadní hák · 5 zvedák · 6 zadní zvedák · T na tělo · Ú úklon · Z záklon · P ponoř · K kryt · V vzad · ÚK úkrok',
+    noneTitle: 'Nic nenalezeno.',
+    noneText: 'Zkus jiný název nebo filtr.',
+    inRound: (time: string) => `${time} v kole`,
+    listenAria: 'Poslechnout kombo',
+    listen: 'Poslechnout',
+    include: 'Zařadit do tréninku',
+    delete: 'Smazat kombo',
+  },
+
+  custom: {
+    title: ['Vlastní', 'komba'],
+    build: 'Sestavit kombo',
+    emptyTitle: 'Zatím žádné kombo.',
+    emptyText: 'Sestav první.',
+    fallbackName: 'Vlastní kombo',
+    defaultName: (n: number) => `Moje ${n}`,
+  },
+
+  builder: {
+    title: 'Nové kombo',
+    nameAria: 'Název komba',
+    hint: 'Ťukej údery a obranu',
+    bodyAria: 'Poslední úder na tělo',
+    body: 'T · na tělo',
+    deleteLast: 'Smazat poslední',
+    duplicate: 'Tohle kombo už máš.',
+    save: 'Uložit kombo',
+  },
+
+  presets: {
+    title: 'Tréninky',
+    new: 'Nový trénink',
+    emptyTitle: 'Zatím žádný trénink.',
+    emptyText: 'Ulož si první.',
+    namePlaceholder: 'Název, např. Ranní 6 × 3',
+    nameAria: 'Název tréninku',
+    save: 'Uložit trénink',
+  },
+
+  settings: {
+    title: 'Nastavení',
+    language: 'Jazyk',
+    voice: 'Hlas trenéra',
+    voiceLang: { cs: 'Čeština', en: 'Angličtina' } as Record<VoiceLang, string>,
+    voiceStyle: { harry: 'bojovník', charlie: 'nabuzený', adam: 'dominantní', antonin: 'klidný' } as Record<VoiceId, string>,
+    playing: (name: string) => `Přehrávám ukázku: ${name}`,
+    play: (name: string) => `Přehrát ukázku: ${name}`,
+    cantHear: 'Nic neslyšíš?',
+    cantHearText:
+      'iPhone je asi v tichém režimu — vypni ho, nebo níž zapni „Hrát i v tichém režimu" (zastaví ale hudbu z telefonu).',
+    round: 'Kolo',
+    countdown: 'Odpočet',
+    planNote: 'Plán má vlastní kola a tempo. Tohle platí pro trénink mimo plán.',
+    playback: 'Přehrávání',
+    silent: 'Hrát i v tichém režimu',
+    autoPause: 'Automatická pauza na pozadí',
+    about: 'O aplikaci',
+    aboutText: (version: string) =>
+      `DIREKT ${version} — trenér na boxovací pytel. Hlasy: ElevenLabs (Harry, Charlie, Adam) a Microsoft ` +
+      'Antonín. Písmo: Archivo (OFL). Na plochu: Safari → Sdílet → Přidat na plochu.',
+  },
+}
+
+export type Strings = typeof cs

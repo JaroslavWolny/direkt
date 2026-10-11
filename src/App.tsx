@@ -8,6 +8,7 @@ import type { Intensity, IntensityChoice } from './engine/constants'
 import { buildPlan, type PlanAnswers } from './engine/plan'
 import { buildPool, focusPool } from './engine/selector'
 import type { WorkoutConfig } from './engine/timeline'
+import { setLang, t } from './i18n'
 import {
   loadConfig,
   loadLibrary,
@@ -25,7 +26,7 @@ import {
 } from './store/storage'
 import { CombosScreen } from './ui/CombosScreen'
 import { CustomCombosScreen } from './ui/CustomCombosScreen'
-import { GOAL_NAME, sessionLabel } from './ui/format'
+import { presetName, sessionLabel } from './ui/format'
 import { HomeScreen, type Screen } from './ui/HomeScreen'
 import { IntroScreen } from './ui/IntroScreen'
 import { PlanScreen } from './ui/PlanScreen'
@@ -63,9 +64,14 @@ export default function App() {
   const [introPlayed, setIntroPlayed] = useState(false)
   const [running, setRunning] = useState<Running | null>(null)
   const workout = useWorkout()
+  // Jazyk rozhraní dřív, než se vykreslí obrazovky (9.8).
+  setLang(settings.lang)
 
   // Klipy vybraného hlasu načíst a dekódovat dopředu, ať první hlášení nečeká (kap. 8).
   useEffect(() => void loadVoice(settings.voice).catch(() => undefined), [settings.voice])
+  useEffect(() => {
+    document.documentElement.lang = settings.lang
+  }, [settings.lang])
   useEffect(() => saveConfig(config), [config])
   useEffect(() => saveSettings(settings), [settings])
   useEffect(() => saveLibrary(library), [library])
@@ -80,12 +86,13 @@ export default function App() {
   // Délky komb v seznamech: u stupňované intenzity Středním tempem (7.10).
   const listTempo: Intensity = config.intensity === 'ramp' ? 1 : config.intensity
 
+  const matching = presets.find((p) => sameConfig(p.config, config))
   /** Karta na Domů: další trénink plánu, jinak vlastní nastavení (9.1). */
   const card: Running = next
-    ? { config: next.config, name: GOAL_NAME[next.goal], planIndex: nextIndex, persist: false }
+    ? { config: next.config, name: t().goal[next.goal], planIndex: nextIndex, persist: false }
     : {
         config,
-        name: presets.find((p) => sameConfig(p.config, config))?.name ?? 'Vlastní trénink',
+        name: matching ? presetName(matching) : t().home.custom,
         planIndex: null,
         persist: true,
       }
@@ -131,7 +138,7 @@ export default function App() {
         config={running.config}
         workoutName={running.name}
         lang={voiceLang(settings.voice)}
-        planNote={running.planIndex !== null && plan ? `Plán: ${plan.done} z ${sessions.length} hotovo` : undefined}
+        planNote={running.planIndex !== null && plan ? t().plan.progress(plan.done, sessions.length) : undefined}
         onPause={workout.pause}
         onResume={workout.resume}
         onSkip={workout.skip}
@@ -169,6 +176,8 @@ export default function App() {
           markOnboarded()
           leaveTo('home')
         }}
+        lang={settings.lang}
+        onLang={(lang) => setSettings((s) => ({ ...s, lang }))}
       />
     )
   }
@@ -241,7 +250,7 @@ export default function App() {
               home()
               return
             }
-            start({ config: p.config, name: p.name, planIndex: null, persist: true })
+            start({ config: p.config, name: presetName(p), planIndex: null, persist: true })
           }}
           onBack={home}
         />
@@ -262,7 +271,7 @@ export default function App() {
         <HomeScreen
           config={card.config}
           workoutName={card.name}
-          cardLabel={next ? sessionLabel(next.weekday) : 'Dnešní trénink'}
+          cardLabel={next ? sessionLabel(next.weekday) : t().home.today}
           poolSize={poolFor(card.config).length}
           planCount={plan ? `${plan.done}/${sessions.length}` : '—'}
           counts={{ combos: all.length, custom: library.custom.length, presets: presets.length }}

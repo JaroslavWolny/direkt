@@ -1,6 +1,7 @@
 // Úložiště (DOKUMENTACE.md kap. 11). Každý klíč se čte obranně: nesmysl → výchozí hodnota.
 import { LEVELS, type Combo, type Level } from '../data/combos'
 import { DEFAULT_VOICE, isVoiceId, type VoiceId } from '../data/voices'
+import { isLang, detectLang, type Lang } from '../i18n'
 import { isMove } from '../data/moves'
 import { INTENSITY_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
 import { EXPERIENCES, GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type Experience, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
@@ -13,6 +14,8 @@ export interface Settings {
   voice: VoiceId
   /** Verze úvodu, kterou už viděl (9.0); menší než ONBOARDING_VERSION = ukázat. */
   onboarded: number
+  /** Jazyk rozhraní, nezávislý na hlasu (9.8). */
+  lang: Lang
 }
 
 export interface Library {
@@ -46,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoPause: true,
   voice: DEFAULT_VOICE,
   onboarded: 0,
+  lang: 'cs',
 }
 export const DEFAULT_LIBRARY: Library = { disabled: [], custom: [] }
 export const DEFAULT_PRESETS: Preset[] = [
@@ -96,7 +100,8 @@ export function sanitizeConfig(x: unknown): WorkoutConfig {
   }
 }
 
-export function sanitizeSettings(x: unknown): Settings {
+/** `firstRunLang` platí jen bez uloženého nastavení; kdo appku už měl, měl ji česky (9.8). */
+export function sanitizeSettings(x: unknown, firstRunLang: Lang = DEFAULT_SETTINGS.lang): Settings {
   const o = isObject(x) ? x : {}
   const d = DEFAULT_SETTINGS
   return {
@@ -106,6 +111,7 @@ export function sanitizeSettings(x: unknown): Settings {
     voice: isVoiceId(o.voice) ? o.voice : d.voice,
     // v8 ukládal true
     onboarded: o.onboarded === true ? 1 : typeof o.onboarded === 'number' && Number.isInteger(o.onboarded) ? Math.max(0, o.onboarded) : 0,
+    lang: isLang(o.lang) ? o.lang : isObject(x) ? 'cs' : firstRunLang,
   }
 }
 
@@ -196,7 +202,7 @@ function write(key: string, value: unknown): void {
 
 export const loadConfig = (): WorkoutConfig => sanitizeConfig(read('config'))
 export const saveConfig = (v: WorkoutConfig): void => write('config', v)
-export const loadSettings = (): Settings => sanitizeSettings(read('settings'))
+export const loadSettings = (): Settings => sanitizeSettings(read('settings'), detectLang())
 export const saveSettings = (v: Settings): void => write('settings', v)
 export const loadLibrary = (): Library => sanitizeLibrary(read('combos'))
 export const saveLibrary = (v: Library): void => write('combos', v)

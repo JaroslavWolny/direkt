@@ -3,7 +3,6 @@ import { parseMoves, type Move } from './moves'
 
 export type Level = 0 | 1 | 2
 export const LEVELS: readonly Level[] = [0, 1, 2]
-export const LEVEL_LABEL: Record<Level, string> = { 0: 'Začátečník', 1: 'Pokročilý', 2: 'Expert' }
 
 export interface Combo {
   id: string

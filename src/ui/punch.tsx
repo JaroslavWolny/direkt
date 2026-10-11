@@ -1,6 +1,7 @@
 // PunchSequence a velká sekvence v kole (design/ZADANI.md kap. 3, Trenink.html).
 import { chipText, isBody, isDefense, speechText, wordText, type Move } from '../data/moves'
 import type { VoiceLang } from '../data/voices'
+import { getLang } from '../i18n'
 
 interface SequenceProps {
   moves: readonly Move[]
@@ -12,11 +13,12 @@ interface SequenceProps {
 /** Čísla = plné kolečko, úder na tělo a obrana = obrysová pilulka v akcentu. */
 export function PunchSequence({ moves, size = 's', inverse }: SequenceProps) {
   const cls = ['seq', size !== 's' && size, inverse && 'inverse'].filter(Boolean).join(' ')
+  const lang = getLang()
   return (
-    <span className={cls} role="img" aria-label={speechText(moves)}>
+    <span className={cls} role="img" aria-label={speechText(moves, lang)}>
       {moves.map((m, i) => (
         <span key={i} className={isDefense(m) || isBody(m) ? 'chip mod' : 'chip num'}>
-          {chipText(m)}
+          {chipText(m, lang)}
         </span>
       ))}
     </span>

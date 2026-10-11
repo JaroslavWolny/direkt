@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { WorkoutConfig } from '../engine/timeline'
+import { t } from '../i18n'
 import { newId, type Preset } from '../store/storage'
 import { RoundBar } from './bars'
 import { IconButton, SwipeRow } from './controls'
-import { presetMeta, workoutMinutes } from './format'
+import { presetMeta, presetName, workoutMinutes } from './format'
 import { IconBack, IconPlus } from './icons'
 import { useThemeColor } from './useThemeColor'
 import { WorkoutForm } from './WorkoutForm'
@@ -20,42 +21,43 @@ interface Props {
 /** Uložené tréninky (DOKUMENTACE.md 9.5, Treninky.html). */
 export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: Props) {
   useThemeColor('--paper')
+  const s = t().presets
   const [creating, setCreating] = useState(false)
 
   return (
     <div className="screen">
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
-        <IconButton label="Zpět" onClick={onBack}>
+        <IconButton label={t().back} onClick={onBack}>
           <IconBack />
         </IconButton>
-        <IconButton label="Nový trénink" onClick={() => setCreating(true)}>
+        <IconButton label={s.new} onClick={() => setCreating(true)}>
           <IconPlus />
         </IconButton>
       </header>
 
       <div className="page-title">
-        <h1 className="display">Tréninky</h1>
+        <h1 className="display">{s.title}</h1>
         <span className="count">{presets.length}</span>
       </div>
 
       <div className="list-scroll">
         {presets.length === 0 ? (
           <div className="empty">
-            <strong>Zatím žádný trénink.</strong>
-            <span>Ulož si první.</span>
+            <strong>{s.emptyTitle}</strong>
+            <span>{s.emptyText}</span>
           </div>
         ) : (
           presets.map((p) => (
             <SwipeRow
               key={p.id}
-              label={p.name}
+              label={presetName(p)}
               onOpen={() => onStart(p)}
               onDelete={() => onPresets(presets.filter((x) => x.id !== p.id))}
             >
               <span className="workout-row">
                 <span className="row-body">
-                  <span className="name">{p.name}</span>
+                  <span className="name">{presetName(p)}</span>
                   <span className="meta">{presetMeta(p.config)}</span>
                   <RoundBar
                     config={p.config}

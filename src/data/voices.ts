@@ -7,14 +7,13 @@ export interface VoiceInfo {
   id: VoiceId
   name: string
   lang: VoiceLang
-  note: string
 }
 
 export const VOICES: readonly VoiceInfo[] = [
-  { id: 'harry', name: 'Harry', lang: 'en', note: 'Angličtina · bojovník' },
-  { id: 'charlie', name: 'Charlie', lang: 'en', note: 'Angličtina · nabuzený' },
-  { id: 'adam', name: 'Adam', lang: 'en', note: 'Angličtina · dominantní' },
-  { id: 'antonin', name: 'Antonín', lang: 'cs', note: 'Čeština · klidný' },
+  { id: 'harry', name: 'Harry', lang: 'en' },
+  { id: 'charlie', name: 'Charlie', lang: 'en' },
+  { id: 'adam', name: 'Adam', lang: 'en' },
+  { id: 'antonin', name: 'Antonín', lang: 'cs' },
 ]
 
 export const DEFAULT_VOICE: VoiceId = 'harry'

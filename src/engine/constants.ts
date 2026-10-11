@@ -5,7 +5,6 @@ export const INTENSITIES: readonly Intensity[] = [0, 1, 2]
 /** Volba v nastavení: pevné tempo, nebo stupňované po kolech (7.10). */
 export type IntensityChoice = Intensity | 'ramp'
 export const INTENSITY_CHOICES: readonly IntensityChoice[] = [...INTENSITIES, 'ramp']
-export const INTENSITY_LABEL: Record<IntensityChoice, string> = { 0: 'Lehká', 1: 'Střední', 2: 'Tvrdá', ramp: 'Rostoucí' }
 
 /** Čas na provedení jedné akce (úder i obrana), stejný pro všechna tempa. */
 export const PER_ACTION_MS = 700
