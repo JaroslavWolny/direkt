@@ -164,6 +164,7 @@ export function QuizScreen({ initial, initialStep = 0, onDone, onClose }: Props)
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <IconButton label="Zpět" onClick={() => (step === 0 ? onClose() : go(step - 1))}>
           <IconBack />

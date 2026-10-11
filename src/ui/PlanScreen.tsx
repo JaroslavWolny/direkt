@@ -38,6 +38,7 @@ export function PlanScreen({ plan, mode, onStart, onEdit, onBack, onHome, onEnd 
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <div className="scroll">
         <header className="top-bar">
           <IconButton label="Zpět" onClick={onBack}>

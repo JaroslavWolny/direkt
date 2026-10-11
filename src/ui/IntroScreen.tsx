@@ -32,6 +32,7 @@ export function IntroScreen({ animate, onPlan, onSkip }: Props) {
 
   return (
     <div className={ended ? 'screen on-accent intro ended' : 'screen on-accent intro'} onClick={ended ? undefined : () => setEnded(true)}>
+      <i className="screen-edge" aria-hidden="true" />
       {!ended && (
         <span className="intro-stage" aria-hidden="true">
           {['1', '2', '3'].map((n, i) => (

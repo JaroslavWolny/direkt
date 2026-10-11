@@ -59,6 +59,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <IconButton label="Zpět" onClick={onBack}>
           <IconBack />

@@ -24,6 +24,7 @@ export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: P
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <IconButton label="Zpět" onClick={onBack}>
           <IconBack />

@@ -32,6 +32,7 @@ export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <span className="logo">DIREKT</span>
         <IconButton label="Nastavení" onClick={() => onNavigate('nastaveni')}>

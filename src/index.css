@@ -176,6 +176,18 @@ svg {
   padding-bottom: calc(var(--sab) + 32px);
 }
 
+/* Za běhu iOS 27 barví stavovou lištu jen podle fixního prvku u horního okraje, rám přes celou
+   obrazovku nebere (R11). Pruh je pod obsahem; horních 20 px obrazovky je prázdných. */
+.screen-edge {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: 140px;
+  background: inherit;
+}
+
 /* Rolující obsah sahá až k okrajům, aby šel posouvat i palcem u kraje. */
 .scroll {
   flex: 1 1 auto;
@@ -1461,6 +1473,7 @@ svg {
   position: absolute;
   top: 0;
   left: -20px;
+  pointer-events: none; /* u horního okraje musí být k nalezení .screen-edge (R11) */
   animation: intro-drop 260ms var(--ease-hit) 990ms both;
 }
 

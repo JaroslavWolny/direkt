@@ -60,6 +60,7 @@ export function WorkoutScreen(props: Props) {
   if (phase === 'done') {
     return (
       <div className="screen spread">
+        <i className="screen-edge" aria-hidden="true" />
         <div className="stack gap-8">
           <h1 className="display">Hotovo</h1>
           <span className="label-15 muted">Dobrá práce.</span>
@@ -95,6 +96,7 @@ export function WorkoutScreen(props: Props) {
     const sec = Math.ceil(remainingMs / 1000)
     return (
       <div className="screen spread">
+        <i className="screen-edge" aria-hidden="true" />
         <div className="stack gap-8">
           <header className="top-bar prep-bar">
             <IconButton label="Ukončit trénink" onClick={() => setAsking(true)}>
@@ -137,6 +139,7 @@ export function WorkoutScreen(props: Props) {
     const next = view.upcoming
     return (
       <div className="screen spread on-ink">
+        <i className="screen-edge" aria-hidden="true" />
         <div className="stack gap-20">
           <header className="top-bar">
             <IconButton tone="on-ink" label="Ukončit trénink" onClick={() => setAsking(true)}>
@@ -191,6 +194,7 @@ export function WorkoutScreen(props: Props) {
   const current = view.combo ? view.moveIndex : -1
   return (
     <div className="screen spread on-accent">
+      <i className="screen-edge" aria-hidden="true" />
       <div className="stack gap-20">
         <header className="top-bar">
           <IconButton tone="on-accent" label="Zavřít trénink" onClick={() => setAsking(true)}>

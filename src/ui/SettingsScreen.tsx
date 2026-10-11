@@ -40,6 +40,7 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
 
   return (
     <div className="screen">
+      <i className="screen-edge" aria-hidden="true" />
       <div className="scroll">
         <IconButton label="Zpět" onClick={onBack}>
           <IconBack />
