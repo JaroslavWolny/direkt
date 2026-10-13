@@ -133,10 +133,12 @@ export function IconPause({ size = 28 }: IconProps) {
   )
 }
 
-export function IconStop({ size = 16 }: IconProps) {
+/** Sdílení jako v iOS: šipka nahoru z otevřeného čtverce (9.10). */
+export function IconShare({ size = 20 }: IconProps) {
   return (
-    <Filled size={size}>
-      <rect x="5" y="5" width="14" height="14" rx="2" />
-    </Filled>
+    <Stroke size={size} width={1.75}>
+      <path d="M12 3v12M8 7l4-4 4 4" />
+      <path d="M8.5 10H7a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2v-7a2 2 0 00-2-2h-1.5" />
+    </Stroke>
   )
 }

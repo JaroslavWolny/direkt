@@ -5,6 +5,8 @@ import type { Strings } from './cs'
 const plural = (n: number, one: string, many: string): string => (n === 1 ? one : many)
 
 const roundsWord = (n: number): string => plural(n, 'round', 'rounds')
+const combosWord = (n: number): string => plural(n, 'combo', 'combos')
+const punchesWord = (n: number): string => plural(n, 'punch', 'punches')
 
 const FOR_WHOM = ['a beginner', 'an improving boxer', 'an experienced boxer', 'a competitor'] as const
 const GOAL_ACC: Record<Goal, string> = {
@@ -35,9 +37,11 @@ export const en: Strings = {
   levelCaption: 'Level',
   intensityCaption: 'Intensity',
   roundsWord,
+  combosWord,
+  punchesWord,
   nRounds: (n) => `${n} ${roundsWord(n)}`,
-  nCombos: (n) => `${n} ${plural(n, 'combo', 'combos')}`,
-  nPunches: (n) => `${n} ${plural(n, 'punch', 'punches')}`,
+  nCombos: (n) => `${n} ${combosWord(n)}`,
+  nPunches: (n) => `${n} ${punchesWord(n)}`,
   roundCount: 'Rounds',
   roundLength: 'Round length',
   restBetween: 'Rest between rounds',
@@ -169,9 +173,16 @@ export const en: Strings = {
     listen: 'Listen to the coach.',
     nextRound: 'Next round',
     pause: 'Pause',
-    end: 'End',
     rampRound: (round, tempo) => `Round ${round}: ${tempo}`,
     fromNext: 'Applies from the next combo.',
+  },
+  share: {
+    aria: 'Share result',
+    title: 'Done.',
+    boxed: 'Round time',
+    /** „13 Oct 2026" */
+    date: (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+    file: 'direkt-done.png',
   },
 
   combos: {

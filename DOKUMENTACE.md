@@ -7,7 +7,7 @@ Jen box. Stavíme pro **iPhone 15 Pro** jako web appku přidanou na plochu.
 Tahle dokumentace je smlouva: stavba se drží jí. Co tu není, se nestaví. Změna plánu =
 nejdřív úprava tohohle souboru, pak kód.
 
-Stav: v12 (čeština podle boxerské terminologie, 9.9), 11. 10. 2026.
+Stav: v13 (sdílení výsledku z Hotovo 9.10, kolo bez tlačítka Konec 9.2), 13. 10. 2026.
 
 ---
 
@@ -80,6 +80,9 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
   z návrhu a **„kombinace"** místo „kombo" ve všech textech appky. Obrana = **povely, jaké trenér
   zařve na lapech** („chci názvy, co by řval trenér na lapech"): uživatel vybral **„Dolů!"** (ponor),
   **„Vzad!"** a **„Stranou!"** (úkrok); úklon, záklon a kryt zůstávají.
+- **v13** (uživatel, 13. 10. 2026, z rad k vylepšení): v kole **jen jedno ukončení** — tlačítko
+  Konec dole pryč, končí se × nahoře (9.2); obří číslo na Hotovo **přetéká okraj schválně**;
+  **sdílení výsledku z Hotovo** jako obrázek do IG story (9.10). Nic se dál neukládá.
 
 ## 3. Platforma a stack
 
@@ -114,6 +117,9 @@ Zdroje: [App Store listing](https://apps.apple.com/us/app/strikr-audio-striking-
 | R12 | Network-first načítání `index.html` dokázalo v gymu bez signálu viset 30–60 s. | Navigace se obsluhují **z precache** (cache-first). | AveReiDev/strikr PROJECT-STATUS |
 | R13 | Hlášení jsou čísla. | Odpočty se **nikdy nevyslovují čísly** (pletly by se s komby) — jen pípají. | vlastní úvaha |
 | R14 | `vite-plugin-pwa` v režimu `autoUpdate` po aktivaci nové verze volá `location.reload()` (ověřeno v `register.js`); háček `onNeedReload` ho nahradí. | Když běží trénink, reload se **odloží na jeho konec**; jinak proběhne hned. | `node_modules/vite-plugin-pwa/dist/client/build/register.js` |
+| R15 | Šířku písma (`fontStretch`) v canvasu WebKit správně neumí (otevřená chyba z 5/2024); u proměnného písma tak na iPhonu hrozí obyčejná šířka místo 125 %. | Obrázek ke sdílení kreslí **statickými řezy** Archiva (šířka a váha zapečené ve fontu, 9.10), ne proměnným písmem. | [WebKit 274147](https://bugs.webkit.org/show_bug.cgi?id=274147), [MDN fontStretch](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fontStretch) |
+| R16 | `navigator.share()` musí přijít z ťuknutí; Safari po delší asynchronní práci ťuknutí „zapomene" a sdílení odmítne. Po „Uložit obrázek" iOS slib občas nikdy nevyřeší; v iOS 16.2+ se hlásilo, že „Uložit obrázek" v listu chybí. | Obrázek se vyrobí **předem**, hned po zobrazení Hotovo; ťuk už jen sdílí. Sdílí se **jen soubor** (bez textu a odkazu — adresa je v obrázku). Výsledek slibu se ignoruje. Bez Web Share se obrázek stáhne. | [WebKit 231995](https://bugs.webkit.org/show_bug.cgi?id=231995), [WebKit 255544](https://bugs.webkit.org/show_bug.cgi?id=255544), [Apple forum](https://developer.apple.com/forums/thread/729782) |
+| R17 | WebKit v `measureText()` hlásí `actualBoundingBoxLeft` / `Right` jen jako přesah kresby za okraj znaku — když kresba začíná až za počátkem, vrací 0 (Chrome vrací skutečný odstup). Na iPhonu tak „HOTOVO." na obrázku začínalo o 12 px vpravo od okraje mřížky (fotka z telefonu uživatele 13. 10. 2026). Svislé míry (`actualBoundingBoxAscent`) sedí. | Vodorovné okraje kresby se **měří z pixelů** na zkušebním plátně (200 px, výsledek se pamatuje); ověřeno v Safari 26.5.2 a Chromu — okraje shodně na 80 px. | měření obrázku z iPhonu proti Chromu |
 
 ## 5. Boxerské číslování a obrana
 
@@ -498,8 +504,10 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   další bílé. Aktuální úder = ten, který hlas právě říká (časy klipů jsou přesné). Po
   dohlášení celá sekvence bíle a vpravo „N úderů". Řádek s reproduktorem a
   „„Jedna, dva, tři na tělo!"" / „„One, two, three body!"". Čipy v odpočtu a pauze
-  („3T", „Ú") zůstávají zápisem appky (legenda v Kombech). Dole Další kolo (= přeskočit zbytek kola, 7.5) ·
-  pauza/pokračovat (bílý kruh 84 px) · Konec (dialog).
+  („3T", „Ú") zůstávají zápisem appky (legenda v Kombech). Dole pauza/pokračovat (bílý kruh 84 px)
+  uprostřed a vpravo od ní Další kolo (= přeskočit zbytek kola, 7.5); levá třetina řady zůstává
+  prázdná. **v13:** tlačítko Konec z předlohy pryč — dělalo totéž co × nahoře (dialog). Další kolo
+  je vpravo, protože ⏭ patří vpravo od ▶ (přehrávače) a na Pauze je přeskočení taky vpravo.
   **Znovu** (7.9): řádek „Znovu" / „N úderů", sekvence téhož komba celá bíle (bez zvýraznění
   úderu — hlas říká jen „Znovu"), bublina „„Znovu!"" / „„Again!"".
   Panel intenzity u Rostoucí ukáže pod volbou „Kolo 2: Střední" (tempo kola).
@@ -509,7 +517,9 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   bílá); „PAUZA", „Další kolo za" / „Pozastaveno", čas 128 px, pruh 8 px plněný akcentem;
   karta **Další kombinace** (předem vylosované první kombo dalšího kola) s názvem a obrácenou
   sekvencí; kulaté pozastavení 60 px + bílá pilulka **Přeskočit pauzu**.
-- **Hotovo** (není v předlohách, styl paper): „HOTOVO", obří počet kol v akcentu,
+- **Hotovo** (není v předlohách, styl paper): „HOTOVO" a vpravo od něj kulaté tlačítko
+  **Sdílet** (ikona sdílení z iOS, 9.10), obří počet kol v akcentu — **přetéká okraj displeje
+  schválně** (uživatel 13. 10. 2026), neopravovat —,
   „kola · celkem m:ss" (čas v kolech: bez přípravy, pauz mezi koly, pozastavení a přeskočených
   částí kol), pod tím
   „42 kombinací · 156 úderů" (ohlášená komba a údery v nich bez obrany; finiš se nepočítá; nic
@@ -655,6 +665,40 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   plochu; tichý režim.
 - **Uvozovky** české „…“, ne "…".
 
+### 9.10 Sdílení výsledku (v13)
+- Na Hotovo kulaté tlačítko **Sdílet** vpravo od nadpisu (vzor iOS: sdílení v horní liště,
+  `aria-label` „Sdílet výsledek" / „Share result"). Ťuk otevře systémový list sdílení s obrázkem
+  (Instagram, Zprávy, Uložit obrázek…). Kde Web Share se souborem nejde (desktop Firefox),
+  obrázek se stáhne. Zavření listu bez volby = nic.
+- **Obrázek** = plakát obrazovky Hotovo pro IG story: PNG **1080 × 1920**, pozadí paper, okraje
+  80 px, všechno podstatné v pásu y 250–1580 (bezpečná zóna story, kap. 15). Ploché barvy z tokenů
+  (kap. 10), žádné stíny, přechody ani emoji. Shora:
+  1. Hlavička: ikona appky 72 px (kompozice `design/ikona/icon.svg`, rádius 16) + „DIREKT";
+     vpravo datum („13. 10. 2026" / „13 Oct 2026", muted).
+  2. „HOTOVO." / „DONE." verzálkami, ink, zmenšené na šířku mřížky; pod ním název tréninku
+     (muted, zmenšený na šířku).
+  3. Čára (hairline) a pod ní tři údaje číslo + popisek (verzálky, muted, tvar podle počtu):
+     čas v kolech („9:00 / V KOLECH" / „ROUND TIME"), kombinace („42 / KOMBINACÍ"), údery
+     („156 / ÚDERŮ"). Všechna tři čísla mají stejnou velikost — tu, při které se nejdelší vejde.
+     Obří **počet kol v akcentu** s popiskem „KOLA" / „ROUNDS" pod sebou:
+     - **1 číslice:** údaje vlevo pod sebou, číslo vpravo přes celou výšku kolony; nejširší
+       číslice **přetéká pravý okraj obrázku o 7 %** — stejné gesto jako na Hotovo, schválně
+       (velikost nezávisí na číslici, úzká „1" okraj nepřetéká).
+     - **10–12 kol:** v kolony by bylo číslo malé → číslo přes celou šířku, údaje pod ním v řádku.
+  4. Patička: čára a adresa appky (`location.host`, tedy `direkt-indol.vercel.app`) — kdo story
+     uvidí, ví, kde appku najít; účaří 1562, nad dolní hranou bezpečné zóny.
+- Údaje jsou tytéž jako na Hotovo (9.2), popisky v jazyce rozhraní. Poznámka plánu na obrázku
+  není. Nic se neukládá — obrázek žije jen v paměti obrazovky Hotovo.
+- **Písmo** (R15, R17): statické řezy Archiva v `public/fonts/archivo-share-*.woff2` — `x900` (šířka
+  125 %, váha 900) na čísla a nadpisy, `500` (šířka 100 %, váha 500) na popisky; latin +
+  latin-ext jako u hlavního písma. Vyrobené z proměnného Archiva:
+  `fonttools varLib.instancer archivo-latin.woff2 wght=900 wdth=125 --static -o archivo-share-x900-latin.woff2`
+  (venv s `fonttools` + `brotli`). Načítají se přes `FontFace` až pro obrázek; jsou v precache
+  (offline).
+- **Postup** (R16): po zobrazení Hotovo se obrázek hned vyrobí (`src/ui/shareCard.ts`); ťuk
+  ho jen předá `navigator.share({ files })` — bez textu a odkazu (adresa je v obrázku).
+  Soubor `direkt-hotovo.png` / `direkt-done.png`.
+
 ## 10. Vzhled (v4)
 
 - **Tokeny** jen v `:root` (`src/index.css`), v komponentách žádné hex hodnoty natvrdo:
@@ -746,7 +790,8 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   běží, všechny obrazovky se vejdou a odpovídají předlohám (kap. 9) — porovnání vedle sebe
   se screenshoty vykreslených předloh 390 × 844. **Angličtina (v11):** projít všechny obrazovky
   i v `en` — nic nepřeteče (delší slova: „Intermediate", „PUNCHES.", nadpisy dotazníku), žádný
-  zbylý český text mimo slova hlasu.
+  zbylý český text mimo slova hlasu. **Sdílení (v13):** obrázek v `cs` i `en` pro 1, 3 a 12 kol
+  a dlouhý vlastní název — kromě obřího čísla nic nepřeteče okraje 80 px ani bezpečnou zónu.
 
 **Na telefonu (uživatel):**
 1. Safari → URL → Sdílet → Přidat na plochu → otevřít z plochy.
@@ -766,6 +811,8 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 6. 15 min tréninku: displej nezhasne.
 7. Zamknout telefon uprostřed kola → po odemčení je trénink na pauze.
 8. Režim letadlo → appka z plochy naběhne.
+11. Hotovo → Sdílet: otevře se list sdílení s obrázkem; Instagram → story ho vezme celý
+    (9:16), „Uložit obrázek" ho dá do Fotek. Písmo na obrázku je široké jako v appce (R15).
 
 ## 14. Postup stavby
 
@@ -805,6 +852,9 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
 17. **v12:** research české terminologie (FTVS UK, MUNI, IJP) → kap. 5 a 9.9 → texty, názvy
     kombinací, z/ze, povely z lap „Dolů!" a „Stranou!" pro Antonína (kontrola přepisem) + testy →
     screenshoty, deploy.
+18. **v13:** research (WebKit: písmo v canvasu, Web Share na iOS) → R15, R16, 9.2, 9.10 → statické
+    řezy písma, `shareCard.ts`, tlačítko na Hotovo, kolo bez Konec + testy → obrázky v `cs`/`en`
+    pro 1, 3 a 12 kol, screenshoty, deploy.
 
 ## 15. Marketing (uživatel 10. 10. 2026: „kompletní materiály na FB post a IG story")
 

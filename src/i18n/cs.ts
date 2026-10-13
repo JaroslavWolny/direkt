@@ -9,6 +9,8 @@ const plural = (n: number, one: string, few: string, many: string): string =>
   n === 1 ? one : n >= 2 && n <= 4 ? few : many
 
 const roundsWord = (n: number): string => plural(n, 'kolo', 'kola', 'kol')
+const combosWord = (n: number): string => plural(n, 'kombinace', 'kombinace', 'kombinací')
+const punchesWord = (n: number): string => plural(n, 'úder', 'údery', 'úderů')
 
 /** Číslovky, před kterými se píše „ze" (dv-, tř-, čt-, s-, š-), u ostatních „z" (9.9, IJP). */
 const ZE = new Set([2, 3, 4, 6, 7, 12, 13, 14, 16, 17, 20])
@@ -44,9 +46,11 @@ export const cs = {
   levelCaption: 'Úroveň',
   intensityCaption: 'Intenzita',
   roundsWord,
+  combosWord,
+  punchesWord,
   nRounds: (n: number) => `${n} ${roundsWord(n)}`,
-  nCombos: (n: number) => `${n} ${plural(n, 'kombinace', 'kombinace', 'kombinací')}`,
-  nPunches: (n: number) => `${n} ${plural(n, 'úder', 'údery', 'úderů')}`,
+  nCombos: (n: number) => `${n} ${combosWord(n)}`,
+  nPunches: (n: number) => `${n} ${punchesWord(n)}`,
   roundCount: 'Počet kol',
   roundLength: 'Délka kola',
   restBetween: 'Pauza mezi koly',
@@ -173,9 +177,17 @@ export const cs = {
     listen: 'Poslouchej trenéra.',
     nextRound: 'Další kolo',
     pause: 'Pozastavit',
-    end: 'Konec',
     rampRound: (round: number, tempo: string) => `Kolo ${round}: ${tempo}`,
     fromNext: 'Platí od další kombinace.',
+  },
+  /** Obrázek výsledku z Hotovo (9.10). */
+  share: {
+    aria: 'Sdílet výsledek',
+    title: 'Hotovo.',
+    boxed: 'V kolech',
+    /** „13. 10. 2026" */
+    date: (d: Date) => `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`,
+    file: 'direkt-hotovo.png',
   },
 
   combos: {

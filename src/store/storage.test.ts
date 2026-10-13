@@ -224,6 +224,16 @@ describe('jazyk rozhraní (9.8)', () => {
     expect(cs.nCombos(42)).toBe('42 kombinací')
   })
 
+  it('popisky na obrázku ke sdílení: tvar podle počtu, datum (9.10)', () => {
+    expect([1, 3, 12].map(cs.roundsWord)).toEqual(['kolo', 'kola', 'kol'])
+    expect([1, 4, 42].map(cs.combosWord)).toEqual(['kombinace', 'kombinace', 'kombinací'])
+    expect([1, 2, 156].map(cs.punchesWord)).toEqual(['úder', 'údery', 'úderů'])
+    expect([1, 2].map(en.punchesWord)).toEqual(['punch', 'punches'])
+    const d = new Date(2026, 9, 13)
+    expect(cs.share.date(d)).toBe('13. 10. 2026')
+    expect(en.share.date(d)).toBe('13 Oct 2026')
+  })
+
   it('anglické názvy mají všechny vestavěné tréninky', () => {
     expect(DEFAULT_PRESETS.every((p) => en.presetName[p.id])).toBe(true)
   })

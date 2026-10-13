@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { comboTitle, isDefense } from '../data/moves'
 import type { VoiceLang } from '../data/voices'
 import { INTENSITY_CHOICES, type IntensityChoice } from '../engine/constants'
@@ -9,8 +9,9 @@ import { PHRASES, type WorkoutView } from '../workout/runner'
 import { RoundProgress } from './bars'
 import { ConfirmDialog, IconButton, Segmented, Sheet } from './controls'
 import { formatCountdown, formatSec, wordsAreLong } from './format'
-import { IconClose, IconNext, IconPause, IconPlay, IconSliders, IconSpeaker, IconStop } from './icons'
+import { IconClose, IconNext, IconPause, IconPlay, IconShare, IconSliders, IconSpeaker } from './icons'
 import { PunchSequence, Words } from './punch'
+import { shareCardFile, shareFile, type ShareStats } from './shareCard'
 import { useThemeColor } from './useThemeColor'
 
 interface Props {
@@ -34,6 +35,33 @@ const sayText = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}${/[.!?]$/.tes
 
 /** Uvozovky podle jazyka rozhraní: „…“ / “…” */
 const quote = (s: string) => (getLang() === 'en' ? `“${s}”` : `„${s}“`)
+
+/** Sdílet výsledek (9.10): obrázek se vyrobí hned, ťuk ho jen předá listu sdílení (R16). */
+function ShareButton({ rounds, boxedMs, combos, punches, name }: ShareStats) {
+  const [file, setFile] = useState<File | null>(null)
+  useEffect(() => {
+    let live = true
+    shareCardFile({ rounds, boxedMs, combos, punches, name }).then(
+      (f) => {
+        if (live) setFile(f)
+      },
+      () => undefined,
+    )
+    return () => {
+      live = false
+    }
+  }, [rounds, boxedMs, combos, punches, name])
+  return (
+    <IconButton
+      label={t().share.aria}
+      onClick={() => {
+        if (file) void shareFile(file)
+      }}
+    >
+      <IconShare />
+    </IconButton>
+  )
+}
 
 /** Trénink běží (DOKUMENTACE.md 9.2): Odpočet → Kolo → Pauza → … → Hotovo. */
 export function WorkoutScreen(props: Props) {
@@ -65,7 +93,16 @@ export function WorkoutScreen(props: Props) {
       <div className="screen spread">
         <i className="screen-edge" aria-hidden="true" />
         <div className="stack gap-8">
-          <h1 className="display">{s.doneTitle}</h1>
+          <div className="top-bar">
+            <h1 className="display">{s.doneTitle}</h1>
+            <ShareButton
+              rounds={rounds}
+              boxedMs={view.boxedMs}
+              combos={view.callSeq}
+              punches={view.punches}
+              name={workoutName}
+            />
+          </div>
           <span className="label-15 muted">{s.goodWork}</span>
         </div>
         <div className="stack done-mid">
@@ -234,20 +271,14 @@ export function WorkoutScreen(props: Props) {
       </section>
 
       <div className="controls">
+        <button type="button" className="big-pause" aria-label={paused ? t().resume : s.pause} onClick={togglePause}>
+          {paused ? <IconPlay size={28} /> : <IconPause />}
+        </button>
         <button type="button" className="control" onClick={onSkip}>
           <span className="ring">
             <IconNext />
           </span>
           {s.nextRound}
-        </button>
-        <button type="button" className="big-pause" aria-label={paused ? t().resume : s.pause} onClick={togglePause}>
-          {paused ? <IconPlay size={28} /> : <IconPause />}
-        </button>
-        <button type="button" className="control" onClick={() => setAsking(true)}>
-          <span className="ring">
-            <IconStop />
-          </span>
-          {s.end}
         </button>
       </div>
       {banner}

@@ -1077,7 +1077,9 @@ svg {
   background: var(--white-a16);
 }
 
+/* Pauza uprostřed, Další kolo vpravo od ní (⏭ za ▶); levá třetina prázdná (9.2, v13). */
 .big-pause {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
