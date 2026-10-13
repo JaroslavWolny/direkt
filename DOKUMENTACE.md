@@ -907,3 +907,48 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   `node --experimental-websocket marketing/video/render.mjs --serve` → `/marketing/video/promo.html?play`
   (render bez `--serve`; Node 20 potřebuje příznak kvůli WebSocketu).
 - Výstup: `~/Desktop/DIREKT-marketing/DIREKT-story-promo.mp4` + doplněné `texty.txt`.
+
+### 15.2 Spot do IG story (uživatel 11. 10. 2026: „plno efektů… moderní, jako od agentury v roce 2026", „bez hudby, zvuky si doplň"; v2: „aby to nevypadalo jako AI slop… jak od grafika a videomakera z roku 2026", „odstraň tu časomíru napravo")
+
+- **v1 zamítnutá jako „AI slop"**: hromada šablonových efektů na všem (RGB posun, rozbíhající se
+  kruhy, glitch po pruzích, kývající se 3D telefon, karty funkcí jako z prezentace, HUD s odpočtem).
+- **Proč v2 takhle** (research): agentury v roce 2026 staví pohyb z významu a geometrie loga, ne
+  z „cool efektů" ([Lepisov Branding](https://contra.com/p/MbOAMeFO-great-brand-motion-isnt-about));
+  vede výrazná typografie, syrovost, zrno, jump cuty ([GDJ 2026](https://graphicdesignjunction.com/2026/01/video-and-motion-creative-trends-2026/));
+  impact frames z anime jsou zavedený jazyk střihových editů ([KYM](https://knowyourmeme.com/memes/cultures/impact-frames));
+  háček do 1–2 s, scény krátké, text čitelný bez zvuku ([Sprout](https://sproutsocial.com/insights/instagram-story-ads/)).
+- **Nápad: celé video je jedno kombo, úder = střih.** Trenér hlásí čísla a každé číslo je střih.
+  Appka se jmenuje po úderu 1 (přední direkt) — první záběr to říká.
+- **Jazyk z loga:** pytel (kruh) a lano (svislý pruh) z ikony. Pytel se v háčku houpe po úderech
+  (kyvadlo, zploštění při zásahu), lano dělá stíračku titulku, pytel prolétne kamerou jako přechod
+  a na konci se ustálí přesně v pozici ikony appky (logo).
+- **Impact frame** na každý úder: 2 snímky — bílá / černá, vše jako silueta + paprskové čáry od
+  místa zásahu; pak barva. Max. ~2 záblesky za sekundu (pod hranicí 3/s pro fotosenzitivitu).
+- **Typografie:** obří čísla oříznutá rámem, řádky titulku sázené na celou šířku, malé popisky
+  jazykem boxu („01 — PŘEDNÍ DIREKT"); popisky se s kamerou netřesou (motion blur by je zdvojil).
+  Žádný HUD, odpočet ani štítky „Hlas — …". Pilulky komba nezasahují do telefonu.
+- **Hlas jen anglicky** (uživatel: česká „Čtyři!" mezi anglickými „není správně"); „4 hlasy" nahradila
+  „Vlastní komba".
+- **Zakázáno (klišé):** RGB posun, kruhové vlny, glitch po pruzích, obrysové běžící pásy, 3D kývání.
+- **15 s**, formát / bezpečná zóna / hlasitost jako 15.1, motion blur (4 dílčí snímky), jemné zrno.
+- **Zvuk bez hudby:** hlasy z appky, gong a klepnutí z appky + syntéza: úder (prasknutí + tlumený
+  úder + sub), cinknutí řetězů pytle po zásahu, whoosh před úderem, riser, tiky psaní.
+- **Scénář:**
+
+  | Čas | Scéna | Obraz | Zvuk |
+  |---|---|---|---|
+  | 0,0–2,35 | Háček = kombo | impact frame hned v 1. snímku; obří oříznuté „1" (kobalt), „2" (ink), „3" nízko na tělo (papír), pak celý záběr uhne — „SLIP"; pytel se houpe; popisky 01 — PŘEDNÍ DIREKT, 02 — ZADNÍ DIREKT, 03 — PŘEDNÍ HÁK NA TĚLO, ÚKLON | „One! Two! Three body! Slip!", údery, řetězy |
+  | 2,35–3,55 | Titulek | ink; „TRENÉR / NA PYTEL / V MOBILU." na celou šířku, odkryje je bílý pruh (lano) | whoosh na řádek |
+  | 3,55–6,95 | Appka | ink; telefon rovně, oříznutý pravým okrajem, obrazovka kola (CSS appky); vlevo velké pilulky komba ve stylu appky naskakují s hlasem; „HLÁSÍ KOMBA." → „TY BIJEŠ." | gong, kombo, tiky pilulek |
+  | 6,95–7,35 | Přechod | obří pytel prolétne kamerou a zakryje záběr | hluboký whoosh |
+  | 7,35–11,55 | Funkce = kombo 1-2-3-4 | čísla říkají anglické hlasy (Harry, Charlie, Adam, Harry): 1 „50 KOMB", 2 „OBRANA", 3 „PLÁN NA 4 TÝDNY", 4 „VLASTNÍ KOMBA" (sestav si svoje), pak „NAPLNO" (finiš); obří číslo za titulkem na celou šířku | impact + hlas, 2× klepnutí + „All out!" |
+  | 11,55–15,0 | Výzva | kobalt; pytel se zhoupne a ustálí jako ikona, logotyp, „ZDARMA. BEZ ÚČTU.", adresa se vypíše | 3× gong, „Time! Great work!", tiky |
+
+- **Zdroje:** `marketing/video/spot.html` (`seek(t)` je čistá funkce času; barvy přes CSS
+  proměnné na `.stage`, impact frame je jen jiná sada proměnných), `marketing/video/shots/home.png`,
+  `render.mjs --page spot` (snímky rovnou do ffmpeg; `--sheet 0.1,2,5 --out arch.png` = náhledový
+  arch). Výstup `~/Desktop/DIREKT-marketing/DIREKT-story-spot.mp4`.
+- **Pasti:** písmo s háčky (latin-ext) se stáhne až při prvním zobrazení → měřit až po
+  `document.fonts.load(…, 'ŽÁŘČ…')`; `visibility: visible` u potomka přebije skrytého rodiče →
+  skrývat `display`; silné zrno = 200+ MB a IG ho rozbije → jemné + `-maxrate 24M`; nálepka
+  Odkaz vpravo nahoře (texty.txt).

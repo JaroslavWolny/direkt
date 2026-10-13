@@ -1,9 +1,12 @@
-// Render promo videa (DOKUMENTACE.md 15.1): statický server → headless Chrome přes DevTools
-// protokol → PNG snímky + WAV z OfflineAudioContext → ffmpeg (loudnorm −14 LUFS, x264).
+// Render videí do IG story (DOKUMENTACE.md 15.1, 15.2): statický server → headless Chrome přes
+// DevTools protokol → PNG snímky rovnou do ffmpeg + WAV z OfflineAudioContext → ffmpeg
+// (loudnorm −14 LUFS, x264). Stránka si sama řekne o motion blur (SUBFRAMES) a zrno (GRAIN).
 //
-//   node --experimental-websocket marketing/video/render.mjs            # vyrenderuje MP4
-//   node --experimental-websocket marketing/video/render.mjs --serve    # jen server pro náhled
-//   … --out cesta.mp4                                                   # jiný výstup
+//   node --experimental-websocket marketing/video/render.mjs                 # promo.html → MP4
+//   node --experimental-websocket marketing/video/render.mjs --page spot     # spot.html → MP4
+//   … --serve                                     # jen server pro náhled
+//   … --out cesta.mp4                             # jiný výstup
+//   … --sheet 0.1,1.2,3.5 --out arch.png          # náhledový arch jednotlivých okamžiků
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
@@ -19,7 +22,9 @@ const arg = (name) => {
   const i = process.argv.indexOf(name)
   return i > 0 ? process.argv[i + 1] : undefined
 }
-const OUT = resolve(arg('--out') ?? join(homedir(), 'Desktop/DIREKT-marketing/DIREKT-story-promo.mp4'))
+const NAME = arg('--page') ?? 'promo'
+const SHEET = arg('--sheet')?.split(',').map(Number)
+const OUT = resolve(arg('--out') ?? join(homedir(), `Desktop/DIREKT-marketing/DIREKT-story-${NAME}.mp4`))
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css',
@@ -45,8 +50,10 @@ const server = createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' })
   res.end(readFileSync(file))
 }).listen(PORT, '127.0.0.1')
+// bez běžícího serveru nespouštět Chrome (jinak zůstane viset jako sirotek na DEBUG_PORT)
+await new Promise((ok, fail) => server.once('listening', ok).once('error', fail))
 
-const PAGE = `http://127.0.0.1:${PORT}/marketing/video/promo.html`
+const PAGE = `http://127.0.0.1:${PORT}/marketing/video/${NAME}.html`
 if (process.argv.includes('--serve')) {
   console.log(`Náhled: ${PAGE}?play  (jeden okamžik: ?t=5.4)`)
 } else {
@@ -73,38 +80,65 @@ async function render() {
     await cdp.evaluate('window.ready')
     const fps = await cdp.evaluate('FPS')
     const frames = Math.round(fps * (await cdp.evaluate('DURATION')))
+    const sub = await cdp.evaluate('window.SUBFRAMES ?? 1')
+    const grain = await cdp.evaluate('window.GRAIN ?? 0')
+    const shot = async () => Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true })).data, 'base64')
+    mkdirSync(dirname(OUT), { recursive: true })
 
-    const wav = join(work, 'audio.wav')
-    writeFileSync(wav, Buffer.from(await cdp.evaluate('renderAudio()'), 'base64'))
-    for (let i = 0; i < frames; i++) {
-      await cdp.evaluate(`seek(${i / fps})`)
-      const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' })
-      writeFileSync(join(work, `f${String(i).padStart(5, '0')}.png`), Buffer.from(data, 'base64'))
-      if (i % fps === 0) process.stdout.write(`\rsnímky ${i}/${frames}`)
+    if (SHEET) {
+      for (const [i, t] of SHEET.entries()) {
+        await cdp.evaluate(`seek(${t})`)
+        writeFileSync(join(work, `s${String(i).padStart(3, '0')}.png`), await shot())
+      }
+      const cols = Math.min(SHEET.length, 6)
+      ffmpeg(['-y', '-i', join(work, 's%03d.png'), '-vf', `scale=360:-1,tile=${cols}x${Math.ceil(SHEET.length / cols)}:padding=8:color=gray`,
+        '-frames:v', '1', OUT])
+      console.log(`arch: ${OUT}`)
+      return cdp.close()
     }
-    console.log(`\rsnímky ${frames}/${frames}`)
-    cdp.close()
 
     // Hlasitost jako u reelů: −14 LUFS, true peak ≤ −1 dBTP (dva průchody loudnorm).
+    const wav = join(work, 'audio.wav')
+    writeFileSync(wav, Buffer.from(await cdp.evaluate('renderAudio()'), 'base64'))
     const LN = 'loudnorm=I=-14:TP=-1.5:LRA=11'
     const measured = ffmpeg(['-i', wav, '-af', `${LN}:print_format=json`, '-f', 'null', '-'])
     const m = JSON.parse(measured.slice(measured.lastIndexOf('{'), measured.lastIndexOf('}') + 1))
     const af =
       `${LN}:measured_I=${m.input_i}:measured_TP=${m.input_tp}:measured_LRA=${m.input_lra}` +
       `:measured_thresh=${m.input_thresh}:offset=${m.target_offset}:linear=true,aresample=48000`
-    mkdirSync(dirname(OUT), { recursive: true })
-    ffmpeg([
-      '-y', '-framerate', String(fps), '-i', join(work, 'f%05d.png'), '-i', wav, '-af', af,
-      '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(fps),
-      '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-ar', '48000', '-movflags', '+faststart', '-shortest', OUT,
-    ])
+
+    // Motion blur: snímek = průměr `sub` dílčích snímků; zrno až po zprůměrování.
+    const vf = [
+      sub > 1 && `tmix=frames=${sub},select='eq(mod(n\\,${sub})\\,${sub - 1})',setpts=N/(${fps}*TB)`,
+      grain && `noise=alls=${grain}:allf=t`,
+      'format=yuv420p',
+    ].filter(Boolean).join(',')
+    const enc = spawn('ffmpeg', [
+      '-hide_banner', '-loglevel', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps * sub), '-i', 'pipe:0',
+      '-i', wav, '-vf', vf, '-af', af,
+      // strop datového toku: zrno je skoro nekomprimovatelné, bez stropu má 15 s přes 200 MB
+      '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-maxrate', '24M', '-bufsize', '48M', '-profile:v', 'high',
+      '-r', String(fps), '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-ar', '48000', '-movflags', '+faststart', '-shortest', OUT,
+    ], { stdio: ['pipe', 'inherit', 'inherit'] })
+    const done = new Promise((ok, fail) => enc.on('close', (code) => (code === 0 ? ok() : fail(new Error(`ffmpeg ${code}`)))))
+    for (let i = 0; i < frames * sub; i++) {
+      await cdp.evaluate(`seek(${i / (fps * sub)})`)
+      if (!enc.stdin.write(await shot())) await new Promise((r) => enc.stdin.once('drain', r))
+      if (i % (fps * sub) === 0) process.stdout.write(`\rsnímky ${i / sub}/${frames}`)
+    }
+    enc.stdin.end()
+    await done
+    console.log(`\rsnímky ${frames}/${frames}`)
+    cdp.close()
     const check = ffmpeg(['-i', OUT, '-af', `${LN}:print_format=json`, '-f', 'null', '-'])
     const c = JSON.parse(check.slice(check.lastIndexOf('{'), check.lastIndexOf('}') + 1))
     console.log(`hotovo: ${OUT}\nhlasitost ${c.input_i} LUFS, true peak ${c.input_tp} dBTP`)
   } finally {
+    const exited = new Promise((r) => chrome.once('exit', r))
     chrome.kill()
+    await exited // Chrome jinak ještě zapisuje do profilu, který mažeme
     rmSync(work, { recursive: true, force: true })
-    rmSync(profile, { recursive: true, force: true })
+    rmSync(profile, { recursive: true, force: true, maxRetries: 5 })
   }
 }
 

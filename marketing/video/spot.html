@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <title>DIREKT — spot do IG story</title>
+    <link rel="stylesheet" href="../brand.css" />
+    <style>
+      /* DOKUMENTACE.md 15.2 (v2) — 1080 × 1920, důležité jen v pásu y 250–1580.
+         Barvy jdou přes proměnné na .stage: impact frame = jen jiná sada proměnných. */
+      body,
+      .stage {
+        width: 1080px;
+        height: 1920px;
+      }
+
+      .stage {
+        --bg: #2c3bff;
+        --fg: #fff;
+        --ac: #111;
+        --rope: #fff;
+        --ring: #2c3bff;
+        --core: #111;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+      }
+
+      #cam {
+        position: absolute;
+        inset: 0;
+        transform-origin: 540px 960px;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .scene.on {
+        display: block;
+      }
+
+      .abs {
+        position: absolute;
+      }
+
+      /* široké těžké verzálky appky */
+      .t {
+        display: block;
+        width: max-content;
+        font-stretch: 125%;
+        font-weight: 900;
+        line-height: 0.94;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .num {
+        position: absolute;
+        font-size: 1500px;
+        line-height: 0.78;
+      }
+
+      .label {
+        position: absolute;
+        left: 72px;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .mask {
+        overflow: hidden;
+        padding-top: 0.16em;
+        margin-top: -0.16em;
+      }
+
+      .ac {
+        color: var(--ac);
+      }
+
+      #speed {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      #speed path {
+        fill: var(--fg);
+      }
+
+      .bag {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: visible;
+      }
+
+      .bag .rope {
+        fill: var(--rope);
+      }
+
+      .bag .ring {
+        fill: var(--ring);
+      }
+
+      .bag .core {
+        fill: var(--core);
+      }
+
+      /* ---------- titulek ---------- */
+      .title {
+        top: 690px;
+        left: 72px;
+      }
+
+      .tline {
+        position: relative;
+        margin-bottom: 0.04em;
+      }
+
+      .tline .bar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 84px;
+        background: var(--rope);
+      }
+
+      /* ---------- appka ---------- */
+      .cap {
+        top: 300px;
+        left: 72px;
+        font-size: 124px;
+      }
+
+      .cap > div {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      #phone {
+        top: 640px;
+        left: 560px;
+        background: #262624; /* darkFill appky — černý rám by na ink pozadí zmizel */
+      }
+
+      #phone .glass {
+        background: var(--accent);
+      }
+
+      #phone iframe {
+        display: block;
+        width: 393px;
+        height: 852px;
+        border: 0;
+        transform: scale(var(--s));
+        transform-origin: 0 0;
+      }
+
+      .phone .island,
+      .phone .status {
+        z-index: 2;
+      }
+
+      .pills {
+        top: 720px;
+        left: 72px;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 22px;
+      }
+
+      /* vejdou se vedle telefonu (x ≤ 530), do obrazovky nezasahují */
+      .pills span {
+        padding: 10px 32px 16px;
+        border: 5px solid transparent;
+        border-radius: 999px;
+        font-size: 76px;
+        font-stretch: 125%;
+        font-weight: 900;
+        line-height: 1;
+        text-transform: uppercase;
+        transform-origin: 0 50%;
+        white-space: nowrap;
+      }
+
+      .pills .now {
+        background: var(--accent);
+        color: var(--white);
+      }
+
+      .pills .now.def {
+        background: transparent;
+        border-color: var(--accent);
+      }
+
+      .pills .done {
+        border-color: rgb(255 255 255 / 28%);
+        color: rgb(255 255 255 / 50%);
+      }
+
+      /* ---------- funkce ---------- */
+      .beat {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .beat .num {
+        font-size: 1400px;
+        top: 230px;
+      }
+
+      .beat .lines {
+        position: absolute;
+        top: 1120px;
+        left: 72px;
+      }
+
+      .pill-big {
+        padding: 0.06em 0.22em 0.12em;
+        border-radius: 999px;
+        background: var(--white);
+        color: var(--accent);
+      }
+
+      /* ---------- výzva ---------- */
+      #wordmark {
+        position: absolute;
+        top: 282px;
+        left: 72px;
+      }
+
+      .cta {
+        top: 1000px;
+        left: 72px;
+        font-size: 124px;
+      }
+
+      .url {
+        top: 1262px;
+        left: 72px;
+        font-size: 54px;
+        font-weight: 700;
+        white-space: pre;
+      }
+
+      .caret {
+        display: inline-block;
+        width: 0.5em;
+        height: 0.9em;
+        margin-left: 4px;
+        vertical-align: -0.12em;
+        background: var(--fg);
+      }
+
+      .hint {
+        top: 1338px;
+        left: 72px;
+        font-size: 36px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage" id="stage">
+      <div id="cam">
+        <!-- pytel z ikony (design/ikona/icon.svg): lano 612–772, kruh 446/574, r 222 a 196; lano prodloužené nahoru kvůli houpání -->
+        <svg class="bag" id="bag" viewBox="0 -2400 1024 3424" aria-hidden="true">
+          <rect class="rope" x="612" y="-2400" width="160" height="3170" />
+          <g class="ball"><circle class="ring" cx="446" cy="574" r="222" /><circle class="core" cx="446" cy="574" r="196" /></g>
+        </svg>
+
+        <section class="scene" id="sH">
+          <span class="t num" id="h1" style="left: -170px; top: 250px">1</span>
+          <span class="t num ac" id="h2" style="left: 360px; top: 290px">2</span>
+          <span class="t num ac" id="h3" style="left: 110px; top: 760px">3</span>
+          <span class="t abs fit" id="hs" style="top: 1090px; left: 72px">Slip</span>
+          <span class="label" id="l1" style="top: 1470px">01 — Přední direkt</span>
+          <span class="label" id="l2" style="top: 1470px">02 — Zadní direkt</span>
+          <span class="label" id="l3" style="top: 1470px">03 — Přední hák na tělo</span>
+          <span class="label" id="l4" style="top: 1470px">Slip — úklon</span>
+        </section>
+
+        <section class="scene" id="sT">
+          <div class="title abs">
+            <div class="tline"><span class="t fit">Trenér</span><i class="bar"></i></div>
+            <div class="tline"><span class="t fit">na pytel</span><i class="bar"></i></div>
+            <div class="tline"><span class="t fit">v mobilu.</span><i class="bar"></i></div>
+          </div>
+        </section>
+
+        <section class="scene" id="sP">
+          <div class="cap abs">
+            <div><div class="mask"><span class="t">Hlásí</span></div><div class="mask"><span class="t">komba.</span></div></div>
+            <div><div class="mask"><span class="t">Ty</span></div><div class="mask"><span class="t" style="color: var(--accent)">biješ.</span></div></div>
+          </div>
+          <div class="phone" id="phone" style="--s: 1.35">
+            <div class="glass">
+              <iframe id="round" src="phone-round.html" title="Obrazovka kola"></iframe>
+              <div class="island"></div>
+              <div class="status light">
+                <span>9:41</span>
+                <span class="icons">
+                  <svg viewBox="0 0 18 12" aria-hidden="true"><g fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></g></svg>
+                  <svg viewBox="0 0 16 12" aria-hidden="true"><path fill="currentColor" d="M8 2.5c2.6 0 5 .9 6.9 2.5L16 3.8C13.8 1.9 11 .9 8 .9S2.2 1.9 0 3.8L1.1 5C3 3.4 5.4 2.5 8 2.5zm0 3.2c1.8 0 3.4.6 4.7 1.7l1.1-1.2C12.2 4.9 10.2 4.1 8 4.1S3.8 4.9 2.2 6.2l1.1 1.2C4.6 6.3 6.2 5.7 8 5.7zm0 3.2c.9 0 1.7.3 2.4.9L8 12.2 5.6 9.8c.7-.6 1.5-.9 2.4-.9z" /></svg>
+                  <svg viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4" /><rect x="2" y="2" width="17" height="9" rx="2" fill="currentColor" /><rect x="24.5" y="4.5" width="1.8" height="4" rx=".9" fill="currentColor" opacity=".4" /></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="pills abs" id="pills"></div>
+        </section>
+
+        <section class="scene" id="sF">
+          <div class="beat" id="f0">
+            <span class="t num ac" style="left: 420px">1</span>
+            <span class="label" style="top: 1060px">Od začátečníka po experta</span>
+            <div class="lines"><div class="mask"><span class="t fit">50 komb</span></div></div>
+          </div>
+          <div class="beat" id="f1">
+            <span class="t num ac" style="left: -130px">2</span>
+            <span class="label" style="top: 1060px">Úklon · záklon · ponoř · kryt</span>
+            <div class="lines"><div class="mask"><span class="t fit">Obrana</span></div></div>
+          </div>
+          <div class="beat" id="f2">
+            <span class="t num ac" style="left: 400px; top: 120px">3</span>
+            <span class="label" style="top: 930px">Podle tvých odpovědí</span>
+            <div class="lines" style="top: 990px">
+              <div class="mask"><span class="t fit">Plán na</span></div>
+              <div class="mask"><span class="t fit">4 týdny</span></div>
+            </div>
+          </div>
+          <div class="beat" id="f3">
+            <span class="t num ac" style="left: -110px; top: 120px">4</span>
+            <span class="label" style="top: 930px">Sestav si svoje</span>
+            <div class="lines" style="top: 990px">
+              <div class="mask"><span class="t fit">Vlastní</span></div>
+              <div class="mask"><span class="t fit">komba</span></div>
+            </div>
+          </div>
+          <div class="beat" id="f4">
+            <span class="t abs fit ac" id="finis" style="top: 740px; left: 72px">Finiš</span>
+            <span class="label" style="top: 1060px">Posledních 10 s kola</span>
+            <div class="lines"><span class="t fit pill-big" id="naplno">Naplno</span></div>
+          </div>
+        </section>
+
+        <section class="scene" id="sE">
+          <svg id="wordmark" role="img" aria-label="direkt" width="316" height="61" viewBox="70 0 3820 737">
+            <g fill="#fff" transform="translate(0 725) scale(1 -1)">
+              <rect x="588" y="0" width="224" height="725" />
+              <circle fill="#2c3bff" cx="356" cy="264" r="306" />
+              <circle fill="#111" cx="356" cy="264" r="276" />
+              <path transform="translate(942 0)" d="M60 590V725H284V590ZM60 0V528H284V0Z" />
+              <path transform="translate(1276 0)" d="M60 0V528H242L257 442H266Q285 477 312 499Q339 521 370 531Q401 541 432 541Q454 541 472.5 538Q491 535 509 528V362H406Q375 362 352 352.5Q329 343 314 326.5Q299 310 291.5 287.5Q284 265 284 238V0Z" />
+              <path transform="translate(1781 0)" d="M415 -12Q302 -12 216.5 17Q131 46 83.5 107.5Q36 169 36 264Q36 357 83 418.5Q130 480 213 510Q296 540 405 540Q519 540 602 511Q685 482 730 421Q775 360 775 264V226H270Q272 189 289 164Q306 139 338.5 127Q371 115 417 115Q447 115 470.5 121Q494 127 510 137.5Q526 148 534 161Q542 174 542 188H774Q774 138 745.5 100.5Q717 63 667.5 38Q618 13 553 0.5Q488 -12 415 -12ZM271 328H535Q535 345 527 360Q519 375 503.5 387Q488 399 465.5 406Q443 413 415 413Q371 413 341 401.5Q311 390 293.5 370.5Q276 351 271 328Z" />
+              <path transform="translate(2582 0)" d="M60 0V725H284V333L493 528H766L547 316L771 0H509L377 198L284 134V0Z" />
+              <path transform="translate(3345 0)" d="M364 -12Q292 -12 240 2Q188 16 160 52.5Q132 89 132 156V387H27V528H141L185 688H356V528H507V387H356V210Q356 171 374 150Q392 129 444 129H507V7Q493 2 466 -2.5Q439 -7 411 -9.5Q383 -12 364 -12Z" />
+            </g>
+          </svg>
+          <div class="cta abs">
+            <div class="mask"><span class="t">Zdarma.</span></div>
+            <div class="mask"><span class="t">Bez účtu.</span></div>
+          </div>
+          <p class="url abs"><span id="url"></span><span class="caret" id="caret"></span></p>
+          <p class="hint abs" id="hint">iPhone: Safari → Sdílet → Přidat na plochu</p>
+        </section>
+
+        <!-- obří pytel, který prolétne kamerou (přechod do funkcí) -->
+        <svg class="bag" id="bagBig" style="--core: #2c3bff; --ring: #111; z-index: 10" viewBox="0 -2400 1024 3424" aria-hidden="true">
+          <rect class="rope" x="612" y="-2400" width="160" height="3170" />
+          <g class="ball"><circle class="ring" cx="446" cy="574" r="222" /><circle class="core" cx="446" cy="574" r="196" /></g>
+        </svg>
+      </div>
+      <svg id="speed" viewBox="0 0 1080 1920" aria-hidden="true"><path id="speedPath" d="" /></svg>
+    </div>
+
+    <script type="module">
+      // Scénář DOKUMENTACE.md 15.2 (v2). Obraz i zvuk z jedné časové osy; seek(t) je čistá funkce času.
+      const FPS = 30
+      const DURATION = 15
+      const SUBFRAMES = 4 // motion blur: 4 dílčí snímky na snímek (render.mjs je zprůměruje)
+      const GRAIN = 4 // jemné filmové zrno (ffmpeg noise); silnější IG při kompresi rozbije na kostičky
+      const VOICE = '/public/voice/'
+      const LEAD = 0.03 // jako appka: klip 30 ms po naplánování
+      const WORD_GAP = 0.07 // jako appka: 70 ms mezi slovy
+      const COMBO = { clips: ['n1', 'n2', 't3', 'uklon'], words: ['1', '2', '3 BODY', 'SLIP'], say: '„One, two, three body, slip!“' }
+      const F_VOICES = ['harry/n1', 'charlie/n2', 'adam/n3', 'harry/n4'] // celé video anglicky
+
+      const INK = '#111111'
+      const PAPER = '#f3f2ee'
+      const BLUE = '#2c3bff'
+      const WHITE = '#ffffff'
+      const PAL = {
+        blue: { bg: BLUE, fg: WHITE, ac: INK, rope: WHITE, ring: BLUE, core: INK },
+        ink: { bg: INK, fg: WHITE, ac: BLUE, rope: WHITE, ring: INK, core: WHITE },
+        paper: { bg: PAPER, fg: INK, ac: BLUE, rope: INK, ring: PAPER, core: INK },
+        impA: { bg: WHITE, fg: INK, ac: INK, rope: INK, ring: WHITE, core: INK },
+        impB: { bg: INK, fg: WHITE, ac: WHITE, rope: WHITE, ring: INK, core: WHITE },
+      }
+
+      // Časy po snímcích (impact frame musí sedět na hranici snímku)
+      const fr = (n) => n / FPS
+      const H = { hits: [fr(0), fr(14), fr(29)], slip: fr(53), to: fr(70) }
+      const T = { from: H.to, lines: [fr(72), fr(76), fr(80)], to: fr(106) }
+      const P = { from: T.to, gong: fr(118), combo: fr(130), cap2: 0, swing: fr(208), to: fr(221) }
+      const F = { from: P.to, beats: [fr(221), fr(243), fr(265), fr(287), fr(309)], to: fr(347) }
+      const CLAPS = [F.beats[4] + 0.03, F.beats[4] + 0.19]
+      const ALL_OUT = fr(320)
+      const E = { from: F.to, bell: F.to + 0.02, time: F.to + 1.05, type: F.to + 0.8 }
+      const URL = 'direkt-indol.vercel.app'
+      const TYPE_STEP = 0.024
+      /** Úder = impact frame: [snímek, x, y zásahu] */
+      const HITS = [
+        [0, 330, 820],
+        [14, 760, 900],
+        [29, 470, 1260],
+        [221, 760, 760],
+        [243, 300, 760],
+        [265, 760, 640],
+        [287, 300, 760],
+        [320, 540, 1180],
+      ]
+
+      const $ = (id) => document.getElementById(id)
+      const clamp01 = (x) => Math.min(1, Math.max(0, x))
+      const lerp = (a, b, p) => a + (b - a) * p
+      const prog = (t, t0, dur) => clamp01((t - t0) / dur)
+      const easeOut = (x) => 1 - (1 - x) ** 3
+      const easeOutExpo = (x) => (x >= 1 ? 1 : 1 - 2 ** (-10 * x))
+      const easeIn = (x) => x ** 3
+      const easeInOut = (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2)
+      const easeOutBack = (x, k = 1.7) => 1 + (k + 1) * (x - 1) ** 3 + k * (x - 1) ** 2
+      function mulberry32(a) {
+        return () => {
+          a |= 0
+          a = (a + 0x6d2b79f5) | 0
+          let t = Math.imul(a ^ (a >>> 15), 1 | a)
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+        }
+      }
+      const show = (el, on) => (el.style.display = on ? 'block' : 'none')
+      /** Úder do záběru: vlétne ze strany, natažený (smear), pak sedí. */
+      function punchIn(el, t, t0, dx, dy, after = '') {
+        const p = easeOutExpo(prog(t, t0, 0.12))
+        const smear = 1 + 0.7 * (1 - easeOut(prog(t, t0, 0.1)))
+        el.style.transformOrigin = `${dx > 0 ? 0 : 100}% ${dy > 0 ? 0 : 100}%`
+        el.style.transform = `translate(${dx * (1 - p)}px, ${dy * (1 - p)}px) scale(${dx ? smear : 1}, ${dy ? smear : 1}) ${after}`
+      }
+      /** Řádek vyjede zpod hrany masky. */
+      function roll(el, t, tin, tout = 99) {
+        const pin = easeOutExpo(prog(t, tin, 0.26))
+        const pout = easeIn(prog(t, tout, 0.14))
+        el.style.visibility = t >= tin && t < tout + 0.2 ? 'visible' : 'hidden'
+        el.style.transform = `translateY(${(1 - pin) * 110 - pout * 110}%)`
+      }
+
+      // ---------- klipy ----------
+      const clips = {}
+      function audible(buffer) {
+        const data = buffer.getChannelData(0)
+        let first = 0
+        while (first < data.length && Math.abs(data[first]) < 0.003) first++
+        let last = data.length - 1
+        while (last > first && Math.abs(data[last]) < 0.003) last--
+        const offset = Math.max(0, first / buffer.sampleRate - 0.01)
+        const end = Math.min(buffer.duration, last / buffer.sampleRate + 0.01)
+        return { buffer, offset, duration: Math.max(0.05, end - offset) }
+      }
+      async function loadClips(ctx) {
+        const want = new Set([...['n1', 'n2', 'n3', 't3', 'uklon', 'naplno', 'hotovo'].map((id) => `harry/${id}`), ...F_VOICES])
+        for (const key of want) {
+          const res = await fetch(`${VOICE}${key}.mp3`)
+          clips[key] = audible(await ctx.decodeAudioData(await res.arrayBuffer()))
+        }
+      }
+
+      let starts = []
+      let comboEnd = 0
+      function buildTimeline() {
+        let t = P.combo + LEAD
+        starts = COMBO.clips.map((id) => {
+          const s = t
+          t += clips[`harry/${id}`].duration + WORD_GAP
+          return s
+        })
+        comboEnd = t - WORD_GAP
+        P.cap2 = comboEnd + 0.05
+      }
+
+      // ---------- barvy a impact frame ----------
+      const hitAt = (t) => {
+        const f = Math.floor(t * FPS + 1e-6)
+        const hit = HITS.find(([h]) => f === h || f === h + 1)
+        return hit && { hit, first: f === hit[0] }
+      }
+      const beatIndex = (t) => {
+        let i = 0
+        while (i < F.beats.length - 1 && t >= F.beats[i + 1]) i++
+        return i
+      }
+      function paletteAt(t) {
+        const h = hitAt(t)
+        if (h) return h.first ? PAL.impA : PAL.impB
+        if (t < H.to) return t < H.hits[1] ? PAL.blue : t < H.hits[2] ? PAL.ink : t < H.slip ? PAL.paper : PAL.blue
+        if (t < P.to) return PAL.ink
+        if (t < F.to) return [PAL.blue, PAL.ink, PAL.paper, PAL.blue, PAL.ink][beatIndex(t)]
+        return PAL.blue
+      }
+      /** Paprskové čáry od místa zásahu (jen v impact framu). */
+      function speedLines(t) {
+        const h = hitAt(t)
+        if (!h) return ''
+        const [f, cx, cy] = h.hit
+        const rnd = mulberry32(f * 97 + 13)
+        let d = ''
+        for (let i = 0; i < 64; i++) {
+          const a = (i / 64) * Math.PI * 2 + rnd() * 0.08
+          const w = (0.004 + rnd() * 0.018) * (h.first ? 1 : 1.4)
+          const r0 = 300 + rnd() * 260
+          const p = (r, ang) => `${(cx + Math.cos(ang) * r).toFixed(1)},${(cy + Math.sin(ang) * r).toFixed(1)}`
+          d += `M${p(r0, a)}L${p(2400, a - w)}L${p(2400, a + w)}Z`
+        }
+        return d
+      }
+
+      // ---------- pytel: kyvadlo kolem úchytu nad záběrem ----------
+      const PIVOT = { x: 692, y: -1400 } // v souřadnicích ikony
+      function placeBag(el, s, left, top, angle, squash = 0) {
+        el.setAttribute('width', 1024 * s)
+        el.setAttribute('height', 3424 * s)
+        el.style.left = `${left}px`
+        el.style.top = `${top - 2400 * s}px`
+        el.style.transformOrigin = `${PIVOT.x * s}px ${(PIVOT.y + 2400) * s}px`
+        el.style.transform = `rotate(${angle}deg)`
+        const sx = 1 - 0.1 * squash
+        const sy = 1 + 0.07 * squash
+        el.querySelector('.ball').setAttribute('transform', `translate(446 574) scale(${sx} ${sy}) translate(-446 -574)`)
+      }
+      const swingOf = (t, t0, amp, f = 0.95, damp = 1.5) => (t < t0 ? 0 : amp * Math.exp(-(t - t0) * damp) * Math.sin(2 * Math.PI * f * (t - t0)))
+      const squashOf = (t, t0) => (t < t0 ? 0 : Math.exp(-(t - t0) * 16) * Math.cos((t - t0) * 40))
+
+      // ---------- scény ----------
+      function drawH(t) {
+        const k = t < H.hits[1] ? 0 : t < H.hits[2] ? 1 : t < H.slip ? 2 : 3
+        ;['h1', 'h2', 'h3', 'hs'].forEach((id, i) => show($(id), i === k))
+        ;['l1', 'l2', 'l3', 'l4'].forEach((id, i) => show($(id), i === k))
+        const push = (t0) => `scale(${1 + 0.035 * easeOut(prog(t, t0, 0.5))})`
+        if (k === 0) punchIn($('h1'), t, H.hits[0] - 0.05, -900, 0, push(H.hits[0]))
+        if (k === 1) punchIn($('h2'), t, H.hits[1], 900, 0, push(H.hits[1]))
+        if (k === 2) punchIn($('h3'), t, H.hits[2], 0, 800, push(H.hits[2]))
+        if (k === 3) punchIn($('hs'), t, H.slip, 1100, 0)
+        const angle = swingOf(t, H.hits[0], 6) + swingOf(t, H.hits[1], -5) + swingOf(t, H.hits[2], 4)
+        const sq = squashOf(t, H.hits[0]) + squashOf(t, H.hits[1]) + squashOf(t, H.hits[2])
+        placeBag($('bag'), 1.19, 330, 120, angle, sq) // pytel oříznutý pravým okrajem, čísla před ním
+      }
+
+      function drawT(t) {
+        $('sT').querySelectorAll('.tline').forEach((line, i) => {
+          const text = line.querySelector('.t')
+          const bar = line.querySelector('.bar')
+          const w = text.offsetWidth
+          const x = lerp(-90, w + 10, easeInOut(prog(t, T.lines[i], 0.24)))
+          bar.style.transform = `translateX(${x}px)`
+          bar.style.display = t >= T.lines[i] && t < T.lines[i] + 0.24 ? '' : 'none'
+          text.style.clipPath = `inset(-20% ${Math.max(0, w - x)}px -20% 0)`
+        })
+        // jemný nájezd kamery
+        $('sT').querySelector('.title').style.transform = `scale(${1 + 0.03 * prog(t, T.from, T.to - T.from)})`
+      }
+
+      const roundWin = () => $('round').contentWindow
+      function roundState(t) {
+        const elapsed = Math.max(0, t - P.gong)
+        const left = Math.ceil(180 - elapsed - 1e-9)
+        const timer = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+        const words = (k) => COMBO.words.map((text, i) => ({ text, state: k < 0 ? '' : i < k ? 'done' : i === k ? 'now' : '' }))
+        const base = { timer, progress: elapsed / 180, count: '4 údery' }
+        if (t >= comboEnd) return { ...base, label: 'Kombo', words: words(-1), say: COMBO.say }
+        if (t >= starts[0]) {
+          const k = starts.filter((s) => s <= t).length - 1
+          return { ...base, label: 'Kombo', count: `Úder ${k + 1} ze 4`, words: words(k), say: COMBO.say }
+        }
+        return { ...base, label: 'Kombo', words: words(-1), say: 'Poslouchej trenéra.' }
+      }
+
+      function drawP(t) {
+        const caps = $('sP').querySelectorAll('.cap > div')
+        const capT = [P.from + 0.06, P.cap2, 99]
+        caps.forEach((cap, i) =>
+          cap.querySelectorAll('.mask > .t').forEach((el, j) => roll(el, t, capT[i] + (i ? 0.12 : 0) + j * 0.07, capT[i + 1] + j * 0.04)),
+        )
+        // telefon rovně zespodu, při slově komba lehce cukne
+        const pin = easeOutExpo(prog(t, P.from, 0.5))
+        let kick = 0
+        starts.forEach((s) => {
+          if (t >= s) kick += 14 * Math.exp(-(t - s) * 14) * Math.sin((t - s) * 40)
+        })
+        $('phone').style.transform = `translate(${kick}px, ${(1 - pin) * 1300}px)`
+        roundWin().setRound?.(roundState(t))
+        // velké pilulky komba vlevo — styl appky, naskakují s hlasem
+        $('pills').querySelectorAll('span').forEach((el, i) => {
+          const s = starts[i]
+          el.style.visibility = t >= s ? 'visible' : 'hidden'
+          const now = t >= s && (i === 3 ? t < comboEnd : t < starts[i + 1])
+          el.className = `${now ? 'now' : t >= s ? 'done' : ''}${i === 3 ? ' def' : ''}`
+          const p = prog(t, s, 0.16)
+          el.style.transform = `translateX(${(1 - easeOutExpo(p)) * -60}px) scale(${lerp(0.55, 1, easeOutBack(p, 2.4))})`
+        })
+        // obří pytel prolétne kamerou a zakryje záběr (přechod do funkcí)
+        const sw = prog(t, P.swing, P.to - P.swing)
+        show($('bagBig'), t >= P.swing)
+        if (t >= P.swing) placeBag($('bagBig'), 6, 540 - 446 * 6, 960 - 574 * 6, lerp(-13, 0, easeIn(sw)))
+      }
+
+      function drawF(t) {
+        const bi = beatIndex(t)
+        for (let i = 0; i < 5; i++) show($(`f${i}`), i === bi)
+        const b0 = F.beats[bi]
+        const beat = $(`f${bi}`)
+        const num = beat.querySelector('.num') ?? $('finis')
+        punchIn(num, t, b0, bi % 2 === 0 ? 1000 : -1000, 0, `scale(${1 + 0.04 * easeOut(prog(t, b0, 0.7))})`)
+        beat.querySelectorAll('.mask > .t').forEach((el, j) => roll(el, t, b0 + 0.05 + j * 0.06))
+        beat.querySelectorAll('.label').forEach((el) => (el.style.visibility = t >= b0 + 0.1 ? 'visible' : 'hidden'))
+        if (bi === 4) {
+          const n = $('naplno')
+          n.style.visibility = t >= ALL_OUT ? 'visible' : 'hidden'
+          n.style.transformOrigin = '0 50%'
+          n.style.transform = `scale(${lerp(1.5, 1, easeOutBack(prog(t, ALL_OUT, 0.16), 2))})`
+        }
+      }
+
+      function drawE(t) {
+        // pytel se zhoupne zleva a ustálí přesně jako ikona appky
+        const u = t - E.from
+        const angle = -26 * Math.exp(-u * 1.9) * Math.cos(2 * Math.PI * 0.75 * u)
+        placeBag($('bag'), 1218 / 1024, -55, 0, angle, squashOf(t, E.from + 0.33) * 0.4)
+        const wm = easeOutExpo(prog(t, E.from + 0.45, 0.35))
+        $('wordmark').style.clipPath = `inset(0 ${(1 - wm) * 100}% 0 0)`
+        $('sE').querySelectorAll('.cta .t').forEach((el, j) => roll(el, t, E.from + 0.5 + j * 0.1))
+        const n = Math.max(0, Math.min(URL.length, Math.floor((t - E.type) / TYPE_STEP) + 1))
+        $('url').textContent = t < E.type ? '' : URL.slice(0, n)
+        const typing = t >= E.type - 0.15 && n < URL.length
+        $('caret').style.visibility = t < E.type - 0.15 ? 'hidden' : typing || Math.floor(t * 2.4) % 2 === 0 ? 'visible' : 'hidden'
+        const hp = easeOut(prog(t, E.type + URL.length * TYPE_STEP + 0.1, 0.3))
+        $('hint').style.opacity = hp
+        $('hint').style.transform = `translateY(${(1 - hp) * 30}px)`
+      }
+
+      function seek(t) {
+        const on = (id, from, to) => $(id).classList.toggle('on', t >= from && t < to)
+        on('sH', 0, H.to)
+        on('sT', T.from, T.to)
+        on('sP', P.from, P.to)
+        on('sF', F.from, F.to)
+        on('sE', E.from, DURATION + 1)
+        for (const [k, v] of Object.entries(paletteAt(t))) $('stage').style.setProperty(`--${k}`, v)
+
+        show($('bag'), t < H.to || t >= E.from)
+        show($('bagBig'), false)
+        if (t < H.to) drawH(t)
+        else if (t < T.to) drawT(t)
+        else if (t < P.to) drawP(t)
+        else if (t < F.to) drawF(t)
+        else drawE(t)
+        $('speedPath').setAttribute('d', speedLines(t))
+
+        // kamera: úklon v háčku = celý záběr uhne a vrátí se; otřes při úderu
+        let x = 0
+        let r = 0
+        if (t >= H.slip && t < H.to) {
+          const u = t - H.slip
+          const away = easeOutExpo(prog(u, 0, 0.1)) * (1 - easeInOut(prog(u, 0.16, 0.34)))
+          x = -180 * away
+          r = -5 * away
+        }
+        let sx = 0
+        let sy = 0
+        HITS.forEach(([h], i) => {
+          const d = t - h / FPS
+          if (d < 0 || d > 0.5) return
+          const a = 22 * Math.exp(-d * 13)
+          sx += a * Math.sin(d * 2 * Math.PI * 17 + i)
+          sy += a * Math.sin(d * 2 * Math.PI * 21 + i * 2)
+        })
+        $('cam').style.transform = `translate(${x + sx}px, ${sy}px) rotate(${r}deg)`
+        for (const el of document.querySelectorAll('.label')) el.style.translate = `${-sx}px ${-sy}px`
+      }
+
+      // ---------- zvuk: bez hudby — hlasy a zvuky appky + syntéza ----------
+      async function renderAudio() {
+        const rate = 48000
+        const ctx = new OfflineAudioContext(2, Math.ceil(DURATION * rate), rate)
+        const rnd = mulberry32(7)
+        const master = ctx.createGain()
+        master.gain.value = 0.7
+        const comp = ctx.createDynamicsCompressor()
+        comp.threshold.value = -10
+        comp.knee.value = 6
+        comp.ratio.value = 4
+        comp.attack.value = 0.003
+        comp.release.value = 0.12
+        master.connect(comp).connect(ctx.destination)
+
+        // dozvuk: vygenerovaná odezva tělocvičny
+        const ir = ctx.createBuffer(2, Math.floor(rate * 1.6), rate)
+        for (let ch = 0; ch < 2; ch++) ir.getChannelData(ch).forEach((_, i, d) => (d[i] = (rnd() * 2 - 1) * Math.exp((-i / rate) * 4.2)))
+        const verb = ctx.createConvolver()
+        verb.buffer = ir
+        const wet = ctx.createGain()
+        wet.gain.value = 0.16
+        verb.connect(wet).connect(master)
+
+        const noise = ctx.createBuffer(1, rate * 3, rate)
+        noise.getChannelData(0).forEach((_, i, d) => (d[i] = rnd() * 2 - 1))
+        const sat = ctx.createWaveShaper() // vyšší harmonické, ať je sub slyšet i z telefonu
+        sat.curve = Float32Array.from({ length: 1024 }, (_, i) => Math.tanh(((i / 1023) * 2 - 1) * 3))
+        sat.connect(master)
+
+        function bus(level = 1, pan = 0, send = 0) {
+          const g = ctx.createGain()
+          g.gain.value = level
+          const p = ctx.createStereoPanner()
+          p.pan.value = pan
+          g.connect(p).connect(master)
+          if (send) {
+            const s = ctx.createGain()
+            s.gain.value = send
+            p.connect(s).connect(verb)
+          }
+          return g
+        }
+        function noiseSrc(t, dur) {
+          const src = ctx.createBufferSource()
+          src.buffer = noise
+          src.start(t, rnd() * 1.5, dur + 0.05)
+          return src
+        }
+        function burst(t, freq, q, level, decay, type, dest) {
+          const f = ctx.createBiquadFilter()
+          f.type = type
+          f.frequency.value = freq
+          f.Q.value = q
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(level, t)
+          g.gain.exponentialRampToValueAtTime(0.0001, t + decay)
+          noiseSrc(t, decay).connect(f).connect(g).connect(dest)
+        }
+        function tone(t, type, f0, f1, glide, level, attack, decay, dest) {
+          const o = ctx.createOscillator()
+          o.type = type
+          o.frequency.setValueAtTime(f0, t)
+          o.frequency.exponentialRampToValueAtTime(f1, t + glide)
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(0.0001, t)
+          g.gain.exponentialRampToValueAtTime(level, t + attack)
+          g.gain.exponentialRampToValueAtTime(0.0001, t + decay)
+          o.connect(g).connect(dest)
+          o.start(t)
+          o.stop(t + decay + 0.05)
+        }
+        /** Úder: prasknutí + tlumený úder do pytle + sub. */
+        function punch(t, level = 1, pan = 0) {
+          const b = bus(level, pan, 0.3)
+          tone(t, 'sine', 95, 38, 0.3, 0.9 * level, 0.003, 0.5, sat)
+          tone(t, 'sine', 140, 50, 0.1, 0.8, 0.002, 0.28, b)
+          burst(t, 700, 0.7, 0.6, 0.08, 'lowpass', b)
+          burst(t, 3000, 0.6, 0.5, 0.03, 'highpass', b)
+          burst(t, 1300, 1.5, 0.35, 0.02, 'bandpass', b)
+        }
+        /** Cinknutí řetězů pytle po zásahu. */
+        function chains(t, level = 1) {
+          for (let i = 0; i < 7; i++) {
+            const tt = t + 0.04 + rnd() * 0.3
+            const f = 2600 + rnd() * 2600
+            const b = bus(level * (0.05 + rnd() * 0.07), rnd() * 1.2 - 0.6)
+            tone(tt, 'sine', f, f, 0.01, 1, 0.001, 0.08 + rnd() * 0.08, b)
+            tone(tt, 'sine', f * 2.76, f * 2.76, 0.01, 0.5, 0.001, 0.05, b)
+          }
+        }
+        function whoosh(t, dur, f0, f1, level, pan0 = 0, pan1 = 0) {
+          const f = ctx.createBiquadFilter()
+          f.type = 'bandpass'
+          f.Q.value = 1.3
+          f.frequency.setValueAtTime(f0, t)
+          f.frequency.exponentialRampToValueAtTime(f1, t + dur)
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(0.0001, t)
+          g.gain.linearRampToValueAtTime(level, t + dur * 0.75)
+          g.gain.linearRampToValueAtTime(0.0001, t + dur)
+          const p = ctx.createStereoPanner()
+          p.pan.setValueAtTime(pan0, t)
+          p.pan.linearRampToValueAtTime(pan1, t + dur)
+          noiseSrc(t, dur).connect(f).connect(g).connect(p).connect(master)
+        }
+        function tick(t, f, level, pan = 0) {
+          const b = bus(level, pan)
+          tone(t, 'sine', f, f * 0.8, 0.02, 0.8, 0.001, 0.03, b)
+          burst(t, 6000, 0.7, 0.4, 0.008, 'highpass', b)
+        }
+        function riser(t0, t1, level) {
+          const f = ctx.createBiquadFilter()
+          f.type = 'highpass'
+          f.frequency.setValueAtTime(400, t0)
+          f.frequency.exponentialRampToValueAtTime(7000, t1)
+          const g = ctx.createGain()
+          g.gain.setValueAtTime(0.0001, t0)
+          g.gain.exponentialRampToValueAtTime(level, t1 - 0.02)
+          g.gain.linearRampToValueAtTime(0, t1)
+          noiseSrc(t0, t1 - t0).connect(f).connect(g).connect(master)
+        }
+        // gong a klepnutí stejnou syntézou jako src/audio/sounds.ts
+        function strike(t) {
+          const b = bus(0.42, 0, 0.3)
+          for (const [ratio, amp] of [[1, 1], [2.32, 0.55], [4.25, 0.32], [6.63, 0.18]]) {
+            tone(t, 'sine', 830 * ratio, 830 * ratio, 0.01, amp, 0.005, 1.6 / Math.sqrt(ratio), b)
+          }
+          burst(t, 3200, 0.8, 0.5, 0.04, 'bandpass', b)
+        }
+        const bell = (t, times) => {
+          for (let i = 0; i < times; i++) strike(t + 0.02 + i * 0.42)
+        }
+        const clap = (t) => burst(t, 2000, 1.2, 1, 0.06, 'bandpass', bus(1, 0, 0.25))
+        function voice(t, key, level = 1, pan = 0) {
+          const c = clips[key]
+          const src = ctx.createBufferSource()
+          src.buffer = c.buffer
+          src.connect(bus(level, pan, 0.1))
+          src.start(t, c.offset, c.duration)
+        }
+
+        // háček: kombo, pytel, řetězy
+        ;['n1', 'n2', 't3'].forEach((id, i) => {
+          const h = H.hits[i]
+          if (i) whoosh(h - 0.11, 0.12, 900, 5000, 0.4, i % 2 ? 0.7 : -0.7, 0)
+          punch(h, 1, [-0.25, 0.25, 0][i])
+          chains(h, 1)
+          voice(h + (i ? LEAD : 0), `harry/${id}`)
+        })
+        whoosh(H.slip - 0.02, 0.18, 600, 4500, 0.55, 0.7, -0.7)
+        voice(H.slip + LEAD, 'harry/uklon')
+        // titulek: lano přejede řádek
+        T.lines.forEach((t, i) => {
+          whoosh(t, 0.24, 1500, 5000, 0.3, -0.6, 0.6)
+          punch(t + 0.22, 0.25 + i * 0.05)
+        })
+        // appka
+        whoosh(P.from - 0.04, 0.4, 200, 2200, 0.45)
+        punch(P.from + 0.3, 0.35)
+        bell(P.gong, 1)
+        COMBO.clips.forEach((id, i) => {
+          voice(starts[i], `harry/${id}`)
+          tick(starts[i], 1700, 0.18, -0.4)
+        })
+        tick(P.cap2 + 0.12, 2400, 0.15)
+        // pytel prolétne kamerou
+        whoosh(P.swing - 0.05, P.to - P.swing + 0.1, 120, 900, 0.9)
+        burst(P.to - 0.1, 400, 0.6, 0.4, 0.25, 'lowpass', bus(1, 0, 0.3))
+        // funkce = kombo 1-2-3-4, každé číslo jiný hlas
+        F.beats.slice(0, 4).forEach((b, i) => {
+          if (i) whoosh(b - 0.11, 0.12, 900, 5000, 0.35, i % 2 ? -0.7 : 0.7, 0)
+          punch(b, 0.9, i % 2 ? -0.2 : 0.2)
+          voice(b + LEAD, F_VOICES[i])
+        })
+        punch(F.beats[4], 0.6)
+        CLAPS.forEach((t) => clap(t))
+        riser(ALL_OUT + 0.3, E.from, 0.18)
+        punch(ALL_OUT, 1)
+        voice(ALL_OUT + LEAD, 'harry/naplno')
+        // výzva: pytel přiletí, konec kola
+        whoosh(E.from - 0.02, 0.35, 250, 2000, 0.5, -0.8, 0.2)
+        punch(E.from + 0.33, 0.55)
+        chains(E.from + 0.33, 1.2)
+        bell(E.bell, 3)
+        voice(E.time, 'harry/hotovo')
+        for (let i = 0; i < URL.length; i++) tick(E.type + i * TYPE_STEP, 1600 + rnd() * 900, 0.08, rnd() * 0.4 - 0.2)
+
+        const out = await ctx.startRendering()
+        const L = out.getChannelData(0)
+        const R = out.getChannelData(1)
+        // WAV 16 bit stereo
+        const n = L.length
+        const buf = new DataView(new ArrayBuffer(44 + n * 4))
+        const str = (o, s) => [...s].forEach((ch, i) => buf.setUint8(o + i, ch.charCodeAt(0)))
+        str(0, 'RIFF')
+        buf.setUint32(4, 36 + n * 4, true)
+        str(8, 'WAVEfmt ')
+        buf.setUint32(16, 16, true)
+        buf.setUint16(20, 1, true)
+        buf.setUint16(22, 2, true)
+        buf.setUint32(24, rate, true)
+        buf.setUint32(28, rate * 4, true)
+        buf.setUint16(32, 4, true)
+        buf.setUint16(34, 16, true)
+        str(36, 'data')
+        buf.setUint32(40, n * 4, true)
+        const s16 = (v) => Math.max(-1, Math.min(1, v)) * 0x7fff
+        for (let i = 0; i < n; i++) {
+          buf.setInt16(44 + i * 4, s16(L[i]), true)
+          buf.setInt16(46 + i * 4, s16(R[i]), true)
+        }
+        let bin = ''
+        const bytes = new Uint8Array(buf.buffer)
+        for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+        return btoa(bin)
+      }
+
+      // ---------- start ----------
+      /** Řádek přesně na šířku sazby (936 px) — titulky stojí na mřížce. */
+      function fitAll() {
+        const hidden = [...document.querySelectorAll('.scene, .beat')].map((s) => [s, s.style.display])
+        hidden.forEach(([s]) => (s.style.display = 'block'))
+        for (const el of document.querySelectorAll('.fit')) {
+          el.style.fontSize = '100px'
+          el.style.fontSize = `${(100 * 936) / el.getBoundingClientRect().width}px`
+        }
+        hidden.forEach(([s, d]) => (s.style.display = d))
+      }
+      const frameLoaded = new Promise((r) => {
+        if ($('round').contentDocument?.readyState === 'complete' && $('round').contentWindow.setRound) r()
+        else $('round').addEventListener('load', () => r(), { once: true })
+      })
+      window.ready = (async () => {
+        $('pills').innerHTML = COMBO.words.map((w) => `<span>${w}</span>`).join('')
+        await loadClips(new OfflineAudioContext(1, 1, 48000))
+        buildTimeline()
+        await frameLoaded
+        // písmo s háčky (latin-ext) se jinak stáhne až při prvním zobrazení — měření by vyšlo ze záložního
+        await document.fonts.load('900 100px Archivo', 'ŽÁÉÍŘČÚŮĚŠÝ→')
+        await document.fonts.load('500 100px Archivo', 'ŽÁÉÍŘČÚŮĚŠÝ→')
+        await document.fonts.ready
+        await $('round').contentDocument.fonts.ready
+        fitAll()
+        seek(0)
+      })()
+      window.seek = async (t) => {
+        seek(t)
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      }
+      window.renderAudio = renderAudio
+      window.FPS = FPS
+      window.DURATION = DURATION
+      window.SUBFRAMES = SUBFRAMES
+      window.GRAIN = GRAIN
+
+      // Náhled: ?play přehrává dokola (bez zvuku), ?t=5.4 ukáže jeden okamžik.
+      const q = new URLSearchParams(location.search)
+      window.ready.then(() => {
+        if (q.has('t')) seek(Number(q.get('t')))
+        if (q.has('play')) {
+          const t0 = performance.now()
+          const loop = (now) => {
+            seek(((now - t0) / 1000) % DURATION)
+            requestAnimationFrame(loop)
+          }
+          requestAnimationFrame(loop)
+        }
+      })
+    </script>
+  </body>
+</html>
