@@ -4,7 +4,7 @@ import { bell } from './audio/sounds'
 import { loadVoice } from './audio/voice'
 import { BUILTIN_COMBOS } from './data/combos'
 import { voiceLang } from './data/voices'
-import type { Intensity, IntensityChoice } from './engine/constants'
+import type { IntensityChoice } from './engine/constants'
 import { buildPlan, type PlanAnswers } from './engine/plan'
 import { buildPool, focusPool } from './engine/selector'
 import type { WorkoutConfig } from './engine/timeline'
@@ -83,8 +83,6 @@ export default function App() {
   const sessions = useMemo(() => (plan ? buildPlan(plan.answers) : []), [plan])
   const nextIndex = plan && plan.done < sessions.length ? plan.done : null
   const next = nextIndex === null ? null : sessions[nextIndex]
-  // Délky komb v seznamech: u stupňované intenzity Středním tempem (7.10).
-  const listTempo: Intensity = config.intensity === 'ramp' ? 1 : config.intensity
 
   const matching = presets.find((p) => sameConfig(p.config, config))
   /** Karta na Domů: další trénink plánu, jinak vlastní nastavení (9.1). */
@@ -220,9 +218,8 @@ export default function App() {
           all={all}
           library={library}
           onLibrary={setLibrary}
-          intensity={listTempo}
           voice={settings.voice}
-          actionMs={settings.actionMs}
+          pace={settings}
           silentOverride={settings.silentOverride}
           onBack={home}
         />
@@ -233,9 +230,8 @@ export default function App() {
           all={all}
           library={library}
           onLibrary={setLibrary}
-          intensity={listTempo}
           voice={settings.voice}
-          actionMs={settings.actionMs}
+          pace={settings}
           silentOverride={settings.silentOverride}
           onBack={home}
         />

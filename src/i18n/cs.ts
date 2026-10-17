@@ -249,6 +249,8 @@ export const cs = {
     cantHear: 'Nic neslyšíš?',
     cantHearText:
       'iPhone je asi v tichém režimu — vypni ho, nebo níž zapni „Hrát i v tichém režimu“ (zastaví ale hudbu z telefonu).',
+    pause: 'Pauza po kombinaci',
+    pauseNote: 'Odpočinek, než zazní další kombinace. Lehká intenzita přidá 1 s, Tvrdá 1 s ubere.',
     actionTime: 'Čas na úder',
     seconds: (ms: number) => `${String(ms / 1000).replace('.', ',')} s`,
     actionTimeNote: 'Na každý úder i pohyb obrany. Kratší = svižnější kombinace.',

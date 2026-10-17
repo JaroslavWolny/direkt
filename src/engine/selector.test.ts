@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { BUILTIN_COMBOS, type Combo, type Level } from '../data/combos'
-import { ACTION_MS_CHOICES, FIRST_CALL_DELAY_MS, INTENSITIES, MAX_REPEATS, WARNING_BEFORE_END_MS } from './constants'
+import {
+  ACTION_MS_CHOICES,
+  DEFAULT_PAUSE_MS,
+  FIRST_CALL_DELAY_MS,
+  INTENSITIES,
+  MAX_REPEATS,
+  WARNING_BEFORE_END_MS,
+} from './constants'
 import { mulberry32 } from './random'
 import { buildPool, createSelector, shouldRepeat } from './selector'
 import { comboWindowMs, fitsInRound, gapMs, inFinisher, tempoForRound } from './timing'
@@ -82,12 +89,17 @@ describe('createSelector', () => {
 })
 
 describe('načasování', () => {
-  it('mezera = základ tempa + čas na úder × akce', () => {
-    expect([2, 4, 7].map((a) => gapMs(a, 0, 700))).toEqual([4200, 5600, 7700])
-    expect([2, 4, 7].map((a) => gapMs(a, 1, 700))).toEqual([3200, 4600, 6700])
-    expect([2, 4, 7].map((a) => gapMs(a, 2, 700))).toEqual([2200, 3600, 5700])
-    expect([2, 4, 7].map((a) => gapMs(a, 1, 500))).toEqual([2800, 3800, 5300])
-    expect([2, 4, 7].map((a) => gapMs(a, 1, 300))).toEqual([2400, 3000, 3900])
+  it('mezera = pauza po kombinaci (tempo ±1 s) + čas na úder × akce', () => {
+    const pace = { pauseMs: 1000, actionMs: 500 }
+    expect([2, 4, 7].map((a) => gapMs(a, 1, pace))).toEqual([2000, 3000, 4500])
+    expect([2, 4, 7].map((a) => gapMs(a, 0, pace))).toEqual([3000, 4000, 5500])
+    expect([2, 4, 7].map((a) => gapMs(a, 2, pace))).toEqual([1000, 2000, 3500])
+    expect(gapMs(3, 1, { pauseMs: 3000, actionMs: 300 })).toBe(3900)
+  })
+
+  it('Tvrdé tempo pauzu nezkrátí pod nulu', () => {
+    expect(gapMs(2, 2, { pauseMs: 500, actionMs: 400 })).toBe(800)
+    expect(gapMs(2, 2, { pauseMs: 0, actionMs: 400 })).toBe(800)
   })
 
   it('poslední kombo kola se vždy stihne vyslovit i provést před gongem', () => {
@@ -96,6 +108,7 @@ describe('načasování', () => {
         // Délka hlášení jako u klipů: ~0,45–0,7 s na slovo + 70 ms mezi slovy.
         for (const perClipMs of [450, 700]) {
           for (const actionMs of ACTION_MS_CHOICES) {
+            const pace = { pauseMs: DEFAULT_PAUSE_MS, actionMs }
             const roundMs = roundSec * 1000
             const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(roundSec + intensity))
             let t = FIRST_CALL_DELAY_MS
@@ -105,7 +118,7 @@ describe('načasování', () => {
               const speech = perClipMs * combo.moves.length + 70 * (combo.moves.length - 1)
               if (!fitsInRound(roundMs - t, speech, combo.moves.length, actionMs)) break
               expect(t + speech + actionMs * combo.moves.length).toBeLessThanOrEqual(roundMs)
-              t += speech + gapMs(combo.moves.length, intensity, actionMs)
+              t += speech + gapMs(combo.moves.length, intensity, pace)
               called++
             }
             expect(called).toBeGreaterThan(3)
@@ -129,6 +142,7 @@ describe('finiš (7.8)', () => {
   it('žádné kombo nepřetáhne do finiše', () => {
     for (const intensity of INTENSITIES) {
       for (const actionMs of ACTION_MS_CHOICES) {
+        const pace = { pauseMs: DEFAULT_PAUSE_MS, actionMs }
         const roundMs = 60_000
         const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(7 + intensity))
         let t = FIRST_CALL_DELAY_MS
@@ -138,7 +152,7 @@ describe('finiš (7.8)', () => {
           const speech = 700 * combo.moves.length + 70 * (combo.moves.length - 1)
           if (!fitsInRound(comboWindowMs(roundMs - t, roundMs), speech, combo.moves.length, actionMs)) break
           expect(t + speech + actionMs * combo.moves.length).toBeLessThanOrEqual(roundMs - WARNING_BEFORE_END_MS)
-          t += speech + gapMs(combo.moves.length, intensity, actionMs)
+          t += speech + gapMs(combo.moves.length, intensity, pace)
           called++
         }
         expect(called).toBeGreaterThan(2)

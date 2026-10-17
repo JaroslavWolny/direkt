@@ -76,6 +76,9 @@ describe('obranné čtení úložiště', () => {
       prepSec: 5,
     })
     expect(sanitizeSettings({ prepSec: 22.4 }).prepSec).toBe(20)
+    expect(sanitizeSettings({}).pauseMs).toBe(1000)
+    expect(sanitizeSettings({ pauseMs: 0 }).pauseMs).toBe(0)
+    expect(sanitizeSettings({ pauseMs: 1500 }).pauseMs).toBe(1000)
     expect(sanitizeSettings({}).actionMs).toBe(500)
     expect(sanitizeSettings({ actionMs: 300 }).actionMs).toBe(300)
     expect(sanitizeSettings({ actionMs: 450 }).actionMs).toBe(500)

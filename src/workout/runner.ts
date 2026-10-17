@@ -156,10 +156,7 @@ export class WorkoutRunner {
     if (phaseAt(this.segs, now).phase === 'round') {
       // Po pauze celá mezera posledního komba, ne její zbytek (7.3).
       this.nextCallAt =
-        now +
-        (this.lastCombo
-          ? gapMs(this.lastCombo.moves.length, this.tempo(), this.settings.actionMs)
-          : FIRST_CALL_DELAY_MS)
+        now + (this.lastCombo ? gapMs(this.lastCombo.moves.length, this.tempo(), this.settings) : FIRST_CALL_DELAY_MS)
     }
     this.tick()
   }
@@ -303,7 +300,7 @@ export class WorkoutRunner {
     this.punches += combo.moves.filter((m) => !isDefense(m)).length
     this.speak(clips, again ? PHRASES[this.lang].znovu : speechText(combo.moves, this.lang), () => {
       this.speaking = false
-      this.nextCallAt = this.elapsed() + gapMs(combo.moves.length, this.tempo(), this.settings.actionMs)
+      this.nextCallAt = this.elapsed() + gapMs(combo.moves.length, this.tempo(), this.settings)
     })
   }
 

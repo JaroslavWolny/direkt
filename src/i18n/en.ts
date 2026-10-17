@@ -244,6 +244,8 @@ export const en: Strings = {
     cantHear: "Can't hear anything?",
     cantHearText:
       'Your iPhone is probably in Silent mode — turn it off, or turn on “Play in Silent mode” below (it stops music on your phone, though).',
+    pause: 'Rest after combo',
+    pauseNote: 'Rest before the next combo is called. Easy pace adds 1 s, Hard takes 1 s off.',
     actionTime: 'Time per punch',
     seconds: (ms) => `${ms / 1000} s`,
     actionTimeNote: 'For every punch and defensive move. Shorter = snappier combos.',

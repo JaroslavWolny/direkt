@@ -3,12 +3,14 @@ import { LEVELS, type Combo, type Level } from '../data/combos'
 import { DEFAULT_VOICE, isVoiceId, type VoiceId } from '../data/voices'
 import { isLang, detectLang, type Lang } from '../i18n'
 import { isMove } from '../data/moves'
-import { ACTION_MS_CHOICES, DEFAULT_ACTION_MS, INTENSITY_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
+import { ACTION_MS_CHOICES, DEFAULT_ACTION_MS, DEFAULT_PAUSE_MS, INTENSITY_CHOICES, PAUSE_MS_CHOICES, LIMITS, type IntensityChoice, type Limit } from '../engine/constants'
 import { EXPERIENCES, GOALS, MINUTES, PER_WEEK, PLAN_WEEKS, type Experience, type Minutes, type PerWeek, type PlanAnswers } from '../engine/plan'
 import type { WorkoutConfig } from '../engine/timeline'
 
 export interface Settings {
   prepSec: number
+  /** Pauza po kombinaci v ms (7.2). */
+  pauseMs: number
   /** Čas na úder v ms (7.2). */
   actionMs: number
   silentOverride: boolean
@@ -47,6 +49,7 @@ export const MAX_NAME = 30
 export const DEFAULT_CONFIG: WorkoutConfig = { rounds: 3, roundSec: 180, restSec: 60, level: 0, intensity: 1 }
 export const DEFAULT_SETTINGS: Settings = {
   prepSec: 15,
+  pauseMs: DEFAULT_PAUSE_MS,
   actionMs: DEFAULT_ACTION_MS,
   silentOverride: false,
   autoPause: true,
@@ -109,6 +112,7 @@ export function sanitizeSettings(x: unknown, firstRunLang: Lang = DEFAULT_SETTIN
   const d = DEFAULT_SETTINGS
   return {
     prepSec: clampToLimit(o.prepSec, LIMITS.prepSec, d.prepSec),
+    pauseMs: pickFrom<number>(o.pauseMs, PAUSE_MS_CHOICES, d.pauseMs),
     actionMs: pickFrom<number>(o.actionMs, ACTION_MS_CHOICES, d.actionMs),
     silentOverride: o.silentOverride === true,
     autoPause: o.autoPause !== false,

@@ -296,11 +296,15 @@ Co žádný trenér neuvádí, v appce není.
 
 ### 7.2 Načasování hlášení
 
-- **Mezera** (od konce řeči do dalšího hlášení) = `základ[tempo] + čas na úder × počet akcí`.
-  Akce = každý úder i obranný pohyb. Tempo = zvolená intenzita, u stupňované tempo
-  aktuálního kola (7.10).
-- `základ`: **Lehké 2800 ms, Střední 1800 ms, Tvrdé 800 ms.** (Doladěné na pytli —
-  AveReiDev/strikr PROJECT-STATUS.)
+- **Mezera** (od konce řeči do dalšího hlášení) = `pauza po kombinaci[tempo] + čas na úder ×
+  počet akcí`. Akce = každý úder i obranný pohyb. Obě čísla si boxer volí v Nastavení (9.6).
+- **Pauza po kombinaci** (v14, uživatel 17. 10. 2026: „chci mít v nastavení čas po řeknutí
+  kombinace a na to udělání kombinace" → vybral dvě volby zvlášť): **0 / 0,5 / 1 / 2 / 3 s**,
+  **výchozí 1 s**. Platí přesně při Středním tempu. Tempo dál nastavují plán (7.11), uložené
+  tréninky (9.5) a panel v kole (9.2): **Lehké +1 s, Tvrdé −1 s** (nejmíň 0), u Rostoucí
+  tempo aktuálního kola (7.10). Rozdíly ±1 s jsou z dřívějších základů Lehké 2800 /
+  Střední 1800 / Tvrdé 800 ms (doladěné na pytli — AveReiDev/strikr PROJECT-STATUS); pevné
+  základy v14 nahradila volba.
 - **Čas na úder** (v14, uživatel 17. 10. 2026: „app dává dlouhý čas na tu kombinaci, chci to
   svižnější… možnost volby v nastavení"): volba v Nastavení (9.6) **0,3 / 0,4 / 0,5 / 0,6 /
   0,7 s**, **výchozí 0,5 s**, stejný pro všechna tempa. Dřív pevně 0,7 s (STRIKR) — s dlouhými
@@ -395,7 +399,7 @@ nepřehrávají (jen se dorovná stav) a hlášení naváže 1,5 s po návratu.
 - Úroveň komb se nemění, jen tempo (mezera mezi komby).
 - Přepnutí na pevné tempo v panelu během kola platí od dalšího komba; zpět na Rostoucí
   vrátí tempo podle kola.
-- Délky komb v seznamech (9.3) se u Rostoucí počítají Středním tempem.
+- Délky komb v seznamech (9.3) se počítají vždy Středním tempem (v14 — intenzita v Nastavení už není).
 - Čistá funkce `tempoForRound` v `src/engine/timing.ts`, testovaná.
 
 ### 7.11 Plán (`src/engine/plan.ts`, v9)
@@ -599,8 +603,8 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   Ú úklon · Z záklon · D dolů (ponor) · K kryt · V vzad · S stranou (úkrok)" (kap. 5).
 - Řádek: **název** (generovaný z úderů: „Direkt – Zadní direkt – Hák na tělo", kap. 5; vlastní kombinace má svůj),
   PunchSequence S (28 px: číslo = ink kolečko, úder na tělo „3T" a obrana = akcentová
-  obrysová pilulka se zkratkou); vpravo délka `m:ss` (hlášení + mezera při aktuální
-  intenzitě) a úroveň. Vypnuté kombo je zesvětlené.
+  obrysová pilulka se zkratkou); vpravo délka `m:ss` (hlášení + mezera Středním tempem
+  podle Nastavení, 7.2) a úroveň. Vypnuté kombo je zesvětlené.
 - Ťuk na řádek → **detail** (panel): velká sekvence, název, úroveň, ▶ Poslechnout (hlas ho
   řekne), přepínač „Zařadit do tréninku" (dřívější zapnout/vypnout), u vlastního Smazat.
 
@@ -651,11 +655,14 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - **Hlas trenéra:** řádek pro každý hlas (jméno + „Angličtina · bojovník" apod.), ťuk na řádek
   = vybrat (kolečko vlevo), akcentové play vpravo = ukázka „One, two, three body, slip" v tom
   hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
-- **Intenzita:** segmenty Lehká / Střední / Tvrdá / Rostoucí (7.10).
+- **Pauza po kombinaci** (v14, 7.2): segmenty 0 s · 0,5 s · 1 s · 2 s · 3 s, poznámka
+  „Odpočinek, než zazní další kombinace. Lehká intenzita přidá 1 s, Tvrdá 1 s ubere."
 - **Čas na úder** (v14, 7.2): segmenty 0,3 s · 0,4 s · 0,5 s · 0,6 s · 0,7 s (anglicky s tečkou),
-  pod nimi poznámka „Na každý úder i pohyb obrany. Kratší = svižnější kombinace." Platí
-  všude, i v plánu (je to rychlost boxera, ne parametr tréninku); délky kombinací v seznamech
-  (9.3) se počítají s ním. V panelu v kole není.
+  pod nimi poznámka „Na každý úder i pohyb obrany. Kratší = svižnější kombinace."
+- Obě volby platí všude, i v plánu (je to rychlost boxera, ne parametr tréninku); délky
+  kombinací v seznamech (9.3) se počítají s nimi. V panelu v kole nejsou.
+- **Intenzita** v Nastavení **není** (v14, nahradily ji obě volby výš). Tempo zůstává
+  v plánu, uložených trénincích a v panelu v kole (9.2).
 - **Úroveň:** segmenty Začátečník / Pokročilý / Expert (navíc oproti předloze).
 - **Kolo:** krokovače Počet kol, Délka kola (1:00–10:00 po 0:30), Pauza mezi koly
   (0:15–3:00 po 0:15), Odpočet (před startem, 5–60 s).
@@ -825,7 +832,7 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 | Klíč | Obsah |
 |---|---|
 | `config` | aktuální nastavení tréninku (7.4); `intensity` = 0 / 1 / 2 / `'ramp'` (Rostoucí) |
-| `settings` | `prepSec`, `actionMs` (čas na úder 300–700 po 100, výchozí 500, jiná hodnota → 500; 7.2), `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1), `lang` (`cs` / `en`, 9.8; chybí u uloženého nastavení → `cs`, bez nastavení → jazyk zařízení) |
+| `settings` | `prepSec`, `pauseMs` (pauza po kombinaci 0 / 500 / 1000 / 2000 / 3000, výchozí 1000, jiná hodnota → 1000; 7.2), `actionMs` (čas na úder 300–700 po 100, výchozí 500, jiná hodnota → 500; 7.2), `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1), `lang` (`cs` / `en`, 9.8; chybí u uloženého nastavení → `cs`, bez nastavení → jazyk zařízení) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
 | `presetsVersion` | verze vestavěného seznamu, kterou už `presets` obsahuje (chybí = 1, v10 = 2); starší → doplní se tréninky, které od té verze přibyly (9.5) |

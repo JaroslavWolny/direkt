@@ -2,15 +2,18 @@
 
 export type Intensity = 0 | 1 | 2
 export const INTENSITIES: readonly Intensity[] = [0, 1, 2]
-/** Volba v nastavení: pevné tempo, nebo stupňované po kolech (7.10). */
+/** Tempo tréninku (plán, uložené tréninky, panel v kole): pevné, nebo stupňované po kolech (7.10). */
 export type IntensityChoice = Intensity | 'ramp'
 export const INTENSITY_CHOICES: readonly IntensityChoice[] = [...INTENSITIES, 'ramp']
 
+/** Pauza po kombinaci (odpočinek před dalším hlášením), volba v Nastavení; platí při Středním tempu. */
+export const PAUSE_MS_CHOICES = [0, 500, 1000, 2000, 3000] as const
+export const DEFAULT_PAUSE_MS = 1000
+/** Tempo Lehké pauzu prodlouží, Tvrdé zkrátí (nejmíň na 0). */
+export const TEMPO_SHIFT_MS = 1000
 /** Čas na provedení jedné akce (úder i obrana), volba v Nastavení, stejný pro všechna tempa. */
 export const ACTION_MS_CHOICES = [300, 400, 500, 600, 700] as const
 export const DEFAULT_ACTION_MS = 500
-/** Základ mezery od konce řeči do dalšího hlášení podle tempa. */
-export const BASE_GAP_MS: Record<Intensity, number> = { 0: 2800, 1: 1800, 2: 800 }
 /** První hlášení po startovním gongu. */
 export const FIRST_CALL_DELAY_MS = 1500
 

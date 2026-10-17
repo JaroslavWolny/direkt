@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LEVELS, type Combo, type Level } from '../data/combos'
 import { comboTitle, isDefense, speechText } from '../data/moves'
 import type { VoiceId } from '../data/voices'
-import type { Intensity } from '../engine/constants'
+import type { Pace } from '../engine/timing'
 import { getLang, t } from '../i18n'
 import type { Library } from '../store/storage'
 import { ComboDetail } from './ComboDetail'
@@ -28,15 +28,14 @@ interface Props {
   all: readonly Combo[]
   library: Library
   onLibrary: (l: Library) => void
-  intensity: Intensity
   voice: VoiceId
-  actionMs: number
+  pace: Pace
   silentOverride: boolean
   onBack: () => void
 }
 
 /** Komba (DOKUMENTACE.md 9.3, Komba.html). */
-export function CombosScreen({ all, library, onLibrary, intensity, voice, actionMs, silentOverride, onBack }: Props) {
+export function CombosScreen({ all, library, onLibrary, voice, pace, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
   const s = t().combos
   const filters: { value: Filter; label: string }[] = [
@@ -117,7 +116,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, action
                 <PunchSequence moves={c.moves} />
               </span>
               <span className="side">
-                <span>{formatSec(comboSec(c.moves, intensity, voice, actionMs))}</span>
+                <span>{formatSec(comboSec(c.moves, voice, pace))}</span>
                 <span>{t().level[c.level]}</span>
               </span>
             </span>
@@ -135,9 +134,8 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, action
         <ComboDetail
           combo={detail}
           enabled={!disabled.has(detail.id)}
-          intensity={intensity}
           voice={voice}
-          actionMs={actionMs}
+          pace={pace}
           silentOverride={silentOverride}
           onToggle={(on) => setEnabled(detail.id, on)}
           onClose={() => setDetailId(null)}

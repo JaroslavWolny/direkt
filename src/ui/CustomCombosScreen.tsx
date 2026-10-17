@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Combo } from '../data/combos'
 import type { VoiceId } from '../data/voices'
-import type { Intensity } from '../engine/constants'
+import type { Pace } from '../engine/timing'
 import { t } from '../i18n'
 import type { Library } from '../store/storage'
 import { ComboBuilder } from './ComboBuilder'
@@ -16,15 +16,14 @@ interface Props {
   all: readonly Combo[]
   library: Library
   onLibrary: (l: Library) => void
-  intensity: Intensity
   voice: VoiceId
-  actionMs: number
+  pace: Pace
   silentOverride: boolean
   onBack: () => void
 }
 
 /** Vlastní komba (DOKUMENTACE.md 9.4, VlastniKomba.html). */
-export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, actionMs, silentOverride, onBack }: Props) {
+export function CustomCombosScreen({ all, library, onLibrary, voice, pace, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
   const s = t().custom
   const [building, setBuilding] = useState(false)
@@ -79,7 +78,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
                 <span className="row-body">
                   <span className="head">
                     <span className="name">{c.name ?? s.fallbackName}</span>
-                    <span className="time">{formatSec(comboSec(c.moves, intensity, voice, actionMs))}</span>
+                    <span className="time">{formatSec(comboSec(c.moves, voice, pace))}</span>
                   </span>
                   <PunchSequence moves={c.moves} size="m" />
                 </span>
@@ -105,9 +104,8 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
         <ComboDetail
           combo={detail}
           enabled={!disabled.has(detail.id)}
-          intensity={intensity}
           voice={voice}
-          actionMs={actionMs}
+          pace={pace}
           silentOverride={silentOverride}
           onToggle={(on) => setEnabled(detail.id, on)}
           onDelete={() => remove(detail.id)}

@@ -2,7 +2,7 @@ import { clipsFor, previewClips } from '../audio/voice'
 import type { Combo } from '../data/combos'
 import { comboTitle } from '../data/moves'
 import type { VoiceId } from '../data/voices'
-import type { Intensity } from '../engine/constants'
+import type { Pace } from '../engine/timing'
 import { getLang, t } from '../i18n'
 import { IconButton, Sheet, SwitchRow } from './controls'
 import { comboSec, formatSec } from './format'
@@ -12,9 +12,8 @@ import { PunchSequence } from './punch'
 interface Props {
   combo: Combo
   enabled: boolean
-  intensity: Intensity
   voice: VoiceId
-  actionMs: number
+  pace: Pace
   silentOverride: boolean
   onToggle: (on: boolean) => void
   onDelete?: () => void
@@ -22,7 +21,7 @@ interface Props {
 }
 
 /** Detail komba (DOKUMENTACE.md 9.3): poslech, zařazení do tréninku, u vlastního smazání. */
-export function ComboDetail({ combo, enabled, intensity, voice, actionMs, silentOverride, onToggle, onDelete, onClose }: Props) {
+export function ComboDetail({ combo, enabled, voice, pace, silentOverride, onToggle, onDelete, onClose }: Props) {
   const s = t().combos
   const name = combo.name ?? comboTitle(combo.moves, getLang())
   return (
@@ -35,7 +34,7 @@ export function ComboDetail({ combo, enabled, intensity, voice, actionMs, silent
       </div>
       <PunchSequence moves={combo.moves} size="m" />
       <p className="label-15 muted">
-        {t().level[combo.level]} · {s.inRound(formatSec(comboSec(combo.moves, intensity, voice, actionMs)))}
+        {t().level[combo.level]} · {s.inRound(formatSec(comboSec(combo.moves, voice, pace)))}
       </p>
       <div className="group">
         <div className="group-row tall">

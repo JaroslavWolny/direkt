@@ -24,7 +24,8 @@ kola, mezi koly běží pauza. Jen box. Web appka přidaná na plochu — offlin
   **vlastní kombinace** z klávesnice úderů.
 - **Kola, pauza, odpočet** nastavitelné; 4 tempa — lehké, střední, tvrdé a rostoucí (od
   lehkého v prvním kole po tvrdé v posledním).
-- **Čas na úder** 0,3–0,7 s (výchozí 0,5 s) — jak svižně jdou kombinace za sebou.
+- **Pauza po kombinaci** (0–3 s) a **čas na úder** (0,3–0,7 s) v Nastavení — kolik času dostaneš
+  po vyhlášení kombinace, než zazní další.
 - **Finiš:** posledních 10 s kola „Naplno!" a žádné kombinace, jen údery do gongu.
   Trenér občas zavelí **„Znovu!"** — stejná kombinace ještě jednou.
 - **9 uložených tréninků** podle pravidel a trenérské praxe (rozcvička, amatérský zápas 3 × 3,
@@ -97,7 +98,7 @@ i cache.
   `cs-CZ-AntoninNeural`.
 - Číslování úderů a česká terminologie: zdroje v DOKUMENTACE.md, kap. 5.
 - Kombinace: každá má v DOKUMENTACE.md, kap. 6 trenéra a odkaz na lekci nebo článek.
-- Čas na úder: měření závodních boxerů
+- Čas na úder a pauza po kombinaci: měření závodních boxerů
   ([Piorkowski et al. 2011](https://clok.uclan.ac.uk/3757/1/piorkowski-et-al-2011-punch-kinematics.pdf)), DOKUMENTACE.md, kap. 7.2.
 
 ## English
@@ -105,6 +106,6 @@ i cache.
 DIREKT is a heavy bag coach for iPhone: a voice calls boxing combos by number during the round,
 a bell starts and ends rounds, rest runs in between. 105 combos taken word for word from real
 coaches (WBA world champions Yodsanan Sityodtong and Drian Francisco, ExpertBoxing, USA Boxing),
-adjustable time per punch. Installable web app (PWA), offline, no account, no server. UI in
-Czech and English. Live at https://direkt-indol.vercel.app — the
-spec (in Czech) is [DOKUMENTACE.md](DOKUMENTACE.md).
+adjustable rest after combo and time per punch. Installable web app (PWA), offline, no account,
+no server. UI in Czech and English. Live at https://direkt-indol.vercel.app — the spec (in
+Czech) is [DOKUMENTACE.md](DOKUMENTACE.md).

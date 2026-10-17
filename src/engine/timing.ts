@@ -1,10 +1,22 @@
 // Načasování hlášení (DOKUMENTACE.md kap. 7.2, finiš 7.8, stupňování 7.10).
-import { BASE_GAP_MS, WARNING_BEFORE_END_MS, WARNING_MIN_ROUND_MS, type Intensity, type IntensityChoice } from './constants'
+import {
+  TEMPO_SHIFT_MS,
+  WARNING_BEFORE_END_MS,
+  WARNING_MIN_ROUND_MS,
+  type Intensity,
+  type IntensityChoice,
+} from './constants'
 import type { PhaseState } from './timeline'
 
-/** Mezera od konce hlášení do dalšího hlášení; actionMs = čas na úder z Nastavení. */
-export const gapMs = (actions: number, intensity: Intensity, actionMs: number): number =>
-  BASE_GAP_MS[intensity] + actionMs * actions
+/** Pauza po kombinaci a čas na úder z Nastavení (7.2). */
+export interface Pace {
+  pauseMs: number
+  actionMs: number
+}
+
+/** Mezera od konce hlášení do dalšího hlášení: pauza posunutá tempem + čas na úder × akce. */
+export const gapMs = (actions: number, intensity: Intensity, pace: Pace): number =>
+  Math.max(0, pace.pauseMs + (1 - intensity) * TEMPO_SHIFT_MS) + pace.actionMs * actions
 
 /** Vejde se kombo (vyslovit + provést) do zbytku kola? Radši ticho do gongu než useknuté kombo. */
 export const fitsInRound = (remainingMs: number, speechMs: number, actions: number, actionMs: number): boolean =>
