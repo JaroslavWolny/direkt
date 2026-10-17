@@ -31,6 +31,9 @@ kola, mezi koly běží pauza. Jen box. Web appka přidaná na plochu — offlin
 - **9 uložených tréninků** podle pravidel a trenérské praxe (rozcvička, amatérský zápas 3 × 3,
   profi kola, titulový zápas 12 × 3 …) a vlastní tréninky. Ťuk na trénink ukáže jeho kombinace,
   spouští se až z karty Začít.
+- **Příručka** (kniha vpravo nahoře): co znamená každé číslo a povel, který trenér hlásí, jak úder
+  nebo obranu udělat, čemu se vyhnout a videoukázka od trenérů (FightCamp, olympijský
+  medailista Tony Jeffries).
 - **Plán na 4 týdny** ze 3 otázek (zkušenost, cíle, čas); každý týden kolo navíc, nebo kratší
   pauza.
 - **4 hlasy trenéra:** Harry, Charlie, Adam (angličtina, nabuzené výkřiky) a Antonín (čeština).
@@ -100,6 +103,8 @@ i cache.
   `cs-CZ-AntoninNeural`.
 - Číslování úderů a česká terminologie: zdroje v DOKUMENTACE.md, kap. 5.
 - Kombinace: každá má v DOKUMENTACE.md, kap. 6 trenéra a odkaz na lekci nebo článek.
+- Příručka: technika podle učebních opor (Klouda 2008, FSpS MU), videa z YouTube vložená přes
+  `youtube-nocookie.com` (DOKUMENTACE.md, kap. 9.11).
 - Čas na úder a pauza po kombinaci: měření závodních boxerů
   ([Piorkowski et al. 2011](https://clok.uclan.ac.uk/3757/1/piorkowski-et-al-2011-punch-kinematics.pdf)), DOKUMENTACE.md, kap. 7.2.
 
