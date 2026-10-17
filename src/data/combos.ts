@@ -1,4 +1,7 @@
-// Vestavěná komba (DOKUMENTACE.md kap. 6). [E] Evolve University, [S] Sting Sports.
+// Vestavěná komba (DOKUMENTACE.md kap. 6): každá doslova od trenéra, značky zdrojů tamtéž.
+// [U x.y] Evolve University lekce (Yodsanan Sityodtong), [F] Drian Francisco, [E] Evolve University,
+// [M] Evolve MMA, [J] Johnny Nguyen (ExpertBoxing), [D] Tommy Duquette (FightCamp).
+// Id vyřazených komb se znovu nepoužívají (vypnutá komba se ukládají podle id).
 import { parseMoves, type Move } from './moves'
 
 export type Level = 0 | 1 | 2
@@ -17,40 +20,66 @@ const c = (id: string, level: Level, moves: string): Combo => ({ id, level, move
 
 export const BUILTIN_COMBOS: readonly Combo[] = [
   // Začátečník
-  c('z01', 0, '1'),
-  c('z02', 0, '1 1'),
-  c('z03', 0, '1 2'), // [S]
-  c('z04', 0, '1 1 2'), // [S]
-  c('z05', 0, '1 2 1'),
-  c('z06', 0, '1 2 3'), // [S]
-  c('z07', 0, '2 3'),
-  c('z08', 0, '3 2'),
-  c('z09', 0, '1 2 1 2'),
-  c('z10', 0, '2 3 2'), // [S]
-  c('z11', 0, '1 2 kryt'),
-  c('z12', 0, '1 2 vzad'),
-  c('z13', 0, '1 1 2 vzad'),
-  c('z14', 0, 'uklon 2'),
-  c('z15', 0, '1 3'),
+  c('z01', 0, '1'), // [J]
+  c('z02', 0, '1 1'), // [J]
+  c('z03', 0, '1 2'), // [J][F]
+  c('z04', 0, '1 1 2'), // [J][F]
+  c('z05', 0, '1 2 1'), // [J][F]
+  c('z06', 0, '1 2 3'), // [J][F]
+  c('z07', 0, '2 3'), // [F]
+  c('z09', 0, '1 2 1 2'), // [J]
+  c('z10', 0, '2 3 2'), // [J][F]
+  c('z14', 0, 'uklon 2'), // [M]
+  c('z16', 0, '1 6t'), // [J]
+  c('z17', 0, '2 1'), // [J]
+  c('z18', 0, '1t 2'), // [M][J]
+  c('z19', 0, '1 4'), // [F][M]
+  c('z20', 0, '5 2'), // [F]
+  c('z21', 0, '5 2 3'), // [F]
+  c('z22', 0, '6 3'), // [F][J]
+  c('z23', 0, '1 2 5'), // [F]
+  c('z24', 0, '6 5 3'), // [F]
+  c('z25', 0, '3 4 2'), // [F]
+  c('z26', 0, '2 3 6'), // [F]
+  c('z27', 0, 'kryt 2'), // [U Block And Cross]
+  c('z28', 0, 'kryt 3'), // [U Block And Left Hook]
   // Pokročilý
-  c('p01', 1, '1 2 3 2'), // [E][S]
-  c('p02', 1, '3 2 3'), // [S]
-  c('p03', 1, '1 6 3'), // [S]
-  c('p04', 1, '1 6 3 2'),
-  c('p05', 1, '1 2 5 2'), // [E]
+  c('p01', 1, '1 2 3 2'), // [J][E]
+  c('p03', 1, '1 6 3'), // [F]
+  c('p04', 1, '1 6 3 2'), // [J]
+  c('p05', 1, '1 2 5 2'), // [J][E]
   c('p06', 1, '1 2 3t'), // [E]
-  c('p07', 1, '1 2 1t'), // [S]
-  c('p08', 1, '2t 3 2'), // [S]
   c('p09', 1, '3t 3'), // [E]
-  c('p10', 1, 'uklon 2 3'), // [S]
-  c('p11', 1, '1 2 uklon 2'),
-  c('p12', 1, '1 2 3 ponor'),
-  c('p13', 1, '1 2 zaklon 2'),
-  c('p14', 1, '1 2 ukrok'),
-  c('p15', 1, '6 3 2'),
-  c('p16', 1, '1 1 2 3'),
-  c('p17', 1, '2 3 2 vzad'),
-  c('p18', 1, '1 2 3 2 kryt'),
+  c('p11', 1, '1 2 uklon 2'), // [J]
+  c('p19', 1, '1 3 2'), // [J]
+  c('p20', 1, '1 2t'), // [J]
+  c('p21', 1, '1 2t 3'), // [J]
+  c('p22', 1, '4 1t'), // [J]
+  c('p23', 1, '2 2'), // [J]
+  c('p24', 1, '6 2'), // [J]
+  c('p25', 1, 'vzad 2'), // [J]
+  c('p26', 1, '1 ukrok'), // [J]
+  c('p27', 1, '1 ukrok 2'), // [J]
+  c('p28', 1, '2 ukrok 2'), // [J]
+  c('p29', 1, '3 ukrok'), // [J]
+  c('p30', 1, '4t ukrok'), // [J]
+  c('p31', 1, '1t vzad'), // [J]
+  c('p32', 1, '1 vzad 1'), // [J]
+  c('p33', 1, '1 vzad 1 2'), // [J]
+  c('p34', 1, '4t 6 3 2'), // [J]
+  c('p35', 1, '6 3 ukrok'), // [J]
+  c('p36', 1, 'ukrok 5'), // [J]
+  c('p37', 1, '4t 3t 2 1 2'), // [J]
+  c('p38', 1, '1 4t 3t 6 1'), // [J]
+  c('p39', 1, '6 5 2 1 ukrok'), // [J]
+  c('p40', 1, '1 2 ponor 2'), // [J]
+  c('p41', 1, '1 uklon 2 1 1'), // [J]
+  c('p42', 1, '1 uklon 2 3 2'), // [J]
+  c('p43', 1, 'uklon 2 3 2'), // [U 1.1]
+  c('p44', 1, '2 uklon 2 3 ponor'), // [U 1.13]
+  c('p45', 1, 'uklon uklon 2 3 2'), // [U 1.19]
+  c('p46', 1, '2 zaklon 2 3 2'), // [U 1.24]
+  c('p47', 1, 'uklon 6t 5t 5 3'), // [U 3.19]
   // Expert
   c('e01', 2, '1 1 2 3 2'), // [E]
   c('e02', 2, '3 2 3t'), // [E]
@@ -62,13 +91,42 @@ export const BUILTIN_COMBOS: readonly Combo[] = [
   c('e08', 2, '2 3t ukrok 3'), // [E]
   c('e09', 2, '1 6t 6'), // [E]
   c('e10', 2, '1 2 3 uklon 3t'), // [E]
-  c('e11', 2, '1 2 uklon 2 3 2'),
-  c('e12', 2, 'zaklon 2 3 2'),
-  c('e13', 2, '1 2 3 2 ponor 2 3'),
-  c('e14', 2, '1 6 3 2 ukrok'),
-  c('e15', 2, '1 2 5 2 3 vzad'),
-  c('e16', 2, '3t 3 2'),
-  c('e17', 2, '1 2 3t 3 2'),
+  c('e11', 2, '1 2 uklon 2 3 2'), // [J]
+  c('e18', 2, '1 2 3t ukrok 4t 4 1'), // [J]
+  c('e19', 2, '1 2 ponor uklon 3 2'), // [J]
+  c('e20', 2, '1 2 ponor 3 2 3'), // [J]
+  c('e21', 2, '1 2 3 ponor 3 2'), // [J]
+  c('e22', 2, '2 3 ponor 3 2 ponor'), // [D]
+  c('e23', 2, '6 ponor 2 5 ponor 3'), // [U 1.10]
+  c('e24', 2, '5t 5 3 ponor 2 ponor'), // [U 1.11]
+  c('e25', 2, '6 6 2 3 2 ponor 3 2'), // [U 1.17]
+  c('e26', 2, '5t 6t uklon 2 uklon 3 2'), // [U 1.18]
+  c('e27', 2, '5 6 5 6 ponor 3'), // [U 1.2]
+  c('e28', 2, '1 uklon 2 3 2 5t'), // [U 1.20]
+  c('e29', 2, '1 2 uklon uklon ponor ponor'), // [U 1.3]
+  c('e30', 2, '1 2 3 ponor 5 ponor 6 ponor'), // [U 1.4]
+  c('e31', 2, '1 2 5 2 3 ponor 3'), // [U 2.1]
+  c('e32', 2, '2 5 ponor 2 5t 3 2'), // [U 2.10]
+  c('e33', 2, '1 1 1 6 ponor 2'), // [U 2.12]
+  c('e34', 2, '1 2 3 kryt kryt 6 3 ponor'), // [U 2.17]
+  c('e35', 2, '1 2 ukrok 5t ukrok 2 3'), // [U 2.18]
+  c('e36', 2, '1 2 kryt ponor 3 2'), // [U 2.20]
+  c('e37', 2, 'uklon 5 5 ponor 2 5t'), // [U 2.3]
+  c('e38', 2, '2 kryt kryt ponor 2 3 ponor 6t'), // [U 2.6]
+  c('e39', 2, 'uklon uklon 5 ponor 2 3 ponor'), // [U 2.8]
+  c('e40', 2, '2 uklon 2 3 uklon 5t 3 2'), // [U 2.9]
+  c('e41', 2, '2 ponor 2 3 ponor 5'), // [U 3.1]
+  c('e42', 2, '1 2 6t ponor 3 2'), // [U 3.2]
+  c('e43', 2, '1 2 uklon 6t ponor 3 2'), // [U 3.12]
+  c('e44', 2, '1 1 2 kryt kryt 3 2'), // [U 3.13]
+  c('e45', 2, '2 ponor 2 3 ponor 6'), // [U 3.17]
+  c('e46', 2, '1 1 1 uklon 2 uklon 2 3'), // [U 3.18]
+  c('e47', 2, '1 5 3 uklon uklon 2 3'), // [U 3.20]
+  c('e48', 2, '5 5 5t 3 2 ukrok 6t'), // [U 3.4]
+  c('e49', 2, '2 5t 5t 5 2 3'), // [U 3.5]
+  c('e50', 2, '5t 5t ponor 2 3 ponor 5t'), // [U 3.7]
+  c('e51', 2, '1 2 5 ponor 3 2 ponor'), // [U 3.8]
+  c('e52', 2, '1 2 5 ponor 3 ponor 2 3'), // [U 4.8]
 ]
 
 export const sameMoves = (a: readonly Move[], b: readonly Move[]): boolean =>

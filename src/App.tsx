@@ -222,6 +222,7 @@ export default function App() {
           onLibrary={setLibrary}
           intensity={listTempo}
           voice={settings.voice}
+          actionMs={settings.actionMs}
           silentOverride={settings.silentOverride}
           onBack={home}
         />
@@ -234,6 +235,7 @@ export default function App() {
           onLibrary={setLibrary}
           intensity={listTempo}
           voice={settings.voice}
+          actionMs={settings.actionMs}
           silentOverride={settings.silentOverride}
           onBack={home}
         />

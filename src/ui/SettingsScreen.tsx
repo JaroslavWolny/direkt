@@ -3,7 +3,7 @@ import { clipsFor, previewClips } from '../audio/voice'
 import { LEVELS } from '../data/combos'
 import { parseMoves } from '../data/moves'
 import { VOICES, type VoiceInfo } from '../data/voices'
-import { INTENSITY_CHOICES, LIMITS } from '../engine/constants'
+import { ACTION_MS_CHOICES, INTENSITY_CHOICES, LIMITS } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
 import { LANG_NAME, LANGS, t } from '../i18n'
 import type { Settings } from '../store/storage'
@@ -100,6 +100,17 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
             options={INTENSITY_CHOICES.map((i) => ({ value: i, label: t().intensity[i] }))}
             onChange={(v) => setCfg('intensity', v)}
           />
+        </section>
+
+        <section className="section">
+          <h2 className="caption">{s.actionTime}</h2>
+          <Segmented<number>
+            label={s.actionTime}
+            value={settings.actionMs}
+            options={ACTION_MS_CHOICES.map((ms) => ({ value: ms, label: s.seconds(ms) }))}
+            onChange={(v) => set('actionMs', v)}
+          />
+          <p className="settings-note">{s.actionTimeNote}</p>
         </section>
 
         <section className="section">

@@ -76,6 +76,9 @@ describe('obranné čtení úložiště', () => {
       prepSec: 5,
     })
     expect(sanitizeSettings({ prepSec: 22.4 }).prepSec).toBe(20)
+    expect(sanitizeSettings({}).actionMs).toBe(500)
+    expect(sanitizeSettings({ actionMs: 300 }).actionMs).toBe(300)
+    expect(sanitizeSettings({ actionMs: 450 }).actionMs).toBe(500)
   })
 
   it('plán: platný se načte, rozbitý nebo z v8 = žádný, postup se ořízne', () => {

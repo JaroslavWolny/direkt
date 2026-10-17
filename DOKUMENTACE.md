@@ -176,51 +176,107 @@ Zdroje: [Evolve — číslování](https://evolve-mma.com/blog/boxing-fundamenta
 ## 6. Vestavěná komba
 
 Tři úrovně. Úroveň určuje, **z jakých komb** se losuje; tempo (kap. 7.2) určuje, **jak rychle**.
-Komba převzatá ze zdrojů jsou označená: **[E]** [Evolve University, 19 advanced combos](https://evolve-university.com/blog/19-advanced-boxing-combinations-to-elevate-your-game/),
-**[S]** [Sting Sports, beginner combos](https://stingsports.ca/blogs/news/boxing-combinations-for-beginners).
-Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shovel hook" se do
-číslování nevejdou → vynechané.
 
-**Začátečník** (15)
+**Pravidlo (v14, uživatel 17. 10. 2026: „najdi si kombinace úderů, které opravdu trenéři
+dělají"):** každá vestavěná kombinace je doslova od jmenovaného trenéra nebo trenérské školy.
+Co žádný trenér neuvádí, v appce není.
 
-| id | kombo | | id | kombo |
+| Značka | Trenér | Zdroj |
+|---|---|---|
+| **[U x.y]** | **Yodsanan Sityodtong** (mistr světa WBA, hlavní trenér boxu Evolve); lekce 1.20, 2.20, 3.19 a 3.20 **Saenghirun Lookbanyai** (mistr světa v boxu) | Evolve University, videolekce „Level x: Combination y" a „Block And Cross / Block And Left Hook" — přesná sekvence je v popisu lekce, např. [Level 1: Combination 8](https://evolve-university.com/library/boxing/beginner/video-level-1-combination-8/), přehled [beginner](https://evolve-university.com/library/boxing/beginner/), [intermediate](https://evolve-university.com/library/boxing/intermediate/), [advanced](https://evolve-university.com/library/boxing/advanced/) |
+| **[F]** | **Drian Francisco** (mistr světa WBA, trenér Evolve MMA) | [15 Basic Boxing Combinations](https://evolve-mma.com/blog/15-basic-boxing-combinations-you-should-master-first/) |
+| **[E]** | Evolve University (škola mistrů světa; článek bez podpisu) | [19 Advanced Boxing Combinations](https://evolve-university.com/blog/19-advanced-boxing-combinations-to-elevate-your-game/) |
+| **[M]** | Evolve MMA (redakce) | [5 Basic Combinations](https://evolve-mma.com/blog/the-5-basic-yet-effective-combinations-all-boxers-need-to-know/), [Slip And Rip](https://evolve-mma.com/blog/boxing-101-slip-and-rip/) (po úklonu ven zadní direkt) |
+| **[J]** | **Johnny Nguyen** (ExpertBoxing) | [Johnny's Punching Combinations](https://expertboxing.com/johnnys-punching-combinations) (sekce Common, Starters, Tricky Starters, Power/Evasive Enders, Advanced, In-Fighting, Evasive Combos), [7 Basic Boxing Combinations](https://expertboxing.com/7-basic-boxing-combinations) |
+| **[D]** | **Tommy Duquette** (reprezentant USA, trenér s licencí USA Boxing; FightCamp) | [What Is a Roll in Boxing](https://blog.joinfightcamp.com/training/what-is-a-roll-in-boxing-boxing-defense-101/) |
+
+- **Převod zápisu trenérů na povely appky (kap. 5):** slip vlevo/vpravo → úklon; duck, roll,
+  weave → ponor („Dolů"); block → kryt („left block, right block" = 2× kryt); lean back →
+  záklon; back step (Johnny „bs") → vzad; pivot, step left/right (Johnny „p", „rs") → úkrok
+  („Stranou"). Stranu úhybu appka nerozlišuje. U Johnnyho „/1/" = úklon před soupeřovým
+  direktem, „{3}" = ponor pod hák; „b" = na tělo (v appce `t`).
+- **Vynecháno:** finty a „tap" (Johnny „f", „t"), overhand a shovel hook (nevejdou se do
+  číslování), „body shot" bez určení ruky (EU 2.13, 2.21, 4.6, 4.7), sekvence nad 8 akcí
+  (limit appky, 9.4), série „block ×4", seznamy pro boj proti opačnému střehu a Roachovo
+  „1-3-5" pro Pacquiaa (primární článek nešel otevřít, nepřebírám z druhé ruky).
+- **Úroveň:** kombinace z v1 si ji nechávají. Nové: ze základních seznamů (Johnny Common,
+  Starters a 7 basic, Francisco 15 basic, Evolve MMA 5 basic, Block And…) podle délky —
+  1–3 akce Začátečník, 4–5 Pokročilý, 6–8 Expert; z ostatních sekcí (Johnny Tricky Starters,
+  Enders, Advanced, In-Fighting, Evasive; EU Level 3–4) aspoň Pokročilý.
+- **v14 vyřazeno** 22 kombinací bez trenérského zdroje: z08 z11 z12 z13 z15 p02 p07 p08 p10
+  p12–p18 e12–e17. Mezi nimi všechna komba jen ze **Sting Sports** (článek bez trenéra —
+  autor bez uvedené praxe); co Sting uváděl a má i trenér, zůstalo se značkou trenéra.
+- **id se nikdy znovu nepoužije:** vypnutá komba se ukládají podle id (kap. 11), staré id by
+  vypnulo cizí kombinaci. Nová id pokračují za nejvyšším (z16, p19, e18 …).
+- Zdroj se v appce neukazuje — jen tady a v komentáři `src/data/combos.ts`.
+
+**Začátečník** (23)
+
+| id | kombinace | | id | kombinace |
 |---|---|---|---|---|
-| z01 | 1 | | z09 | 1 2 1 2 |
-| z02 | 1 1 | | z10 | 2 3 2 [S] |
-| z03 | 1 2 [S] | | z11 | 1 2 kryt |
-| z04 | 1 1 2 [S] | | z12 | 1 2 vzad |
-| z05 | 1 2 1 | | z13 | 1 1 2 vzad |
-| z06 | 1 2 3 [S] | | z14 | úklon 2 |
-| z07 | 2 3 | | z15 | 1 3 |
-| z08 | 3 2 | | | |
+| z01 | 1 [J] | | z18 | 1t 2 [M][J] |
+| z02 | 1 1 [J] | | z19 | 1 4 [F][M] |
+| z03 | 1 2 [J][F] | | z20 | 5 2 [F] |
+| z04 | 1 1 2 [J][F] | | z21 | 5 2 3 [F] |
+| z05 | 1 2 1 [J][F] | | z22 | 6 3 [F][J] |
+| z06 | 1 2 3 [J][F] | | z23 | 1 2 5 [F] |
+| z07 | 2 3 [F] | | z24 | 6 5 3 [F] |
+| z09 | 1 2 1 2 [J] | | z25 | 3 4 2 [F] |
+| z10 | 2 3 2 [J][F] | | z26 | 2 3 6 [F] |
+| z14 | úklon 2 [M] | | z27 | kryt 2 [U Block And Cross] |
+| z16 | 1 6t [J] | | z28 | kryt 3 [U Block And Left Hook] |
+| z17 | 2 1 [J] | | | |
 
-**Pokročilý** (18)
+**Pokročilý** (36)
 
-| id | kombo | | id | kombo |
+| id | kombinace | | id | kombinace |
 |---|---|---|---|---|
-| p01 | 1 2 3 2 [E][S] | | p10 | úklon 2 3 [S] |
-| p02 | 3 2 3 [S] | | p11 | 1 2 úklon 2 |
-| p03 | 1 6 3 [S] | | p12 | 1 2 3 ponor |
-| p04 | 1 6 3 2 | | p13 | 1 2 záklon 2 |
-| p05 | 1 2 5 2 [E] | | p14 | 1 2 úkrok |
-| p06 | 1 2 3t [E] | | p15 | 6 3 2 |
-| p07 | 1 2 1t [S] | | p16 | 1 1 2 3 |
-| p08 | 2t 3 2 [S] | | p17 | 2 3 2 vzad |
-| p09 | 3t 3 [E] | | p18 | 1 2 3 2 kryt |
+| p01 | 1 2 3 2 [J][E] | | p30 | 4t úkrok [J] |
+| p03 | 1 6 3 [F] | | p31 | 1t vzad [J] |
+| p04 | 1 6 3 2 [J] | | p32 | 1 vzad 1 [J] |
+| p05 | 1 2 5 2 [J][E] | | p33 | 1 vzad 1 2 [J] |
+| p06 | 1 2 3t [E] | | p34 | 4t 6 3 2 [J] |
+| p09 | 3t 3 [E] | | p35 | 6 3 úkrok [J] |
+| p11 | 1 2 úklon 2 [J] | | p36 | úkrok 5 [J] |
+| p19 | 1 3 2 [J] | | p37 | 4t 3t 2 1 2 [J] |
+| p20 | 1 2t [J] | | p38 | 1 4t 3t 6 1 [J] |
+| p21 | 1 2t 3 [J] | | p39 | 6 5 2 1 úkrok [J] |
+| p22 | 4 1t [J] | | p40 | 1 2 ponor 2 [J] |
+| p23 | 2 2 [J] | | p41 | 1 úklon 2 1 1 [J] |
+| p24 | 6 2 [J] | | p42 | 1 úklon 2 3 2 [J] |
+| p25 | vzad 2 [J] | | p43 | úklon 2 3 2 [U 1.1] |
+| p26 | 1 úkrok [J] | | p44 | 2 úklon 2 3 ponor [U 1.13] |
+| p27 | 1 úkrok 2 [J] | | p45 | úklon úklon 2 3 2 [U 1.19] |
+| p28 | 2 úkrok 2 [J] | | p46 | 2 záklon 2 3 2 [U 1.24] |
+| p29 | 3 úkrok [J] | | p47 | úklon 6t 5t 5 3 [U 3.19] |
 
-**Expert** (17)
+**Expert** (46)
 
-| id | kombo | | id | kombo |
+| id | kombinace | | id | kombinace |
 |---|---|---|---|---|
-| e01 | 1 1 2 3 2 [E] | | e10 | 1 2 3 úklon 3t [E] |
-| e02 | 3 2 3t [E] | | e11 | 1 2 úklon 2 3 2 |
-| e03 | 2 3 2 ponor 2 [E] | | e12 | záklon 2 3 2 |
-| e04 | 6 3 3t [E] | | e13 | 1 2 3 2 ponor 2 3 |
-| e05 | 3 2 3 3t [E] | | e14 | 1 6 3 2 úkrok |
-| e06 | 1 2 3 ponor 3 [E] | | e15 | 1 2 5 2 3 vzad |
-| e07 | 5 4 3t [E] | | e16 | 3t 3 2 |
-| e08 | 2 3t úkrok 3 [E] | | e17 | 1 2 3t 3 2 |
-| e09 | 1 6t 6 [E] | | | |
+| e01 | 1 1 2 3 2 [E] | | e30 | 1 2 3 ponor 5 ponor 6 ponor [U 1.4] |
+| e02 | 3 2 3t [E] | | e31 | 1 2 5 2 3 ponor 3 [U 2.1] |
+| e03 | 2 3 2 ponor 2 [E] | | e32 | 2 5 ponor 2 5t 3 2 [U 2.10] |
+| e04 | 6 3 3t [E] | | e33 | 1 1 1 6 ponor 2 [U 2.12] |
+| e05 | 3 2 3 3t [E] | | e34 | 1 2 3 kryt kryt 6 3 ponor [U 2.17] |
+| e06 | 1 2 3 ponor 3 [E] | | e35 | 1 2 úkrok 5t úkrok 2 3 [U 2.18] |
+| e07 | 5 4 3t [E] | | e36 | 1 2 kryt ponor 3 2 [U 2.20] |
+| e08 | 2 3t úkrok 3 [E] | | e37 | úklon 5 5 ponor 2 5t [U 2.3] |
+| e09 | 1 6t 6 [E] | | e38 | 2 kryt kryt ponor 2 3 ponor 6t [U 2.6] |
+| e10 | 1 2 3 úklon 3t [E] | | e39 | úklon úklon 5 ponor 2 3 ponor [U 2.8] |
+| e11 | 1 2 úklon 2 3 2 [J] | | e40 | 2 úklon 2 3 úklon 5t 3 2 [U 2.9] |
+| e18 | 1 2 3t úkrok 4t 4 1 [J] | | e41 | 2 ponor 2 3 ponor 5 [U 3.1] |
+| e19 | 1 2 ponor úklon 3 2 [J] | | e42 | 1 2 6t ponor 3 2 [U 3.2] |
+| e20 | 1 2 ponor 3 2 3 [J] | | e43 | 1 2 úklon 6t ponor 3 2 [U 3.12] |
+| e21 | 1 2 3 ponor 3 2 [J] | | e44 | 1 1 2 kryt kryt 3 2 [U 3.13] |
+| e22 | 2 3 ponor 3 2 ponor [D] | | e45 | 2 ponor 2 3 ponor 6 [U 3.17] |
+| e23 | 6 ponor 2 5 ponor 3 [U 1.10] | | e46 | 1 1 1 úklon 2 úklon 2 3 [U 3.18] |
+| e24 | 5t 5 3 ponor 2 ponor [U 1.11] | | e47 | 1 5 3 úklon úklon 2 3 [U 3.20] |
+| e25 | 6 6 2 3 2 ponor 3 2 [U 1.17] | | e48 | 5 5 5t 3 2 úkrok 6t [U 3.4] |
+| e26 | 5t 6t úklon 2 úklon 3 2 [U 1.18] | | e49 | 2 5t 5t 5 2 3 [U 3.5] |
+| e27 | 5 6 5 6 ponor 3 [U 1.2] | | e50 | 5t 5t ponor 2 3 ponor 5t [U 3.7] |
+| e28 | 1 úklon 2 3 2 5t [U 1.20] | | e51 | 1 2 5 ponor 3 2 ponor [U 3.8] |
+| e29 | 1 2 úklon úklon ponor ponor [U 1.3] | | e52 | 1 2 5 ponor 3 ponor 2 3 [U 4.8] |
 
 ## 7. Engine
 
@@ -240,15 +296,23 @@ Bez značky = klasická komba boxerského tréninku. Finty, overhandy a „shove
 
 ### 7.2 Načasování hlášení
 
-- **Mezera** (od konce řeči do dalšího hlášení) = `základ[tempo] + 700 ms × počet akcí`.
+- **Mezera** (od konce řeči do dalšího hlášení) = `základ[tempo] + čas na úder × počet akcí`.
   Akce = každý úder i obranný pohyb. Tempo = zvolená intenzita, u stupňované tempo
   aktuálního kola (7.10).
-- `základ`: **Lehké 2800 ms, Střední 1800 ms, Tvrdé 800 ms.** 700 ms na akci pro všechna
-  tempa. (Konstanty doladěné na pytli — AveReiDev/strikr PROJECT-STATUS.)
+- `základ`: **Lehké 2800 ms, Střední 1800 ms, Tvrdé 800 ms.** (Doladěné na pytli —
+  AveReiDev/strikr PROJECT-STATUS.)
+- **Čas na úder** (v14, uživatel 17. 10. 2026: „app dává dlouhý čas na tu kombinaci, chci to
+  svižnější… možnost volby v nastavení"): volba v Nastavení (9.6) **0,3 / 0,4 / 0,5 / 0,6 /
+  0,7 s**, **výchozí 0,5 s**, stejný pro všechna tempa. Dřív pevně 0,7 s (STRIKR) — s dlouhými
+  kombinacemi trenérů (kap. 6) to dělalo u 8 akcí 5,6 s čekání navíc. Měření: závodní boxeři
+  dali 4 údery střídavě od 1. do 4. zásahu za 1,06 ± 0,46 s (≈ 0,35 s na úder), stejnou rukou
+  za 1,35 s; samotný přímý úder od pohybu po zásah 0,36 s, hák 0,48 s
+  ([Piorkowski et al. 2011, Sports Biomechanics](https://clok.uclan.ac.uk/3757/1/piorkowski-et-al-2011-punch-kinematics.pdf)).
+  0,3 s = závodník naplno, 0,5 s = svižně s rezervou na techniku, 0,7 s = původní chování.
 - **Délka hlášení** = součet délek klipů (bez ticha na krajích) + 70 ms mezi slovy. Než se
   klipy načtou, odhad 450 ms na klip.
 - **Konec kola:** kombo se nespustí, pokud do začátku finiše (7.8; kolo bez finiše = do
-  konce kola) zbývá méně než `délka hlášení + 700 ms × akcí`. Radši ticho než useknuté kombo.
+  konce kola) zbývá méně než `délka hlášení + čas na úder × akcí`. Radši ticho než useknuté kombo.
 - První hlášení 1,5 s po startovním gongu.
 - Všechny konstanty v `src/engine/constants.ts`.
 
@@ -588,6 +652,10 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   = vybrat (kolečko vlevo), akcentové play vpravo = ukázka „One, two, three body, slip" v tom
   hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
 - **Intenzita:** segmenty Lehká / Střední / Tvrdá / Rostoucí (7.10).
+- **Čas na úder** (v14, 7.2): segmenty 0,3 s · 0,4 s · 0,5 s · 0,6 s · 0,7 s (anglicky s tečkou),
+  pod nimi poznámka „Na každý úder i pohyb obrany. Kratší = svižnější kombinace." Platí
+  všude, i v plánu (je to rychlost boxera, ne parametr tréninku); délky kombinací v seznamech
+  (9.3) se počítají s ním. V panelu v kole není.
 - **Úroveň:** segmenty Začátečník / Pokročilý / Expert (navíc oproti předloze).
 - **Kolo:** krokovače Počet kol, Délka kola (1:00–10:00 po 0:30), Pauza mezi koly
   (0:15–3:00 po 0:15), Odpočet (před startem, 5–60 s).
@@ -757,7 +825,7 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 | Klíč | Obsah |
 |---|---|
 | `config` | aktuální nastavení tréninku (7.4); `intensity` = 0 / 1 / 2 / `'ramp'` (Rostoucí) |
-| `settings` | `prepSec`, `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1), `lang` (`cs` / `en`, 9.8; chybí u uloženého nastavení → `cs`, bez nastavení → jazyk zařízení) |
+| `settings` | `prepSec`, `actionMs` (čas na úder 300–700 po 100, výchozí 500, jiná hodnota → 500; 7.2), `silentOverride`, `autoPause`, `voice` (id hlasu, výchozí harry; staré `voiceURI`, `rate` se ignorují), `onboarded` (verze úvodu, kterou už viděl: 0 nikdy, 1 = v8, 2 = v9; starší `true` = 1), `lang` (`cs` / `en`, 9.8; chybí u uloženého nastavení → `cs`, bez nastavení → jazyk zařízení) |
 | `combos` | `{ disabled: id[] (vypnutá komba, vestavěná i vlastní), custom: Combo[] }`; vlastní kombo má navíc `name` |
 | `presets` | uložené tréninky `{ id, name, config }[]` |
 | `presetsVersion` | verze vestavěného seznamu, kterou už `presets` obsahuje (chybí = 1, v10 = 2); starší → doplní se tréninky, které od té verze přibyly (9.5) |

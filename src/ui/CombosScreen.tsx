@@ -30,12 +30,13 @@ interface Props {
   onLibrary: (l: Library) => void
   intensity: Intensity
   voice: VoiceId
+  actionMs: number
   silentOverride: boolean
   onBack: () => void
 }
 
 /** Komba (DOKUMENTACE.md 9.3, Komba.html). */
-export function CombosScreen({ all, library, onLibrary, intensity, voice, silentOverride, onBack }: Props) {
+export function CombosScreen({ all, library, onLibrary, intensity, voice, actionMs, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
   const s = t().combos
   const filters: { value: Filter; label: string }[] = [
@@ -116,7 +117,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
                 <PunchSequence moves={c.moves} />
               </span>
               <span className="side">
-                <span>{formatSec(comboSec(c.moves, intensity, voice))}</span>
+                <span>{formatSec(comboSec(c.moves, intensity, voice, actionMs))}</span>
                 <span>{t().level[c.level]}</span>
               </span>
             </span>
@@ -136,6 +137,7 @@ export function CombosScreen({ all, library, onLibrary, intensity, voice, silent
           enabled={!disabled.has(detail.id)}
           intensity={intensity}
           voice={voice}
+          actionMs={actionMs}
           silentOverride={silentOverride}
           onToggle={(on) => setEnabled(detail.id, on)}
           onClose={() => setDetailId(null)}

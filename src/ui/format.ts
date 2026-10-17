@@ -36,9 +36,9 @@ export const presetMeta = (c: WorkoutConfig): string => `${sessionMeta(c)} · ${
 /** Vestavěný trénink se ukáže v jazyce rozhraní, vlastní pod svým názvem (9.8). */
 export const presetName = (p: Preset): string => t().presetName[p.id] ?? p.name
 
-/** Jak dlouho kombo v kole zabere: hlášení + mezera při dané intenzitě. */
-export const comboSec = (moves: readonly Move[], intensity: Intensity, voice: VoiceId): number =>
-  Math.round((voiceDurationMs(voice, clipsFor(moves)) + gapMs(moves.length, intensity)) / 1000)
+/** Jak dlouho kombo v kole zabere: hlášení + mezera při dané intenzitě a čase na úder. */
+export const comboSec = (moves: readonly Move[], intensity: Intensity, voice: VoiceId, actionMs: number): number =>
+  Math.round((voiceDurationMs(voice, clipsFor(moves)) + gapMs(moves.length, intensity, actionMs)) / 1000)
 
 /** Dlouhá sekvence v kole dostane menší písmo (zadání, kap. 8). */
 export const wordsAreLong = (moves: readonly Move[], lang: VoiceLang): boolean =>

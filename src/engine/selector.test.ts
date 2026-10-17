@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BUILTIN_COMBOS, type Combo, type Level } from '../data/combos'
-import { FIRST_CALL_DELAY_MS, INTENSITIES, MAX_REPEATS, PER_ACTION_MS, WARNING_BEFORE_END_MS } from './constants'
+import { ACTION_MS_CHOICES, FIRST_CALL_DELAY_MS, INTENSITIES, MAX_REPEATS, WARNING_BEFORE_END_MS } from './constants'
 import { mulberry32 } from './random'
 import { buildPool, createSelector, shouldRepeat } from './selector'
 import { comboWindowMs, fitsInRound, gapMs, inFinisher, tempoForRound } from './timing'
@@ -11,13 +11,22 @@ const draw = (level: Level, n: number, seed = 1, pool = buildPool(BUILTIN_COMBOS
 }
 
 describe('vestavěná komba', () => {
-  it('mají unikátní id, 1–8 akcí a počty 15/18/17', () => {
+  it('mají unikátní id, 1–8 akcí a počty 23/36/46', () => {
     const ids = BUILTIN_COMBOS.map((c) => c.id)
     expect(new Set(ids).size).toBe(ids.length)
     for (const c of BUILTIN_COMBOS) expect(c.moves.length).toBeGreaterThanOrEqual(1)
     for (const c of BUILTIN_COMBOS) expect(c.moves.length).toBeLessThanOrEqual(8)
     const count = (l: Level) => BUILTIN_COMBOS.filter((c) => c.level === l).length
-    expect([count(0), count(1), count(2)]).toEqual([15, 18, 17])
+    expect([count(0), count(1), count(2)]).toEqual([23, 36, 46])
+  })
+
+  it('nepoužívají id vyřazená ve v14 (vypnutá komba se ukládají podle id)', () => {
+    const retired = [
+      ...['z08', 'z11', 'z12', 'z13', 'z15'],
+      ...['p02', 'p07', 'p08', 'p10', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18'],
+      ...['e12', 'e13', 'e14', 'e15', 'e16', 'e17'],
+    ]
+    expect(BUILTIN_COMBOS.filter((c) => retired.includes(c.id))).toEqual([])
   })
 })
 
@@ -26,7 +35,7 @@ describe('buildPool', () => {
     const pool = buildPool(BUILTIN_COMBOS, new Set(['z01', 'p01']), 1)
     expect(pool.some((c) => c.level === 2)).toBe(false)
     expect(pool.some((c) => c.id === 'z01' || c.id === 'p01')).toBe(false)
-    expect(pool.length).toBe(15 + 18 - 2)
+    expect(pool.length).toBe(23 + 36 - 2)
   })
 })
 
@@ -73,10 +82,12 @@ describe('createSelector', () => {
 })
 
 describe('načasování', () => {
-  it('mezera = základ tempa + 700 ms na akci', () => {
-    expect([2, 4, 7].map((a) => gapMs(a, 0))).toEqual([4200, 5600, 7700])
-    expect([2, 4, 7].map((a) => gapMs(a, 1))).toEqual([3200, 4600, 6700])
-    expect([2, 4, 7].map((a) => gapMs(a, 2))).toEqual([2200, 3600, 5700])
+  it('mezera = základ tempa + čas na úder × akce', () => {
+    expect([2, 4, 7].map((a) => gapMs(a, 0, 700))).toEqual([4200, 5600, 7700])
+    expect([2, 4, 7].map((a) => gapMs(a, 1, 700))).toEqual([3200, 4600, 6700])
+    expect([2, 4, 7].map((a) => gapMs(a, 2, 700))).toEqual([2200, 3600, 5700])
+    expect([2, 4, 7].map((a) => gapMs(a, 1, 500))).toEqual([2800, 3800, 5300])
+    expect([2, 4, 7].map((a) => gapMs(a, 1, 300))).toEqual([2400, 3000, 3900])
   })
 
   it('poslední kombo kola se vždy stihne vyslovit i provést před gongem', () => {
@@ -84,19 +95,21 @@ describe('načasování', () => {
       for (const roundSec of [60, 90, 180]) {
         // Délka hlášení jako u klipů: ~0,45–0,7 s na slovo + 70 ms mezi slovy.
         for (const perClipMs of [450, 700]) {
-          const roundMs = roundSec * 1000
-          const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(roundSec + intensity))
-          let t = FIRST_CALL_DELAY_MS
-          let called = 0
-          for (;;) {
-            const combo: Combo = next()
-            const speech = perClipMs * combo.moves.length + 70 * (combo.moves.length - 1)
-            if (!fitsInRound(roundMs - t, speech, combo.moves.length)) break
-            expect(t + speech + PER_ACTION_MS * combo.moves.length).toBeLessThanOrEqual(roundMs)
-            t += speech + gapMs(combo.moves.length, intensity)
-            called++
+          for (const actionMs of ACTION_MS_CHOICES) {
+            const roundMs = roundSec * 1000
+            const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(roundSec + intensity))
+            let t = FIRST_CALL_DELAY_MS
+            let called = 0
+            for (;;) {
+              const combo: Combo = next()
+              const speech = perClipMs * combo.moves.length + 70 * (combo.moves.length - 1)
+              if (!fitsInRound(roundMs - t, speech, combo.moves.length, actionMs)) break
+              expect(t + speech + actionMs * combo.moves.length).toBeLessThanOrEqual(roundMs)
+              t += speech + gapMs(combo.moves.length, intensity, actionMs)
+              called++
+            }
+            expect(called).toBeGreaterThan(3)
           }
-          expect(called).toBeGreaterThan(3)
         }
       }
     }
@@ -115,19 +128,21 @@ describe('finiš (7.8)', () => {
 
   it('žádné kombo nepřetáhne do finiše', () => {
     for (const intensity of INTENSITIES) {
-      const roundMs = 60_000
-      const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(7 + intensity))
-      let t = FIRST_CALL_DELAY_MS
-      let called = 0
-      for (;;) {
-        const combo: Combo = next()
-        const speech = 700 * combo.moves.length + 70 * (combo.moves.length - 1)
-        if (!fitsInRound(comboWindowMs(roundMs - t, roundMs), speech, combo.moves.length)) break
-        expect(t + speech + PER_ACTION_MS * combo.moves.length).toBeLessThanOrEqual(roundMs - WARNING_BEFORE_END_MS)
-        t += speech + gapMs(combo.moves.length, intensity)
-        called++
+      for (const actionMs of ACTION_MS_CHOICES) {
+        const roundMs = 60_000
+        const next = createSelector(buildPool(BUILTIN_COMBOS, new Set(), 2), 2, mulberry32(7 + intensity))
+        let t = FIRST_CALL_DELAY_MS
+        let called = 0
+        for (;;) {
+          const combo: Combo = next()
+          const speech = 700 * combo.moves.length + 70 * (combo.moves.length - 1)
+          if (!fitsInRound(comboWindowMs(roundMs - t, roundMs), speech, combo.moves.length, actionMs)) break
+          expect(t + speech + actionMs * combo.moves.length).toBeLessThanOrEqual(roundMs - WARNING_BEFORE_END_MS)
+          t += speech + gapMs(combo.moves.length, intensity, actionMs)
+          called++
+        }
+        expect(called).toBeGreaterThan(2)
       }
-      expect(called).toBeGreaterThan(2)
     }
   })
 

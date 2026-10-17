@@ -14,6 +14,7 @@ interface Props {
   enabled: boolean
   intensity: Intensity
   voice: VoiceId
+  actionMs: number
   silentOverride: boolean
   onToggle: (on: boolean) => void
   onDelete?: () => void
@@ -21,7 +22,7 @@ interface Props {
 }
 
 /** Detail komba (DOKUMENTACE.md 9.3): poslech, zařazení do tréninku, u vlastního smazání. */
-export function ComboDetail({ combo, enabled, intensity, voice, silentOverride, onToggle, onDelete, onClose }: Props) {
+export function ComboDetail({ combo, enabled, intensity, voice, actionMs, silentOverride, onToggle, onDelete, onClose }: Props) {
   const s = t().combos
   const name = combo.name ?? comboTitle(combo.moves, getLang())
   return (
@@ -34,7 +35,7 @@ export function ComboDetail({ combo, enabled, intensity, voice, silentOverride, 
       </div>
       <PunchSequence moves={combo.moves} size="m" />
       <p className="label-15 muted">
-        {t().level[combo.level]} · {s.inRound(formatSec(comboSec(combo.moves, intensity, voice)))}
+        {t().level[combo.level]} · {s.inRound(formatSec(comboSec(combo.moves, intensity, voice, actionMs)))}
       </p>
       <div className="group">
         <div className="group-row tall">

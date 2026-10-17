@@ -18,12 +18,13 @@ interface Props {
   onLibrary: (l: Library) => void
   intensity: Intensity
   voice: VoiceId
+  actionMs: number
   silentOverride: boolean
   onBack: () => void
 }
 
 /** Vlastní komba (DOKUMENTACE.md 9.4, VlastniKomba.html). */
-export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, silentOverride, onBack }: Props) {
+export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, actionMs, silentOverride, onBack }: Props) {
   useThemeColor('--paper')
   const s = t().custom
   const [building, setBuilding] = useState(false)
@@ -78,7 +79,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
                 <span className="row-body">
                   <span className="head">
                     <span className="name">{c.name ?? s.fallbackName}</span>
-                    <span className="time">{formatSec(comboSec(c.moves, intensity, voice))}</span>
+                    <span className="time">{formatSec(comboSec(c.moves, intensity, voice, actionMs))}</span>
                   </span>
                   <PunchSequence moves={c.moves} size="m" />
                 </span>
@@ -106,6 +107,7 @@ export function CustomCombosScreen({ all, library, onLibrary, intensity, voice, 
           enabled={!disabled.has(detail.id)}
           intensity={intensity}
           voice={voice}
+          actionMs={actionMs}
           silentOverride={silentOverride}
           onToggle={(on) => setEnabled(detail.id, on)}
           onDelete={() => remove(detail.id)}

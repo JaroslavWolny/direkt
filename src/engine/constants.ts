@@ -6,8 +6,9 @@ export const INTENSITIES: readonly Intensity[] = [0, 1, 2]
 export type IntensityChoice = Intensity | 'ramp'
 export const INTENSITY_CHOICES: readonly IntensityChoice[] = [...INTENSITIES, 'ramp']
 
-/** Čas na provedení jedné akce (úder i obrana), stejný pro všechna tempa. */
-export const PER_ACTION_MS = 700
+/** Čas na provedení jedné akce (úder i obrana), volba v Nastavení, stejný pro všechna tempa. */
+export const ACTION_MS_CHOICES = [300, 400, 500, 600, 700] as const
+export const DEFAULT_ACTION_MS = 500
 /** Základ mezery od konce řeči do dalšího hlášení podle tempa. */
 export const BASE_GAP_MS: Record<Intensity, number> = { 0: 2800, 1: 1800, 2: 800 }
 /** První hlášení po startovním gongu. */
