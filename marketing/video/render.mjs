@@ -6,7 +6,10 @@
 //   node --experimental-websocket marketing/video/render.mjs --page spot     # spot.html → MP4
 //   … --serve                                     # jen server pro náhled
 //   … --out cesta.mp4                             # jiný výstup
-//   … --sheet 0.1,1.2,3.5 --out arch.png          # náhledový arch jednotlivých okamžiků
+//   … --sheet 0.1,1.2,3.5 --out arch.png          # náhledový arch jednotlivých okamžiků (červeně IG zóny)
+//   … --tile 1080                                 # šířka snímku v archu (výchozí 360)
+//   … --qa                                        # důležité texty [data-qa]: v pásu y 250–1580, písmo ≥ 30 px
+//   … --query hook=2                              # parametry stránky (varianty)
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
@@ -24,6 +27,8 @@ const arg = (name) => {
 }
 const NAME = arg('--page') ?? 'promo'
 const SHEET = arg('--sheet')?.split(',').map(Number)
+const QUERY = arg('--query')
+const TILE = Number(arg('--tile') ?? 360)
 const OUT = resolve(arg('--out') ?? join(homedir(), `Desktop/DIREKT-marketing/DIREKT-story-${NAME}.mp4`))
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -53,9 +58,10 @@ const server = createServer((req, res) => {
 // bez běžícího serveru nespouštět Chrome (jinak zůstane viset jako sirotek na DEBUG_PORT)
 await new Promise((ok, fail) => server.once('listening', ok).once('error', fail))
 
-const PAGE = `http://127.0.0.1:${PORT}/marketing/video/${NAME}.html`
+const PAGE = `http://127.0.0.1:${PORT}/marketing/video/${NAME}.html${QUERY ? `?${QUERY}` : ''}`
 if (process.argv.includes('--serve')) {
-  console.log(`Náhled: ${PAGE}?play  (jeden okamžik: ?t=5.4)`)
+  const q = QUERY ? '&' : '?'
+  console.log(`Náhled: ${PAGE}${q}play  (jeden okamžik: ${q}t=5.4)`)
 } else {
   if (typeof WebSocket === 'undefined') throw new Error('Spusť přes: node --experimental-websocket …')
   await render().finally(() => server.close())
@@ -91,9 +97,31 @@ async function render() {
         writeFileSync(join(work, `s${String(i).padStart(3, '0')}.png`), await shot())
       }
       const cols = Math.min(SHEET.length, 6)
-      ffmpeg(['-y', '-i', join(work, 's%03d.png'), '-vf', `scale=360:-1,tile=${cols}x${Math.ceil(SHEET.length / cols)}:padding=8:color=gray`,
+      const zones = [250, 1580].map((y) => `drawbox=y=${y - 2}:w=iw:h=4:color=red@0.7:t=fill`).join(',')
+      ffmpeg(['-y', '-i', join(work, 's%03d.png'), '-vf', `${zones},scale=${TILE}:-1,tile=${cols}x${Math.ceil(SHEET.length / cols)}:padding=8:color=gray`,
         '-frames:v', '1', OUT])
       console.log(`arch: ${OUT}`)
+      return cdp.close()
+    }
+
+    if (process.argv.includes('--qa')) {
+      const found = new Map()
+      for (let i = 0; i < frames; i += 3) {
+        const t = i / fps
+        await cdp.evaluate(`seek(${t})`)
+        for (const msg of await cdp.evaluate(`(${qaCheck})()`)) (found.get(msg) ?? found.set(msg, []).get(msg)).push(t)
+      }
+      // souvislé úseky; průlety kratší než 0,3 s (nájezdy, přechody) se nehlásí
+      const report = []
+      for (const [msg, ts] of found) {
+        let s = ts[0]
+        ts.forEach((t, k) => {
+          if (ts[k + 1] - t < 0.15) return
+          if (t - s + 0.1 >= 0.3 || msg.startsWith('písmo')) report.push(`  ${s.toFixed(1)}–${(t + 0.1).toFixed(1)} s  ${msg}`)
+          s = ts[k + 1]
+        })
+      }
+      console.log(report.length ? `QA PROBLÉMY:\n${report.join('\n')}` : 'QA: ok')
       return cdp.close()
     }
 
@@ -140,6 +168,25 @@ async function render() {
     rmSync(work, { recursive: true, force: true })
     rmSync(profile, { recursive: true, force: true, maxRetries: 5 })
   }
+}
+
+/** Běží ve stránce: viditelné [data-qa] mimo pás y 250–1580 nebo s písmem pod 30 px (po zvětšení kamerou). */
+function qaCheck() {
+  const out = []
+  for (const el of document.querySelectorAll('[data-qa]')) {
+    let o = 1
+    for (let n = el; n && o > 0.05; n = n.parentElement) {
+      const cs = getComputedStyle(n)
+      o = cs.display === 'none' || cs.visibility === 'hidden' ? 0 : o * cs.opacity
+    }
+    const r = el.getBoundingClientRect()
+    if (o <= 0.05 || !r.width || r.bottom < 0 || r.top > 1920) continue
+    const name = `"${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 32)}"`
+    if (r.top < 250 - 2 || r.bottom > 1580 + 2 || r.left < -2 || r.right > 1082) out.push(`mimo pás: ${name}`)
+    const font = parseFloat(getComputedStyle(el).fontSize) * (r.width / (el.offsetWidth || r.width))
+    if (font < 29.5) out.push(`písmo ${Math.round(font)} px: ${name}`)
+  }
+  return out
 }
 
 function ffmpeg(args) {

@@ -952,3 +952,81 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   `document.fonts.load(…, 'ŽÁŘČ…')`; `visibility: visible` u potomka přebije skrytého rodiče →
   skrývat `display`; silné zrno = 200+ MB a IG ho rozbije → jemné + `-maxrate 24M`; nálepka
   Odkaz vpravo nahoře (texty.txt).
+
+### 15.3 Reklama do IG story „Pytel mlčí" (uživatel 13. 10. 2026: „profi reklamu s efekty… originální a zajímavá… na pohled top tier… zvuky bez hudby… v češtině, zkontroluj, jestli slova a věty dávají smysl")
+
+- **Claude Motion** (funkce claude.ai, beta od 8. 10. 2026) v Claude Code není → stejný princip:
+  animace kódem, `seek(t)` = čistá funkce času, render `render.mjs --page reklama`.
+- **Nápad: dialog trenéra a boxera.** Obrazovku dělí **membrána**: nahoře kobalt = trenér (kobaltová je
+  i obrazovka kola v appce), dole ink = ty. Trenér hlásí číslo → membrána se prohne dolů; ty dáš úder →
+  membrána se vyboulí nahoru v místě zásahu (direkt vlevo, zadní direkt vpravo, hák proběhne vlnou
+  zboku, úklon membránu nakloní). Na konci dialogu se kobaltová plocha trenéra smrští do obrazovky
+  telefonu = trenér je appka.
+- **Háček z bolesti uživatele:** „Pytel mlčí. Neřekne ti, co máš dát." → gong → „Trenér ne."
+- **Jazyk:** texty česky; hlas Harry anglicky (výchozí hlas appky, 15.2: hlasy se nemíchají). Nahoře
+  je hláška trenéra tak, jak ji appka s Harrym ukazuje („3 BODY", „SLIP"), dole tvoje akce česky
+  („HÁK NA TĚLO", „ÚKLON") — dolní polovina je zároveň překlad a učí číslování.
+- **Efekty jen s důvodem:** membrána (pružina), otřes kamery a motion blur při úderu, válec čísel
+  u „50", obrana = pohyb kamery (úklon nakloní záběr, dolů s ním zhoupne, vzad ho oddálí), nájezd do
+  displeje jako střih. Žádné klišé z 15.2 (RGB posun, kruhové vlny, glitch, 3D kývání, karty funkcí).
+- **Scénář (15,6 s):**
+
+  | Čas | Scéna | Obraz | Zvuk |
+  |---|---|---|---|
+  | 0,0–1,7 | Ticho | ink; pytel z ikony se houpe, „PYTEL / MLČÍ." (rozdílová prolnutí přes pytel), „Neřekne ti, co máš dát." | 2 údery, řetězy, vrzání, tep |
+  | 1,7–2,5 | Trenér | kobalt spadne shora jako opona: „TRENÉR / NE." | gong, „Get ready!" |
+  | 2,5–5,6 | Dialog | zespodu se vrátí ink, štítky TRENÉR / TY; 1 → DIREKT, 2 → ZADNÍ DIREKT, 3 BODY → HÁK NA TĚLO, SLIP → ÚKLON | „One! Two! Three body! Slip!", údery, výdech, řetězy |
+  | 5,6–8,05 | Appka | kobalt se smrští do telefonu (obrazovka kola, čas běží od gongu), „TRENÉR / V MOBILU.", „Hlásí kombinace, hlídá kola i pauzy."; trenér zavelí „Znovu", telefon cuká s údery | „Again!", boxer kombinaci zopakuje (3 údery + úklon) |
+  | 8,05–12,3 | Funkce | nájezd do displeje → „50 KOMBINACÍ" (válec), „NEJEN ÚDERY / OBRANA" (ÚKLON, DOLŮ, VZAD — pohyb kamery), „PLÁN NA 4 TÝDNY" (4 řádky kol rostou), „NAPLNO" (finiš) | tiky válce, „Slip! Roll! Back!", 2× klepnutí, „All out!", série úderů |
+  | 12,3–15,6 | Výzva | kobalt spadne znovu: logotyp, „ZDARMA. / BEZ ÚČTU."; dole ikona appky (na kobaltu by splynula), adresa a „iPhone: Safari → Sdílet → Přidat na plochu" | 3× gong, „Time! Great work!", tiky psaní |
+
+- **Kontrola češtiny:** „Pytel mlčí. Trenér ne." (elipsa jako „Já ne."), „Neřekne ti, co máš dát."
+  (hovorově „dát úder"), názvy úderů a povely podle kap. 5 (Direkt, Zadní direkt, Hák na tělo, Úklon,
+  Dolů, Vzad), „kombinace" ne „komba" (9.9), „50 kombinací", „Stačí odpovědět na 3 otázky",
+  „Posledních 10 sekund kola", „Kolo 1 ze 3" (z/ze 9.9), „3 údery" (obrana se nepočítá, 9.2).
+- **Telefon** = `phone-round.html` (CSS appky), ovládání podle v13 (pauza uprostřed, Další kolo vpravo).
+- Výstup `~/Desktop/DIREKT-marketing/DIREKT-story-reklama.mp4`; nálepka Odkaz vpravo nahoře.
+
+### 15.4 Anglická story „Autopilot" (uživatel 14. 10. 2026: „video marketing na appku Direkt v angličtině"; z konceptů A/B/C: „prokombinuj B a C… nejlepší co umíš… plné efektů a poutavé pro diváka a uživatele, který to bude chtít vyzkoušet")
+
+- **Zadání (vybral uživatel):** úplně nový nápad, IG Story, hlas trenéra a údery bez hudby, pro
+  **boxery z gymu** (číslování znají, chtějí trénovat i sami). Texty i hlas anglicky.
+- **Research:** na lapech trenér hlásí a mění komba, na pytli si boxer vybírá sám; reakce na pytli
+  potřebuje někoho, kdo volá náhodná komba, a trenér na lapech láme zvyk „jeden úder a dost"
+  ([Fairtex — pad controllers](https://fairtexstore.com/en-se/blogs/news/the-conductor-of-chaos-how-pad-controllers-help-fighters-develop-combinations),
+  [Fairtex — reaction bag drills](https://fairtexstore.com/blogs/news/how-to-train-reaction-time-with-boxing-bag-drills-sharpen-your-reflexes-fast)).
+  Stories: háček do 1 s, přerušení vzoru (kontrast, nečekaný pohyb), text na obrazovce, jedna výzva,
+  video pod 16 s se přehraje celé ([twominutereports](https://twominutereports.com/blog/instagram-ads-best-practices),
+  [SmartSites](https://www.smartsites.com/blog/best-practices-for-high-performing-instagram-reels-ads-in-2026/)).
+- **Nápad = B + C:** (B) sám na pytli házíš pořád to samé — zeď z „1-2" a trenér ji prorazí kombem,
+  které by sis nevybral; (C) pak jedno kolo s trenérem zrychleně — jump cuty, čas skáče, mezi skoky
+  vždy jedno skutečné hlášení. Konec: stejná zeď, ale z 50 různých komb appky (náhodné pořadí).
+- **Efekty jen s důvodem:** zeď se v rytmu líných úderů posouvá a rozsvěcí po pořadí (autopilot);
+  ticho před prvním hlášením (přerušení vzoru i ve zvuku); úder = díra ve tvaru pytle z ikony
+  (kroužek a jádro), trosky slov letí ven s fyzikou a motion blurem, titulek se rozbije taky; třetí
+  díra se rozevře přes celý obraz (přechod na kobalt trenéra); kolo = kamera uvnitř displeje
+  telefonu, jump cut = číslice času proletí válcem + zvuk přetočení; impact frame (3 snímky, bílá
+  plocha s obřím hlášením) jen na první úder střihu — max. ~1,5 záblesku za sekundu; obrana = pohyb
+  kamery (slip nakloní, roll zhoupne); na gong kamera odjede a odhalí telefon. Zakázané klišé
+  z 15.2 platí (RGB posun, kruhové vlny, glitch, 3D kývání, karty funkcí, HUD/odpočet v rohu —
+  čas je tu jen časovač appky na displeji).
+- **Scénář (15,8 s):**
+
+  | Čas | Scéna | Obraz | Zvuk |
+  |---|---|---|---|
+  | 0,0–2,0 | Autopilot | papír; zeď z „1-2" (občas „1-2-3") se líně posouvá, po úderech se rozsvítí další v pořadí; „ALONE ON THE BAG" + „SAME 1-2. / EVERY ROUND." | líné údery po dvojicích, tlumený gym |
+  | 2,0–3,6 | Hlášení | „Five!" — zeď zamrzne, díra ve tvaru pytle, v ní obří „5"; pak „4" a „3 BODY" nízko (kombo e07 `5 4 3t`); popisky 5 — UPPERCUT, 4 — REAR HOOK, 3B — BODY HOOK; třetí díra se rozevře přes obraz | ticho → „Five! Four! Three body!", tvrdé údery, trosky, řetězy |
+  | 3,6–4,75 | Pointa | kobalt: „YOU DON'T PICK / THE NEXT ONE." | riser |
+  | 4,75–10,85 | Poslední kolo zrychleně | displej appky zblízka (Round 3 of 3, Time left); 3:00 → 2:41 `1 2` → 2:12 `3 BODY 3` → 1:47 Again → 1:20 `SLIP 2 3` → 0:31 `… ROLL` → 0:10 finiš ALL OUT, čas doběhne | gong, „Last round!", hlášení, údery, přetočení na střih, 2× klepnutí, „All out!", série |
+  | 10,85–12,6 | Odhalení | kamera odjede, telefon na inku; „THROW WHAT / YOU HEAR." | 3× gong, „Time! Great work!" |
+  | 12,6–15,8 | Výzva | papír, zeď z 50 komb appky (rozsvěcí se náhodně); logotyp, „FREE. / NO ACCOUNT.", „50 combos · random order · defense in the mix", ikona + adresa + „iPhone: Safari → Share → Add to Home Screen"; nálepka Odkaz vpravo nahoře | údery řad, tiky psaní |
+
+- **Texty (kontrola angličtiny):** názvy úderů a obrany přesně podle appky (kap. 9.8: Uppercut,
+  Rear hook, Body hook, Slip, Roll), obrazovka kola anglickými texty appky (Round 3 of 3, Time left,
+  Combo, Again, Finisher, To the bell, Punch 1 of 2, „All out", uvozovky “…”). Jen pravdivá tvrzení:
+  50 komb, náhodné pořadí (7.1), obrana v kombech, Again, finiš, zdarma, bez účtu.
+- **Zdroje:** `marketing/video/autopilot.html` (stejný princip jako 15.3: `seek(t)` je čistá funkce
+  času, zvuk z `OfflineAudioContext`), `phone-round.html` umí nepovinné texty (`title`, `remaining`,
+  `next`) a `bars` pro všechny tři pruhy kol, `render.mjs --page autopilot` (+ `--qa` = kontrola
+  důležitých textů `[data-qa]`: v pásu y 250–1580 a ≥ 30 px; `--query hook=2` = varianta háčku).
+  Výstup `~/Desktop/DIREKT-marketing/DIREKT-story-autopilot.mp4`.

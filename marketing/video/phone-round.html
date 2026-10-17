@@ -14,7 +14,7 @@
           <button type="button" class="icon-btn on-accent" tabindex="-1">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
           </button>
-          <span class="top-bar-title">Kolo 1 ze 3</span>
+          <span class="top-bar-title" id="title">Kolo 1 ze 3</span>
           <button type="button" class="icon-btn on-accent" tabindex="-1">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
           </button>
@@ -26,7 +26,7 @@
         </span>
       </div>
       <div class="stack gap-6">
-        <span class="label-15">Zbývá</span>
+        <span class="label-15" id="remaining">Zbývá</span>
         <div class="timer" id="timer">3:00</div>
       </div>
       <section class="stack gap-16">
@@ -37,26 +37,26 @@
           <span id="say">Poslouchej trenéra.</span>
         </div>
       </section>
+      <!-- v13 (9.2): pauza uprostřed, Další kolo vpravo, Konec pryč -->
       <div class="controls">
-        <button type="button" class="control" tabindex="-1">
-          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5v14l9-7z" fill="currentColor"></path><path d="M18 5v14"></path></svg></span>
-          Další kolo
-        </button>
         <button type="button" class="big-pause" tabindex="-1">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
         </button>
         <button type="button" class="control" tabindex="-1">
-          <span class="ring"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg></span>
-          Konec
+          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5v14l9-7z" fill="currentColor"></path><path d="M18 5v14"></path></svg></span>
+          <span id="next">Další kolo</span>
         </button>
       </div>
     </div>
     <script>
       // Stav obrazovky řídí promo.html: { timer, progress, label, count, words: [{ text, state }], say }
+      // Nepovinné (anglická story 15.4): title, remaining, next = texty obrazovky, bars = plnění všech tří pruhů 0–1.
       const $ = (id) => document.getElementById(id)
       window.setRound = (s) => {
         $('timer').textContent = s.timer
         $('progress').style.width = `${s.progress * 100}%`
+        s.bars?.forEach((b, i) => (document.querySelectorAll('.progress i')[i].style.width = `${b * 100}%`))
+        for (const id of ['title', 'remaining', 'next']) if (s[id]) $(id).textContent = s[id]
         $('label').textContent = s.label
         $('count').textContent = s.count
         $('say').textContent = s.say
