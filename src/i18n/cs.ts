@@ -63,8 +63,12 @@ export const cs = {
     obrana: 'Obrana',
     hlava: 'Vyčistit hlavu',
   } as Record<Goal, string>,
-  /** Vestavěné tréninky podle id; uložené názvy jsou česky (kap. 11), takže tady nic. */
-  presetName: {} as Record<string, string>,
+  /** Vestavěné tréninky podle id; uložené názvy jsou česky (kap. 11), tady jen pevná mezera za „o“
+   *  (jednopísmenná předložka nesmí zůstat na konci řádku, detail 9.5). */
+  presetName: {
+    'titul-zeny': 'Zápas o\u00a0titul – ženy',
+    'titul-muzi': 'Zápas o\u00a0titul – muži',
+  } as Record<string, string>,
 
   home: {
     settings: 'Nastavení',
@@ -236,6 +240,8 @@ export const cs = {
     namePlaceholder: 'Název, např. Ranní 6 × 3',
     nameAria: 'Název tréninku',
     save: 'Uložit trénink',
+    start: 'Začít',
+    tempo: (label: string) => `intenzita ${label.toLowerCase()}`,
   },
 
   settings: {

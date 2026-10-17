@@ -1944,6 +1944,10 @@ svg {
   text-align: left;
 }
 
+.plan-card:disabled {
+  opacity: 0.35;
+}
+
 .plan-card-top {
   display: flex;
   justify-content: space-between;
@@ -1971,6 +1975,15 @@ svg {
   border-radius: 999px;
   background: var(--white);
   color: var(--accent);
+}
+
+/* Detail uloženého tréninku (9.5) */
+.preset-combos-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 28px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .plan-complete {

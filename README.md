@@ -29,7 +29,8 @@ kola, mezi koly běží pauza. Jen box. Web appka přidaná na plochu — offlin
 - **Finiš:** posledních 10 s kola „Naplno!" a žádné kombinace, jen údery do gongu.
   Trenér občas zavelí **„Znovu!"** — stejná kombinace ještě jednou.
 - **9 uložených tréninků** podle pravidel a trenérské praxe (rozcvička, amatérský zápas 3 × 3,
-  profi kola, titulový zápas 12 × 3 …) a vlastní tréninky.
+  profi kola, titulový zápas 12 × 3 …) a vlastní tréninky. Ťuk na trénink ukáže jeho kombinace,
+  spouští se až z karty Začít.
 - **Plán na 4 týdny** ze 3 otázek (zkušenost, cíle, čas); každý týden kolo navíc, nebo kratší
   pauza.
 - **4 hlasy trenéra:** Harry, Charlie, Adam (angličtina, nabuzené výkřiky) a Antonín (čeština).

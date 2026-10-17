@@ -242,6 +242,9 @@ export default function App() {
           presets={presets}
           onPresets={setPresets}
           config={config}
+          poolFor={poolFor}
+          voice={settings.voice}
+          pace={settings}
           onStart={(p: Preset) => {
             setConfig(p.config)
             if (poolFor(p.config).length === 0) {

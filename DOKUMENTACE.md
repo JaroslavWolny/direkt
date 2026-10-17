@@ -622,7 +622,14 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   „3 kola · 2:00 / 1:00 · Začátečník", RoundBar (kolo ink, u úrovně Expert akcent; pauza
   hairline), vpravo celková délka v minutách (34 px + „min"),
   `kola × kolo + (kola − 1) × pauza` zaokrouhleno.
-- **Ťuk na řádek = spustí trénink** (jako v předloze; START v gestu). Swipe doleva → Smazat.
+- **Ťuk na řádek = detail tréninku** (v14, uživatel 17. 10. 2026: „při kliknutí se zobrazí ty
+  kombinace, nespustí se hned"; dřív ťuk rovnou spouštěl). Swipe doleva → Smazat.
+- **Detail** (celá obrazovka, roluje celá jako Plán 9.7): Zpět; název (`display`); **karta
+  Začít** ve stylu karty plánu (akcent r28: nahoře „3 kola · 2:00 / 1:00" a „N min", velké
+  ZAČÍT, RoundBar bílá / white-a30, dole „Začátečník · intenzita lehká" a bílé kolečko ▶) —
+  ťuk spustí trénink (START v gestu, R1); pod ní **Kombinace N** = bazén tréninku (zapnuté
+  kombinace do jeho úrovně, 7.1) řádky jako v Kombinacích (9.3), jen na čtení. Prázdný bazén →
+  karta zesvětlená a neaktivní + „Zapni aspoň jednu kombinaci pro tuhle úroveň."
 - **+** nahoře → formulář: název, počet kol, délka kola, pauza, úroveň
   (předvyplněno aktuálním nastavením).
 - **Vestavěné tréninky** (v10 rozšířeno ze 3 na 9; formáty z pravidel a trenérských webů,

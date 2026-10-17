@@ -1,11 +1,15 @@
 import { useState } from 'react'
+import type { Combo } from '../data/combos'
+import type { VoiceId } from '../data/voices'
 import type { WorkoutConfig } from '../engine/timeline'
+import type { Pace } from '../engine/timing'
 import { t } from '../i18n'
 import { newId, type Preset } from '../store/storage'
 import { RoundBar } from './bars'
 import { IconButton, SwipeRow } from './controls'
 import { presetMeta, presetName, workoutMinutes } from './format'
 import { IconBack, IconPlus } from './icons'
+import { PresetDetail } from './PresetDetail'
 import { useThemeColor } from './useThemeColor'
 import { WorkoutForm } from './WorkoutForm'
 
@@ -13,16 +17,35 @@ interface Props {
   presets: Preset[]
   onPresets: (p: Preset[]) => void
   config: WorkoutConfig
-  /** Ťuk na trénink ho rovnou spustí (Treninky.html → Odpočet); volat přímo z gesta. */
+  /** Kombinace, ze kterých se v tréninku losuje (detail, 9.5). */
+  poolFor: (c: WorkoutConfig) => readonly Combo[]
+  voice: VoiceId
+  pace: Pace
+  /** Spustí trénink z karty Začít v detailu; volat přímo z gesta. */
   onStart: (p: Preset) => void
   onBack: () => void
 }
 
 /** Uložené tréninky (DOKUMENTACE.md 9.5, Treninky.html). */
-export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: Props) {
+export function PresetsScreen({ presets, onPresets, config, poolFor, voice, pace, onStart, onBack }: Props) {
   useThemeColor('--paper')
   const s = t().presets
   const [creating, setCreating] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
+  const open = presets.find((p) => p.id === openId)
+
+  if (open) {
+    return (
+      <PresetDetail
+        preset={open}
+        pool={poolFor(open.config)}
+        voice={voice}
+        pace={pace}
+        onStart={() => onStart(open)}
+        onBack={() => setOpenId(null)}
+      />
+    )
+  }
 
   return (
     <div className="screen">
@@ -52,7 +75,7 @@ export function PresetsScreen({ presets, onPresets, config, onStart, onBack }: P
             <SwipeRow
               key={p.id}
               label={presetName(p)}
-              onOpen={() => onStart(p)}
+              onOpen={() => setOpenId(p.id)}
               onDelete={() => onPresets(presets.filter((x) => x.id !== p.id))}
             >
               <span className="workout-row">

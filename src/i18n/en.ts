@@ -231,6 +231,8 @@ export const en: Strings = {
     namePlaceholder: 'Name, e.g. Morning 6 × 3',
     nameAria: 'Workout name',
     save: 'Save workout',
+    start: 'Start',
+    tempo: (label) => `${label.toLowerCase()} intensity`,
   },
 
   settings: {
