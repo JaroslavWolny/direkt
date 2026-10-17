@@ -1134,7 +1134,8 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   [SmartSites](https://www.smartsites.com/blog/best-practices-for-high-performing-instagram-reels-ads-in-2026/)).
 - **Nápad = B + C:** (B) sám na pytli házíš pořád to samé — zeď z „1-2" a trenér ji prorazí kombem,
   které by sis nevybral; (C) pak jedno kolo s trenérem zrychleně — jump cuty, čas skáče, mezi skoky
-  vždy jedno skutečné hlášení. Konec: stejná zeď, ale z 50 různých komb appky (náhodné pořadí).
+  vždy jedno skutečné hlášení. Konec: stejná zeď, ale ze všech 105 komb appky (náhodné pořadí;
+  v14 přegenerováno z `src/data/combos.ts`, dřív 50).
 - **Efekty jen s důvodem:** zeď se v rytmu líných úderů posouvá a rozsvěcí po pořadí (autopilot);
   ticho před prvním hlášením (přerušení vzoru i ve zvuku); úder = díra ve tvaru pytle z ikony
   (kroužek a jádro), trosky slov letí ven s fyzikou a motion blurem, titulek se rozbije taky; třetí
@@ -1151,14 +1152,14 @@ haptika, běh se zamčeným displejem, ovládání hudby, tmavý režim, úprava
   | 0,0–2,0 | Autopilot | papír; zeď z „1-2" (občas „1-2-3") se líně posouvá, po úderech se rozsvítí další v pořadí; „ALONE ON THE BAG" + „SAME 1-2. / EVERY ROUND." | líné údery po dvojicích, tlumený gym |
   | 2,0–3,6 | Hlášení | „Five!" — zeď zamrzne, díra ve tvaru pytle, v ní obří „5"; pak „4" a „3 BODY" nízko (kombo e07 `5 4 3t`); popisky 5 — UPPERCUT, 4 — REAR HOOK, 3B — BODY HOOK; třetí díra se rozevře přes obraz | ticho → „Five! Four! Three body!", tvrdé údery, trosky, řetězy |
   | 3,6–4,75 | Pointa | kobalt: „YOU DON'T PICK / THE NEXT ONE." | riser |
-  | 4,75–10,85 | Poslední kolo zrychleně | displej appky zblízka (Round 3 of 3, Time left); 3:00 → 2:41 `1 2` → 2:12 `3 BODY 3` → 1:47 Again → 1:20 `SLIP 2 3` → 0:31 `… ROLL` → 0:10 finiš ALL OUT, čas doběhne | gong, „Last round!", hlášení, údery, přetočení na střih, 2× klepnutí, „All out!", série |
+  | 4,75–10,85 | Poslední kolo zrychleně | displej appky zblízka (Round 3 of 3, Time left); jump cuty s komby `1 2` → `2 3` → Again → `SLIP 2` → 0:10 finiš ALL OUT, čas doběhne (všechna komba jsou v appce i po v14) | gong, „Last round!", hlášení, údery, přetočení na střih, 2× klepnutí, „All out!", série |
   | 10,85–12,6 | Odhalení | kamera odjede, telefon na inku; „THROW WHAT / YOU HEAR." | 3× gong, „Time! Great work!" |
-  | 12,6–15,8 | Výzva | papír, zeď z 50 komb appky (rozsvěcí se náhodně); logotyp, „FREE. / NO ACCOUNT.", „50 combos · random order · defense in the mix", ikona + adresa + „iPhone: Safari → Share → Add to Home Screen"; nálepka Odkaz vpravo nahoře | údery řad, tiky psaní |
+  | 12,6–15,8 | Výzva | papír, zeď ze 105 komb appky (rozsvěcí se náhodně); logotyp, „FREE. / NO ACCOUNT.", „105 combos · random order · defense in the mix", ikona + adresa + „iPhone: Safari → Share → Add to Home Screen"; nálepka Odkaz vpravo nahoře | údery řad, tiky psaní |
 
 - **Texty (kontrola angličtiny):** názvy úderů a obrany přesně podle appky (kap. 9.8: Uppercut,
   Rear hook, Body hook, Slip, Roll), obrazovka kola anglickými texty appky (Round 3 of 3, Time left,
   Combo, Again, Finisher, To the bell, Punch 1 of 2, „All out", uvozovky “…”). Jen pravdivá tvrzení:
-  50 komb, náhodné pořadí (7.1), obrana v kombech, Again, finiš, zdarma, bez účtu.
+  105 komb, náhodné pořadí (7.1), obrana v kombech, Again, finiš, zdarma, bez účtu.
 - **Zdroje:** `marketing/video/autopilot.html` (stejný princip jako 15.3: `seek(t)` je čistá funkce
   času, zvuk z `OfflineAudioContext`), `phone-round.html` umí nepovinné texty (`title`, `remaining`,
   `next`) a `bars` pro všechny tři pruhy kol, `render.mjs --page autopilot` (+ `--qa` = kontrola
