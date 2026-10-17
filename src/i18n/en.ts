@@ -237,9 +237,10 @@ export const en: Strings = {
 
   settings: {
     title: 'Settings',
-    language: 'Language',
+    language: 'App language',
+    commandLang: 'Callout language',
+    commandLangNote: 'The language the coach calls combos in. The app can be in another one.',
     voice: 'Coach voice',
-    voiceLang: { cs: 'Czech', en: 'English' },
     voiceStyle: { harry: 'warrior', charlie: 'fired up', adam: 'dominant', antonin: 'calm' },
     playing: (name) => `Playing sample: ${name}`,
     play: (name) => `Play sample: ${name}`,

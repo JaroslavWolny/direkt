@@ -1,6 +1,6 @@
 // České texty rozhraní (DOKUMENTACE.md 9.8). en.ts má stejný tvar; slova úderů jsou v data/moves.ts.
 import type { Level } from '../data/combos'
-import type { VoiceId, VoiceLang } from '../data/voices'
+import type { VoiceId } from '../data/voices'
 import type { IntensityChoice } from '../engine/constants'
 import type { Experience, Goal, PlanAnswers } from '../engine/plan'
 
@@ -246,9 +246,10 @@ export const cs = {
 
   settings: {
     title: 'Nastavení',
-    language: 'Jazyk',
+    language: 'Jazyk aplikace',
+    commandLang: 'Jazyk povelů',
+    commandLangNote: 'Jazyk, ve kterém trenér hlásí kombinace. Aplikace může být v jiném.',
     voice: 'Hlas trenéra',
-    voiceLang: { cs: 'Čeština', en: 'Angličtina' } as Record<VoiceLang, string>,
     voiceStyle: { harry: 'bojovník', charlie: 'nabuzený', adam: 'dominantní', antonin: 'klidný' } as Record<VoiceId, string>,
     playing: (name: string) => `Přehrávám ukázku: ${name}`,
     play: (name: string) => `Přehrát ukázku: ${name}`,

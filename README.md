@@ -38,7 +38,8 @@ kola, mezi koly běží pauza. Jen box. Web appka přidaná na plochu — offlin
 
   <img src="docs/sdileni.png" width="200" alt="Obrázek ke sdílení: HOTOVO, čas v kolech, kombinace, údery a obří počet kol" />
 
-- Rozhraní **česky i anglicky**, nezávisle na jazyku hlasu.
+- **Jazyk aplikace a jazyk povelů zvlášť** — česky i anglicky v libovolné kombinaci (třeba appka
+  česky, trenér hlásí anglicky).
 - Nic se neukládá na server; nastavení, vlastní kombinace a postup plánu žijí v telefonu.
 
 ## Při tréninku

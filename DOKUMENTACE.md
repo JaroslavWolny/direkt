@@ -657,11 +657,18 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   [The Ringer: WBC 10 × 2](https://www.theringer.com/2018/07/11/mma/women-boxing-wbc-round-length-restriction).
 
 ### 9.6 Nastavení (`Nastaveni.html`, paper, skupiny na bílých kartách r20)
-- **Jazyk** (v11, první skupina): segmenty Čeština / English (jméno jazyka v něm samém);
-  nadpis skupiny v aktuálním jazyce („Jazyk" / „Language"). Platí hned (9.8).
-- **Hlas trenéra:** řádek pro každý hlas (jméno + „Angličtina · bojovník" apod.), ťuk na řádek
-  = vybrat (kolečko vlevo), akcentové play vpravo = ukázka „One, two, three body, slip" v tom
-  hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
+- **Jazyk aplikace** (v11, první skupina; v14 přejmenováno z „Jazyk"): segmenty Čeština / English
+  (jméno jazyka v něm samém); nadpis v aktuálním jazyce („Jazyk aplikace" / „App language").
+  Platí hned (9.8).
+- **Jazyk povelů** (v14, uživatel 17. 10. 2026: „aby appka mohla být v CZ a pokyny v EN a v různých
+  kombinacích"): segmenty Čeština / English, poznámka „Jazyk, ve kterém trenér hlásí kombinace.
+  Aplikace může být v jiném." Hodnota = jazyk zvoleného hlasu (nic nového se neukládá); přepnutí
+  vybere první hlas toho jazyka (English → Harry, Čeština → Antonín). Všechny 4 kombinace jazyka
+  aplikace a povelů fungovaly už od v11, jen se jazyk povelů měnil skrytě výběrem hlasu.
+- **Hlas trenéra:** jen hlasy zvoleného jazyka povelů (anglicky Harry, Charlie, Adam; česky
+  Antonín), řádek = jméno + styl („bojovník" apod.), ťuk na řádek = vybrat (kolečko vlevo),
+  akcentové play vpravo = ukázka „One, two, three body, slip" / „Jedna, dva, tři na tělo, úklon"
+  v tom hlase. Poslední řádek „Nic neslyšíš?" rozbalí nápovědu k tichému režimu.
 - **Pauza po kombinaci** (v14, 7.2): segmenty 0 s · 0,5 s · 1 s · 2 s · 3 s, poznámka
   „Odpočinek, než zazní další kombinace. Lehká intenzita přidá 1 s, Tvrdá 1 s ubere."
 - **Čas na úder** (v14, 7.2): segmenty 0,3 s · 0,4 s · 0,5 s · 0,6 s · 0,7 s (anglicky s tečkou),
@@ -695,7 +702,8 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
   Splněný plán: místo karty „Plán splněný." a PrimaryButton **Nový plán**.
 
 ### 9.8 Angličtina (v11)
-- **Jazyk rozhraní** `settings.lang` = `cs` / `en`, nezávislý na hlasu. Slova v kole a bublina jsou
+- **Jazyk rozhraní** `settings.lang` = `cs` / `en`, nezávislý na hlasu (jazyk povelů = jazyk hlasu,
+  v Nastavení zvlášť od v14, 9.6). Slova v kole a bublina jsou
   dál přepis hlášky v jazyce hlasu (9.2) — anglický text s Antonínem ukáže „3 TĚLO", český s Harrym
   „3 BODY". Čipy, legenda, názvy komb a vše ostatní jsou v jazyce rozhraní.
 - **První spuštění:** jazyk zařízení z `navigator.languages[0]` — `cs` a `sk` → čeština, jinak

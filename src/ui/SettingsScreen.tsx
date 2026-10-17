@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { clipsFor, previewClips } from '../audio/voice'
 import { LEVELS } from '../data/combos'
 import { parseMoves } from '../data/moves'
-import { VOICES, type VoiceInfo } from '../data/voices'
+import { VOICES, voiceLang, type VoiceInfo } from '../data/voices'
 import { ACTION_MS_CHOICES, LIMITS, PAUSE_MS_CHOICES } from '../engine/constants'
 import type { WorkoutConfig } from '../engine/timeline'
 import { LANG_NAME, LANGS, t } from '../i18n'
@@ -31,6 +31,9 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
   const s = t().settings
   const [playing, setPlaying] = useState<VoiceInfo['id'] | null>(null)
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => onSettings({ ...settings, [key]: value })
+  // Jazyk povelů = jazyk hlasu; přepnutí vybere první hlas toho jazyka (9.6).
+  const commandLang = voiceLang(settings.voice)
+  const voices = VOICES.filter((v) => v.lang === commandLang)
   const setCfg = <K extends keyof WorkoutConfig>(key: K, value: WorkoutConfig[K]) => onConfig({ ...config, [key]: value })
 
   /** Stejné klipy jako v tréninku; zvuk se musí rozjet přímo v ťuknutí (R1). */
@@ -54,9 +57,23 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
         </section>
 
         <section className="section">
+          <h2 className="caption">{s.commandLang}</h2>
+          <Segmented
+            label={s.commandLang}
+            value={commandLang}
+            options={LANG_OPTIONS}
+            onChange={(l) => {
+              const first = VOICES.find((v) => v.lang === l)
+              if (l !== commandLang && first) set('voice', first.id)
+            }}
+          />
+          <p className="settings-note">{s.commandLangNote}</p>
+        </section>
+
+        <section className="section">
           <h2 className="caption">{s.voice}</h2>
           <div className="group" role="radiogroup" aria-label={s.voice}>
-            {VOICES.map((v) => (
+            {voices.map((v) => (
               <div key={v.id} className="group-row tall">
                 <button
                   type="button"
@@ -68,9 +85,7 @@ export function SettingsScreen({ settings, onSettings, config, onConfig, planAct
                   <span className="radio" aria-hidden="true" />
                   <span className="row-text">
                     <strong>{v.name}</strong>
-                    <span>
-                      {s.voiceLang[v.lang]} · {s.voiceStyle[v.id]}
-                    </span>
+                    <span>{s.voiceStyle[v.id]}</span>
                   </span>
                 </button>
                 <IconButton
