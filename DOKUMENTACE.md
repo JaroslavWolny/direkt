@@ -543,7 +543,9 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - Odkaz `?intro` ukáže úvod znovu (náhled, nic nemaže).
 
 ### 9.1 Domů (`Main.html`, pozadí paper)
-- Hlavička: logo „DIREKT" (Archivo 125 % / 900 / 20 px), vpravo kulaté tlačítko Nastavení.
+- Hlavička: logo „DIREKT" (Archivo 125 % / 900 / 20 px), vpravo kulaté tlačítko **Příručka** (ikona
+  otevřené knihy, v14, 9.11) a Nastavení. Příručka není v menu: pátý řádek by se na 390 × 844
+  nevešel a zůstal by useknutý.
 - Nadpis 46 px na 4 řádky „ŽÁDNÉ / ŘEČI. / JEN / ÚDERY." (poslední dva akcent). Uživatel 10. 10.
   2026: původní „Lepší kondice. Silnější ty." z předlohy „zní moc AI" → vybral tenhle.
 - Karta **Dnešní trénink** (akcent, rádius 28) = celé tlačítko START (v gestu, R1):
@@ -788,6 +790,48 @@ spuštění (`settings.onboarded` < 2 — i u toho, kdo prošel úvodem v8).
 - **Postup** (R16): po zobrazení Hotovo se obrázek hned vyrobí (`src/ui/shareCard.ts`); ťuk
   ho jen předá `navigator.share({ files })` — bez textu a odkazu (adresa je v obrázku).
   Soubor `direkt-hotovo.png` / `direkt-done.png`.
+
+### 9.11 Příručka úderů a obrany (v14)
+
+Uživatel 17. 10. 2026: „chci tam i příručku těch úderů — vysvětlení a videoukázku, najdi si na
+internetu… důležité je, aby uživatel věděl, jaké jsou údery podle těch čísel, co trenér říká."
+
+- **Vstup:** kulaté tlačítko s knihou vpravo nahoře na Domů, vedle Nastavení (9.1).
+- **Seznam** (paper, celý roluje): Zpět; „PŘÍRUČKA" / „GUIDE"; úvod: trenér hlásí čísla a povely;
+  **liché číslo = přední ruka, sudé = zadní**; pravák má vpředu levou, levák pravou; stejná čísla
+  používají trenéři po celém světě, i ve videích. Skupina **Údery**: řádky 1–6 a „Na tělo",
+  skupina **Obrana**: Úklon, Záklon, Dolů, Kryt, Vzad, Stranou — v pořadí, jak je trenér hlásí.
+  Řádek: čip (stejný jako v kombinacích, 9.3: číslo / „3T" / zkratka obrany), název, pod ním
+  „Trenér řekne: „jedna"" ve **jazyce povelů** (9.6) a šipka.
+- **Detail** (paper, celý roluje): Zpět; velký čip + název (`display`); „Trenér řekne: …";
+  **video** 16 : 9 (r20); věta, co to je; „Jak na to" (3–4 body); „Pozor na" (2–3 chyby); dole
+  zdroj videa a techniky.
+- **Video:** vložený přehrávač YouTube z `youtube-nocookie.com` (`playsinline=1`, `rel=0`,
+  `start` = místo, kde ukázka začíná). **Do ťuknutí se z YouTube nic nenačítá** — místo
+  náhledu z YouTube je vlastní plocha (ink, bílé ▶, „Ukázka · Tony Jeffries", „od 1:29").
+  Offline (`navigator.onLine === false`) místo ▶ věta „Video potřebuje internet." Vložení
+  povolují autoři (`playableInEmbed` ověřeno 17. 10. 2026 přes YouTube oEmbed i stránku videa).
+- **Texty:** česky podle učební opory (Klouda 2008, kap. 6.5–6.10: direkty, háky, zvedáky,
+  údery na trup, krytí, úhyby, úniky) a MUNI (obrany: úklon, ponor, blok, únik); doplněno
+  z výkladu ve videích. Angličtina = překlad stejného obsahu. Slova povelů z `moves.ts` (kap. 5).
+- Data `src/data/guide.ts` (videa + texty pro oba jazyky), obrazovky `GuideScreen.tsx`.
+
+| Položka | Video (YouTube id, začátek) | Kdo |
+|---|---|---|
+| 1 Direkt | `YsFK1MMDQgk` od 1:00 — How to Punch: Jab & Cross | FightCamp |
+| 2 Zadní direkt | `YsFK1MMDQgk` od 2:13 | FightCamp |
+| 3 Hák | `1ZZncRfkt0A` od 0:35 — Throw A Perfect Lead & Rear Hook | FightCamp |
+| 4 Zadní hák | `1ZZncRfkt0A` od 1:46 | FightCamp |
+| 5 Zvedák, 6 Zadní zvedák | `KcagWYVfvBg` — Rear And Lead Uppercut (Slow Mo) | FightCamp |
+| Na tělo | `WsDx6kIKNbU` — The 6 Basic Punches To The Body | FightCamp |
+| Úklon | `-cfSa-gBxtc` — How To Slip Punches | FightCamp |
+| Záklon | `7Pli4dauWSE` od 1:29 — Boxing Lean Back | Tony Jeffries (olympijský bronz 2008) |
+| Dolů | `mLKrcE0mo4E` — How To Roll A Punch | FightCamp |
+| Kryt | `_wlSoYWIrbI` od 0:21 — How To Block Punches | FightCamp |
+| Vzad | `nWG5Q8TPGeo` od 1:19 — 6 Footwork Defenses (na pytli) | Tony Jeffries |
+| Stranou | `nWG5Q8TPGeo` od 0:13 (side step, od 0:41 s otočkou) | Tony Jeffries |
+
+Začátky z kapitol v popisu videa (Tony Jeffries) nebo z titulků (FightCamp, staženo yt-dlp).
 
 ## 10. Vzhled (v4)
 

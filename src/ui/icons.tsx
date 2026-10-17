@@ -41,6 +41,16 @@ export function IconSliders({ size = 20 }: IconProps) {
   )
 }
 
+/** Otevřená kniha — Příručka (9.11). */
+export function IconBook({ size = 20 }: IconProps) {
+  return (
+    <Stroke size={size} width={1.75}>
+      <path d="M12 6.5C10.5 5.3 8.2 4.8 4 5v13c4.2-.2 6.5.3 8 1.5 1.5-1.2 3.8-1.7 8-1.5V5c-4.2-.2-6.5.3-8 1.5z" />
+      <path d="M12 6.5v13" />
+    </Stroke>
+  )
+}
+
 export function IconBack({ size = 20 }: IconProps) {
   return (
     <Stroke size={size} width={1.75}>

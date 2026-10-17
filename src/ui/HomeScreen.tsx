@@ -3,10 +3,10 @@ import { t } from '../i18n'
 import { RoundBar } from './bars'
 import { IconButton } from './controls'
 import { todayMeta, workoutMinutes } from './format'
-import { IconArrow, IconPlay, IconSliders } from './icons'
+import { IconArrow, IconBook, IconPlay, IconSliders } from './icons'
 import { useThemeColor } from './useThemeColor'
 
-export type Screen = 'home' | 'komba' | 'vlastni' | 'treninky' | 'nastaveni' | 'plan'
+export type Screen = 'home' | 'komba' | 'vlastni' | 'treninky' | 'prirucka' | 'nastaveni' | 'plan'
 
 interface Props {
   config: WorkoutConfig
@@ -38,9 +38,14 @@ export function HomeScreen({ config, workoutName, cardLabel, poolSize, planCount
       <i className="screen-edge" aria-hidden="true" />
       <header className="top-bar">
         <span className="logo">DIREKT</span>
-        <IconButton label={s.settings} onClick={() => onNavigate('nastaveni')}>
-          <IconSliders />
-        </IconButton>
+        <span className="top-actions">
+          <IconButton label={s.guide} onClick={() => onNavigate('prirucka')}>
+            <IconBook />
+          </IconButton>
+          <IconButton label={s.settings} onClick={() => onNavigate('nastaveni')}>
+            <IconSliders />
+          </IconButton>
+        </span>
       </header>
 
       <div className="home-body">

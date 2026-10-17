@@ -26,6 +26,7 @@ import {
 } from './store/storage'
 import { CombosScreen } from './ui/CombosScreen'
 import { CustomCombosScreen } from './ui/CustomCombosScreen'
+import { GuideScreen } from './ui/GuideScreen'
 import { presetName, sessionLabel } from './ui/format'
 import { HomeScreen, type Screen } from './ui/HomeScreen'
 import { IntroScreen } from './ui/IntroScreen'
@@ -256,6 +257,8 @@ export default function App() {
           onBack={home}
         />
       )
+    case 'prirucka':
+      return <GuideScreen voiceLang={voiceLang(settings.voice)} onBack={home} />
     case 'nastaveni':
       return (
         <SettingsScreen

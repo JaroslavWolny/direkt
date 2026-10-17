@@ -208,6 +208,11 @@ svg {
   gap: 12px;
 }
 
+.top-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .top-bar-title {
   font-size: 15px;
   font-weight: 600;
@@ -807,6 +812,130 @@ svg {
 
 .menu-row svg {
   margin-left: auto;
+}
+
+/* ---------- Příručka (9.11) ---------- */
+
+.guide-group {
+  margin-top: 24px;
+}
+
+.guide-group .caption {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.guide-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 0;
+}
+
+.guide-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+/* číslo, které trenér hlásí, je tady hlavní (9.11) */
+.guide-head .seq {
+  --chip: 64px;
+  --chip-font: 28px;
+  --chip-pad: 18px;
+}
+
+.guide-calls {
+  margin-top: 10px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.guide-video {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--ink);
+  color: var(--white);
+}
+
+.guide-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.guide-play {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: auto;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.guide-offline {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 15px;
+}
+
+.guide-video-meta {
+  display: flex;
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  left: 16px;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.guide-summary {
+  margin-top: 18px;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.guide-caption {
+  display: block;
+  margin-top: 24px;
+}
+
+.guide-list {
+  margin: 8px 0 0;
+  padding-left: 22px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.guide-list li + li {
+  margin-top: 6px;
+}
+
+.guide-source {
+  margin-top: 28px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
 }
 
 /* ---------- Komba (Komba.html) ---------- */

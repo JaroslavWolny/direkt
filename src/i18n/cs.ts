@@ -84,6 +84,7 @@ export const cs = {
     combos: 'Kombinace',
     customCombos: 'Vlastní kombinace',
     presets: 'Uložené tréninky',
+    guide: 'Příručka',
   },
 
   intro: {
@@ -230,6 +231,26 @@ export const cs = {
     deleteLast: 'Smazat poslední',
     duplicate: 'Tuhle kombinaci už máš.',
     save: 'Uložit kombinaci',
+  },
+
+  guide: {
+    title: 'Příručka',
+    intro:
+      'Trenér hlásí čísla a povely. Liché číslo je přední ruka, sudé zadní. Pravák má vpředu levou ruku, ' +
+      'levák pravou. Stejná čísla používají trenéři po celém světě\u00a0— i ve videích.',
+    punches: 'Údery',
+    defense: 'Obrana',
+    word: (word: string) => `„${word}“`,
+    calls: (word: string) => `Trenér řekne: „${word}“`,
+    how: 'Jak na to',
+    mistakes: 'Pozor na',
+    demo: 'Ukázka',
+    from: (time: string) => `od ${time}`,
+    play: (name: string) => `Přehrát ukázku: ${name}`,
+    videoTitle: (name: string) => `Videoukázka: ${name}`,
+    offline: 'Video potřebuje internet.',
+    source: (coach: string) =>
+      `Video: ${coach} (YouTube). Technika podle učebních opor boxu (Klouda 2008, FSpS MU).`,
   },
 
   presets: {

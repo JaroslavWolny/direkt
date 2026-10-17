@@ -79,6 +79,7 @@ export const en: Strings = {
     combos: 'Combos',
     customCombos: 'Custom combos',
     presets: 'Saved workouts',
+    guide: 'Guide',
   },
 
   intro: {
@@ -221,6 +222,26 @@ export const en: Strings = {
     deleteLast: 'Delete last',
     duplicate: 'You already have this combo.',
     save: 'Save combo',
+  },
+
+  guide: {
+    title: 'Guide',
+    intro:
+      'The coach calls numbers and commands. Odd numbers are the lead hand, even numbers the rear hand. ' +
+      'Orthodox boxers lead with the left, southpaws with the right. Coaches all over the world use the same ' +
+      'numbers — so do the videos.',
+    punches: 'Punches',
+    defense: 'Defense',
+    word: (word) => `“${word}”`,
+    calls: (word) => `The coach says: “${word}”`,
+    how: 'How to do it',
+    mistakes: 'Watch out for',
+    demo: 'Demo',
+    from: (time) => `from ${time}`,
+    play: (name) => `Play demo: ${name}`,
+    videoTitle: (name) => `Video demo: ${name}`,
+    offline: 'The video needs an internet connection.',
+    source: (coach) => `Video: ${coach} (YouTube). Technique from boxing coaching manuals (Klouda 2008, Masaryk University).`,
   },
 
   presets: {
